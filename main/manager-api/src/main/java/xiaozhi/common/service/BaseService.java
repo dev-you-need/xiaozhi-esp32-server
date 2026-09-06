@@ -6,7 +6,7 @@ import java.util.Collection;
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
 
 /**
- * 基础服务接口，所有Service接口都要继承
+ * Базовый интерфейс сервиса, который должны наследовать все интерфейсы сервисов
  * Copyright (c) 人人开源 All rights reserved.
  * Website: https://www.renren.io
  */
@@ -15,95 +15,95 @@ public interface BaseService<T> {
 
     /**
      * <p>
-     * 插入一条记录（选择字段，策略插入）
+     * Вставить запись (выбор полей, стратегическая вставка)
      * </p>
      *
-     * @param entity 实体对象
+     * @param entity объект сущности
      */
     boolean insert(T entity);
 
     /**
      * <p>
-     * 插入（批量），该方法不支持 Oracle、SQL Server
+     * Пакетная вставка, данный метод не поддерживает Oracle, SQL Server
      * </p>
      *
-     * @param entityList 实体对象集合
+     * @param entityList коллекция объектов сущности
      */
     boolean insertBatch(Collection<T> entityList);
 
     /**
      * <p>
-     * 插入（批量），该方法不支持 Oracle、SQL Server
+     * Пакетная вставка, данный метод не поддерживает Oracle, SQL Server
      * </p>
      *
-     * @param entityList 实体对象集合
-     * @param batchSize  插入批次数量
+     * @param entityList коллекция объектов сущности
+     * @param batchSize  размер пакета вставки
      */
     boolean insertBatch(Collection<T> entityList, int batchSize);
 
     /**
      * <p>
-     * 根据 ID 选择修改
+     * Изменение по ID
      * </p>
      *
-     * @param entity 实体对象
+     * @param entity объект сущности
      */
     boolean updateById(T entity);
 
     /**
      * <p>
-     * 根据 whereEntity 条件，更新记录
+     * Обновление записей по условию whereEntity
      * </p>
      *
-     * @param entity        实体对象
-     * @param updateWrapper 实体对象封装操作类
+     * @param entity        объект сущности
+     * @param updateWrapper класс обёртки операций
      *                      {@link com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper}
      */
     boolean update(T entity, Wrapper<T> updateWrapper);
 
     /**
      * <p>
-     * 根据ID 批量更新
+     * Пакетное обновление по ID
      * </p>
      *
-     * @param entityList 实体对象集合
+     * @param entityList коллекция объектов сущности
      */
     boolean updateBatchById(Collection<T> entityList);
 
     /**
      * <p>
-     * 根据ID 批量更新
+     * Пакетное обновление по ID
      * </p>
      *
-     * @param entityList 实体对象集合
-     * @param batchSize  更新批次数量
+     * @param entityList коллекция объектов сущности
+     * @param batchSize  размер пакета обновления
      */
     boolean updateBatchById(Collection<T> entityList, int batchSize);
 
     /**
      * <p>
-     * 根据 ID 查询
+     * Запрос по ID
      * </p>
      *
-     * @param id 主键ID
+     * @param id Первичный ключID
      */
     T selectById(Serializable id);
 
     /**
      * <p>
-     * 根据 ID 删除
+     * Удаление по ID
      * </p>
      *
-     * @param id 主键ID
+     * @param id Первичный ключID
      */
     boolean deleteById(Serializable id);
 
     /**
      * <p>
-     * 删除（根据ID 批量删除）
+     * Удаление (пакетное по ID)
      * </p>
      *
-     * @param idList 主键ID列表
+     * @param idList список первичных ключей
      */
     boolean deleteBatchIds(Collection<? extends Serializable> idList);
 }

@@ -6,8 +6,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 /**
- * 管理员分页展示用户的VO
- * @ zjy
+ * Пагинация администратора для отображения VO пользователя * @ zjy
  * 
  * @since 2025-3-25
  */

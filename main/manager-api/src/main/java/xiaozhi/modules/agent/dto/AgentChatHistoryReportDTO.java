@@ -5,12 +5,14 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
+
 /**
- * 小智设备聊天上报请求
+ * Запрос отчёта чата устройства XiaoZhi
  *
  * @author Haotian
  * @version 1.0, 2025/5/8
  */
+
 @Data
 @Schema(description = "小智设备聊天上报请求")
 public class AgentChatHistoryReportDTO {

@@ -7,7 +7,7 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 /**
- * 设备解绑表单
+ * Форма отмены привязки устройства
  */
 @Data
 @Schema(description = "设备解绑表单")

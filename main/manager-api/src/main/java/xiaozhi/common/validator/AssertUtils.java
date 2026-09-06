@@ -12,7 +12,7 @@ import xiaozhi.common.exception.ErrorCode;
 import xiaozhi.common.exception.RenException;
 
 /**
- * 校验工具类
+ * Утилита проверки
  * Copyright (c) 人人开源 All rights reserved.
  * Website: https://www.renren.io
  */

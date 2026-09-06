@@ -26,7 +26,7 @@ import xiaozhi.modules.sys.service.SysDictTypeService;
 import xiaozhi.modules.sys.vo.SysDictTypeVO;
 
 /**
- * 字典类型管理
+ * Управление типами словаря
  *
  * @author czc
  * @since 2025-04-30
@@ -63,7 +63,7 @@ public class SysDictTypeController {
     @Operation(summary = "保存字典类型")
     @RequiresPermissions("sys:role:superAdmin")
     public Result<Void> save(@RequestBody SysDictTypeDTO dto) {
-        // 参数校验
+        // Проверка параметров
         ValidatorUtils.validateEntity(dto);
 
         sysDictTypeService.save(dto);
@@ -74,7 +74,7 @@ public class SysDictTypeController {
     @Operation(summary = "修改字典类型")
     @RequiresPermissions("sys:role:superAdmin")
     public Result<Void> update(@RequestBody SysDictTypeDTO dto) {
-        // 参数校验
+        // Проверка параметров
         ValidatorUtils.validateEntity(dto);
 
         sysDictTypeService.update(dto);

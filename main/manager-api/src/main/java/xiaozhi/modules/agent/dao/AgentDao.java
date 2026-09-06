@@ -10,46 +10,56 @@ import xiaozhi.modules.agent.vo.AgentInfoVO;
 
 @Mapper
 public interface AgentDao extends BaseDao<AgentEntity> {
-    /**
-     * 获取智能体的设备数量
+    
+/**
+     * Получить количество устройств агента
      * 
-     * @param agentId 智能体ID
-     * @return 设备数量
+     * @param agentId ID агента
+     * @return Количество устройств
      */
+
     Integer getDeviceCountByAgentId(@Param("agentId") String agentId);
 
-    /**
-     * 根据设备MAC地址查询对应设备的默认智能体信息
+    
+/**
+     * Запросить информацию агента по умолчанию для устройства по MAC-адресу
      *
-     * @param macAddress 设备MAC地址
-     * @return 默认智能体信息
+     * @param macAddress ОборудованиеMAC-адрес
+     * @return Информация агента по умолчанию
      */
+
     @Select(" SELECT a.* FROM ai_device d " +
             " LEFT JOIN ai_agent a ON d.agent_id = a.id " +
             " WHERE d.mac_address = #{macAddress} " +
             " ORDER BY d.id DESC LIMIT 1")
     AgentEntity getDefaultAgentByMacAddress(@Param("macAddress") String macAddress);
 
-    /**
-     * 根据id查询agent信息，包括插件信息
+    
+/**
+     * Запросить информацию агента по ID, включая информацию о плагинах
      *
-     * @param agentId 智能体ID
+     * @param agentId ID агента
      */
+
     AgentInfoVO selectAgentInfoById(@Param("agentId") String agentId);
 
-    /**
-     * 锁定智能体主记录，用于串行化同一智能体的配置写入
+    
+/**
+     * Заблокировать основную запись агента для последовательной записи конфигурации
      *
-     * @param agentId 智能体ID
+     * @param agentId ID агента
      */
+
     AgentEntity selectByIdForUpdate(@Param("agentId") String agentId);
 
-    /**
-     * 精确写入快照覆盖的智能体字段，包括目标快照中的 null 值。
-     * 不更新所属用户、创建信息等不属于快照的字段。
+    
+/**
+     * Точная запись полей агента, покрываемых снимком, включая null из целевого снимка.
+     * Не обновлять поля, не относящиеся к снимку: владельца, информацию о создании и т. д.
      *
-     * @param agent 已应用目标快照的智能体
-     * @return 受影响行数
+     * @param agent С примененным целевым снимкомАгент
+     * @return Количество затронутых строк
      */
+
     int updateSnapshotFields(@Param("agent") AgentEntity agent);
 }

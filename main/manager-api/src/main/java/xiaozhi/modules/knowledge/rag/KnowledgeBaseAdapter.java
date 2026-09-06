@@ -13,70 +13,70 @@ import xiaozhi.modules.knowledge.dto.document.RetrievalDTO;
 import java.util.function.Consumer;
 
 /**
- * 知识库API适配器抽象基类
- * 定义通用的知识库操作接口，支持多种后端API实现
+ * Абстрактный базовый класс API-адаптера базы знаний
+ * Определение общего интерфейса работы базы знаний для поддержки нескольких внутренних реализаций API
  */
 public abstract class KnowledgeBaseAdapter {
 
         /**
-         * 获取适配器类型标识
+         * Получить идентификацию типа адаптера
          * 
-         * @return 适配器类型（如：ragflow, milvus, pinecone等）
+         * @ тип адаптера возврата (например, Ragflow, Milvus, PINECONE и т. д.)
          */
         public abstract String getAdapterType();
 
         /**
-         * 初始化适配器配置
+         * Начальная конфигурация адаптера
          * 
-         * @param config 配置参数
+         * @ param конфигурационные параметры конфигурации
          */
         public abstract void initialize(Map<String, Object> config);
 
         /**
-         * 验证配置是否有效
+         * Убедитесь, что конфигурация действительна
          * 
-         * @param config 配置参数
-         * @return 验证结果
+         * @ param конфигурационные параметры конфигурации
+         * @ возврат результатов проверки
          */
         public abstract boolean validateConfig(Map<String, Object> config);
 
         /**
-         * 分页查询文档列表
+         * Список документов по постраничным запросам
          * 
-         * @param datasetId   知识库ID
-         * @param queryParams 查询参数
-         * @param page        页码
-         * @param limit       每页数量
-         * @return 分页数据
+         * @ param datasetId Идентификатор базы знаний
+         * @ param queryParams параметры запроса
+         * @ param page Страница
+         * @ param limit per page
+         * @ return постраничные данные
          */
         public abstract PageData<KnowledgeFilesDTO> getDocumentList(String datasetId,
                         DocumentDTO.ListReq req);
 
         /**
-         * 根据文档ID获取文档详情
+         * Получить сведения о документе на основе идентификатора документа
          * 
-         * @param datasetId  知识库ID
-         * @param documentId 文档ID
-         * @return 文档详情 (强类型 InfoVO)
+         * @ param datasetId Идентификатор базы знаний
+         * @ param documentId ID документа
+         * @ return Сведения о документе (Strong Type InfoVO)
          */
         public abstract DocumentDTO.InfoVO getDocumentById(String datasetId, String documentId);
 
         /**
-         * 上传文档到知识库
+         * Загрузка документов в базу знаний
          * 
-         * @param req 上传请求参数
-         * @return 上传的文档信息
+         * @ param req параметры запроса на загрузку
+         * @ вернуть загруженную информацию о документе
          */
         public abstract KnowledgeFilesDTO uploadDocument(DocumentDTO.UploadReq req);
 
         /**
-         * 根据状态分页查询文档列表
+         * Запрос списка документов по пагинации статуса
          * 
-         * @param datasetId 知识库ID
-         * @param status    文档解析状态
-         * @param page      页码
-         * @param limit     每页数量
-         * @return 分页数据
+         * @ param datasetId Идентификатор базы знаний
+         * @ param status статус синтаксического анализа документа
+         * @ param page Страница
+         * @ param limit per page
+         * @ return постраничные данные
          */
         public abstract PageData<KnowledgeFilesDTO> getDocumentListByStatus(String datasetId,
                         Integer status,
@@ -84,140 +84,140 @@ public abstract class KnowledgeBaseAdapter {
                         Integer limit);
 
         /**
-         * 删除文档 (支持批量删除)
+         * Удаление документов (поддерживается массовое удаление)
          * 
-         * @param datasetId 知识库ID
-         * @param req       包含文档ID列表的请求对象
+         * @ param datasetId Идентификатор базы знаний
+         * @ param req Объект запроса, содержащий список идентификаторов документов
          */
         public abstract void deleteDocument(String datasetId, DocumentDTO.BatchIdReq req);
 
         /**
-         * 解析文档（切块）
+         * Разобрать документ (нарезанный)
          * 
-         * @param datasetId   知识库ID
-         * @param documentIds 文档ID列表
-         * @return 解析结果
+         * @ param datasetId Идентификатор базы знаний
+         * @ param documentIds Список идентификаторов документов
+         * @ return parse results
          */
         public abstract boolean parseDocuments(String datasetId, List<String> documentIds);
 
         /**
-         * 列出指定文档的切片
+         * Перечислите фрагменты указанного документа
          * 
-         * @param datasetId  知识库ID
-         * @param documentId 文档ID
-         * @param req        列表请求参数 (分页、关键词等)
-         * @return 切片列表VO
+         * @ param datasetId Идентификатор базы знаний
+         * @ param documentId ID документа
+         * @ param req list request parameters (пагинация, ключевые слова и т.д.)
+         * @ return slice list VO
          */
         public abstract ChunkDTO.ListVO listChunks(String datasetId,
                         String documentId,
                         ChunkDTO.ListReq req);
 
         /**
-         * 召回测试 - 从知识库中检索相关切片
+         * Отзыв теста - Извлечение соответствующих срезов из базы знаний
          * 
-         * @param req 检索测试请求参数
-         * @return 召回测试结果
+         * @ param req получение параметров тестового запроса
+         * @ return отзыв результатов теста
          */
         public abstract RetrievalDTO.ResultVO retrievalTest(
                         RetrievalDTO.TestReq req);
 
         /**
-         * 测试连接
+         * Тестовое подключение
          * 
-         * @return 连接测试结果
+         * @ результаты теста обратного соединения
          */
         public abstract boolean testConnection();
 
         /**
-         * 获取适配器状态信息
+         * Получить информацию о состоянии адаптера
          * 
-         * @return 状态信息
+         * @ информация О статусе возврата
          */
         public abstract Map<String, Object> getStatus();
 
         /**
-         * 获取支持的配置参数
+         * Получение поддерживаемых параметров конфигурации
          * 
-         * @return 配置参数说明
+         * @ return описание параметра конфигурации
          */
         public abstract Map<String, Object> getSupportedConfig();
 
         /**
-         * 获取默认配置
+         * Получить конфигурацию по умолчанию
          * 
-         * @return 默认配置
+         * @ return конфигурация по умолчанию
          */
         public abstract Map<String, Object> getDefaultConfig();
 
         /**
-         * 创建数据集
+         * Создать набор данных
          * 
-         * @param req 创建参数
-         * @return 数据集详情
+         * @ param req создание параметров
+         * @ return dataset details
          */
         public abstract DatasetDTO.InfoVO createDataset(DatasetDTO.CreateReq req);
 
         /**
-         * 更新数据集
+         * Обновить набор данных
          * 
-         * @param datasetId 数据集ID
-         * @param req       更新参数
-         * @return 数据集详情
+         * @ param datasetId Идентификатор набора данных
+         * @ param req update parameters
+         * @ return dataset details
          */
         public abstract DatasetDTO.InfoVO updateDataset(String datasetId, DatasetDTO.UpdateReq req);
 
         /**
-         * 删除数据集
+         * Удалить набор данных
          * 
-         * @param req 删除请求参数（包含ID列表）
-         * @return 批量操作结果
+         * @ param req Удаление параметров запроса (включая список идентификаторов)
+         * @ результаты операции возврата сыпучих материалов
          */
         public abstract DatasetDTO.BatchOperationVO deleteDataset(DatasetDTO.BatchIdReq req);
 
         /**
-         * 获取数据集的文档数量
+         * Количество документов, получающих набор данных
          *
-         * @param datasetId 数据集ID
-         * @return 文档数量
+         * @ param datasetId Идентификатор набора данных
+         * @ return количество документов
          */
         public abstract Integer getDocumentCount(String datasetId);
 
         /**
-         * 获取数据集完整信息（名称、简介、文档数量等）
-         * 用于检测 RAGFlow 端是否已删除、同步名称/简介变更
+         * Получить полную информацию о датасете (название, введение, количество документов и т.д.)
+         * Используется для определения удаления конца RAGFlow, изменения имени синхронизации/профиля
          *
-         * @param datasetId 数据集ID
-         * @return 数据集详情，若 RAGFlow 端不存在则返回 null
+         * @ param datasetId Идентификатор набора данных
+         * @ return dataset details, возвращает null, если сторона RAGFlow не существует
          */
         public abstract DatasetDTO.InfoVO getDatasetInfo(String datasetId);
 
         /**
-         * 发送流式请求 (SSE)
+         * Отправить потоковый запрос (SSE)
          * 
-         * @param endpoint API端点
-         * @param body     请求体
-         * @param onData   数据回调
+         * @ param endpoint API endpoint
+         * @ param body request body
+         * @ param onData data callback
          */
         public abstract void postStream(String endpoint, Object body, Consumer<String> onData);
 
         /**
-         * SearchBot 提问
+         * Вопросы SearchBot
          *
-         * @param config RAG配置
-         * @param body   请求体
-         * @param onData 数据回调
-         * @return 响应对象
+         * @ param config Rag configuration
+         * @ param body request body
+         * @ param onData data callback
+         * @ return response object
          */
         public abstract Object postSearchBotAsk(Map<String, Object> config, Object body,
                         Consumer<String> onData);
 
         /**
-         * AgentBot 对话
-         *
-         * @param config  RAG配置
-         * @param agentId Agent ID
-         * @param body    请求体
-         * @param onData  数据回调
+         * Беседа с
+         ботом агента *
+         * @ param config Rag configuration
+         * @ param agentId Идентификатор агента
+         * @ param body request body
+         * @ param onData data callback
          */
         public abstract void postAgentBotCompletion(Map<String, Object> config, String agentId, Object body,
                         Consumer<String> onData);

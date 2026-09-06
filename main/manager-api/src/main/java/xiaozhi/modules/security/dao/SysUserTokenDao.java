@@ -9,9 +9,7 @@ import xiaozhi.common.dao.BaseDao;
 import xiaozhi.modules.security.entity.SysUserTokenEntity;
 
 /**
- * 系统用户Token
- * Copyright (c) 人人开源 All rights reserved.
- * Website: https://www.renren.io
+ * Маркер пользователя системы * (c) Open Source for All rights reserved. * Website: https://www.renren.io
  */
 @Mapper
 public interface SysUserTokenDao extends BaseDao<SysUserTokenEntity> {

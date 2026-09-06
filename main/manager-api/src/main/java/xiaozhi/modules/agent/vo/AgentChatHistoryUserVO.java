@@ -3,9 +3,11 @@ package xiaozhi.modules.agent.vo;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
+
 /**
- * 智能体用户个人聊天数据的VO
+ * VO личных данных чата пользователя агента
  */
+
 @Data
 public class AgentChatHistoryUserVO {
     @Schema(description = "聊天内容")

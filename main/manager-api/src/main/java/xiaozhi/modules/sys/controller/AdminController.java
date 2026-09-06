@@ -29,7 +29,7 @@ import xiaozhi.modules.sys.service.SysUserService;
 import xiaozhi.modules.sys.vo.AdminPageUserVO;
 
 /**
- * 管理员控制层
+ * Контроллер администратора
  *
  * @author zjy
  * @since 2025-3-25

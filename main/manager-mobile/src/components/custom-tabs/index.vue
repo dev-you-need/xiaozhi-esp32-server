@@ -117,7 +117,7 @@ function handleTabClick(item: TabItem, index: number) {
   border-radius: 2rpx;
 }
 
-/* 适配不同尺寸屏幕 */
+/* Адаптация к разным размерам экрана */
 @media (max-width: 375px) {
   .tab-text {
     font-size: 22rpx;

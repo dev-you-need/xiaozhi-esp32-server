@@ -29,8 +29,8 @@ async def wait_for_exit() -> None:
             loop.add_signal_handler(sig, stop_event.set)
         await stop_event.wait()
     else:
-        # Windows：await一个永远pending的fut，
-        # 让 KeyboardInterrupt 冒泡到 asyncio.run，以此消除遗留普通线程导致进程退出阻塞的问题
+        # Windows: ожидание вечно отложенного FUT,
+        # Bubble KeyboardInterrupt в asyncio.run для устранения устаревших нормальных потоков, вызывающих блокировки выхода процесса
         try:
             await asyncio.Future()
         except KeyboardInterrupt:  # Ctrl‑C
@@ -40,38 +40,38 @@ async def wait_for_exit() -> None:
 async def monitor_stdin():
     """监控标准输入，消费回车键"""
     while True:
-        await ainput()  # 异步等待输入，消费回车
+        await ainput()  # Асинхронное ожидание ввода, возврат потребления
 
 
 async def main():
     check_ffmpeg_installed()
     config = await load_config()
 
-    # auth_key优先级：配置文件server.auth_key > manager-api.secret > 自动生成
-    # auth_key用于jwt认证，比如视觉分析接口的jwt认证、ota接口的token生成与websocket认证
-    # 获取配置文件中的auth_key
+    # auth_key Приоритет: Профиль server.auth_key > manager-api.secret > Auto Generate
+    # auth_key используется для аутентификации jwt, такой как аутентификация jwt для интерфейсов визуального анализа, генерация токенов для интерфейсов OTA и аутентификация веб-сокета
+    # Получить auth_key в файле конфигурации
     auth_key = config["server"].get("auth_key", "")
     
-    # 验证auth_key，无效则尝试使用manager-api.secret
+    # Проверьте auth_key, недействителен, попробуйте manager-api.secret
     if not auth_key or len(auth_key) == 0 or "你" in auth_key:
         auth_key = config.get("manager-api", {}).get("secret", "")
-        # 验证secret，无效则生成随机密钥
+        # Проверьте секрет, сгенерируйте случайный ключ, если он недействителен
         if not auth_key or len(auth_key) == 0 or "你" in auth_key:
             auth_key = str(uuid.uuid4().hex)
     
     config["server"]["auth_key"] = auth_key
 
-    # 添加 stdin 监控任务
+    # Добавить задачу мониторинга stdin
     stdin_task = asyncio.create_task(monitor_stdin())
 
-    # 启动全局GC管理器（5分钟清理一次）
+    # Запуск Global GC Manager (очистка каждые 5 минут)
     gc_manager = get_gc_manager(interval_seconds=300)
     await gc_manager.start()
 
-    # 启动 WebSocket 服务器
+    # Запуск сервера WebSocket
     ws_server = WebSocketServer(config)
     ws_task = asyncio.create_task(ws_server.start())
-    # 启动 Simple http 服务器
+    # Запустите простой HTTP-сервер
     ota_server = SimpleHttpServer(config)
     ota_task = asyncio.create_task(ota_server.start())
 
@@ -90,17 +90,17 @@ async def main():
     )
     mcp_endpoint = config.get("mcp_endpoint", None)
     if mcp_endpoint is not None and "你" not in mcp_endpoint:
-        # 校验MCP接入点格式
+        # Проверка формата точки доступа MCP
         if validate_mcp_endpoint(mcp_endpoint):
             logger.bind(tag=TAG).info("mcp接入点是\t{}", mcp_endpoint)
-            # 将mcp计入点地址转成调用点
+            # Преобразование адреса точки подсчета mcp в точку вызова
             mcp_endpoint = mcp_endpoint.replace("/mcp/", "/call/")
             config["mcp_endpoint"] = mcp_endpoint
         else:
             logger.bind(tag=TAG).error("mcp接入点不符合规范")
             config["mcp_endpoint"] = "你的接入点 websocket地址"
 
-    # 获取WebSocket配置，使用安全的默认值
+    # Получите конфигурацию WebSocket, используйте безопасные настройки по умолчанию
     websocket_port = 8000
     server_config = config.get("server", {})
     if isinstance(server_config, dict):
@@ -123,20 +123,20 @@ async def main():
     )
 
     try:
-        await wait_for_exit()  # 阻塞直到收到退出信号
+        await wait_for_exit()  # Блокировать, пока не будет получен сигнал выхода
     except asyncio.CancelledError:
         print("任务被取消，清理资源中...")
     finally:
-        # 停止全局GC管理器
+        # Остановить глобального менеджера ГХ
         await gc_manager.stop()
 
-        # 取消所有任务（关键修复点）
+        # Отменить все задачи (критические точки исправления)
         stdin_task.cancel()
         ws_task.cancel()
         if ota_task:
             ota_task.cancel()
 
-        # 等待任务终止（必须加超时）
+        # Дождитесь окончания задачи (необходимо время ожидания)
         await asyncio.wait(
             [stdin_task, ws_task, ota_task] if ota_task else [stdin_task, ws_task],
             timeout=3.0,

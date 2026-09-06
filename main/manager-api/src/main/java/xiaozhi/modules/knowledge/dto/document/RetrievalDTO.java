@@ -11,14 +11,14 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.validation.constraints.*;
 
 /**
- * 检索与元数据管理聚合 DTO
+ * Агрегация извлечения и управления метаданными DTO
  */
 @Schema(description = "检索与元数据管理聚合 DTO")
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class RetrievalDTO {
 
     /**
-     * 文档聚合信息 (VO)
+     * Информация об агрегации документов (VO)
      */
     @Data
     @Builder
@@ -42,7 +42,7 @@ public class RetrievalDTO {
     }
 
     /**
-     * 检索测试请求参数
+     * Получение параметров тестового запроса
      */
     @Data
     @Builder
@@ -106,7 +106,7 @@ public class RetrievalDTO {
     }
 
     /**
-     * 检索命中结果 (VO)
+     * Получить результаты попадания (VO)
      */
     @Data
     @Builder
@@ -172,7 +172,7 @@ public class RetrievalDTO {
     }
 
     /**
-     * 知识库元数据摘要 (VO)
+     * Сводка метаданных базы знаний (VO)
      */
     @Data
     @Builder
@@ -205,7 +205,7 @@ public class RetrievalDTO {
     }
 
     /**
-     * 批量更新元数据请求参数
+     * Параметры запроса пакетного обновления метаданных
      */
     @Data
     @Builder
@@ -226,7 +226,7 @@ public class RetrievalDTO {
         private List<DeleteItem> deletes;
 
         /**
-         * 文档筛选器
+         * Фильтры документов
          */
         @Data
         @Builder
@@ -247,7 +247,7 @@ public class RetrievalDTO {
         }
 
         /**
-         * 更新项
+         * Обновления
          */
         @Data
         @Builder
@@ -266,7 +266,7 @@ public class RetrievalDTO {
         }
 
         /**
-         * 删除项
+         * Удалить
          */
         @Data
         @Builder
@@ -283,7 +283,7 @@ public class RetrievalDTO {
     }
 
     /**
-     * 召回测试结果聚合响应
+     * Ответ агрегации результатов повторного испытания
      */
     @Data
     @Builder

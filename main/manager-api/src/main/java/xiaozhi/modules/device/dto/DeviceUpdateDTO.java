@@ -8,19 +8,19 @@ import lombok.Data;
 import java.io.Serializable;
 
 /**
- * 设备更新DTO
+ * DTO обновления устройства
  */
 @Data
 public class DeviceUpdateDTO implements Serializable {
     /**
-    * 自动更新状态
+    * Статус автоматического обновления
     */
     @Max(1)
     @Min(0)
     private Integer autoUpdate;
 
     /**
-    * 设备别名
+    * Псевдоним устройства
     */
     @Size(max = 64)
     private String alias;

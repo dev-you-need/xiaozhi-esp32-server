@@ -18,7 +18,7 @@ import xiaozhi.common.validator.group.DefaultGroup;
 import xiaozhi.common.validator.group.UpdateGroup;
 
 /**
- * 字典类型
+ * Тип словаря
  */
 @Data
 @Schema(description = "字典类型")

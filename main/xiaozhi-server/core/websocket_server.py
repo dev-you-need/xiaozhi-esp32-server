@@ -62,7 +62,7 @@ class WebSocketServer:
 
         auth_config = self.config["server"].get("auth", {})
         self.auth_enable = auth_config.get("enabled", False)
-        # 设备白名单
+        # Белый список устройств
         self.allowed_devices = set(auth_config.get("allowed_devices", []))
         secret_key = self.config["server"]["auth_key"]
         expire_seconds = auth_config.get("expire_seconds", None)
@@ -85,10 +85,10 @@ class WebSocketServer:
     async def _handle_connection(self, websocket: websockets.ServerConnection):
         headers = dict(websocket.request.headers)
         if headers.get("device-id", None) is None:
-            # 尝试从 URL 的查询参数中获取 device-id
+            # Попробуйте получить device-id из параметра запроса URL-адреса
             from urllib.parse import parse_qs, urlparse
 
-            # 从 WebSocket 请求中获取路径
+            # Получение пути из запроса WebSocket
             request_path = websocket.request.path
             if not request_path:
                 self.logger.bind(tag=TAG).error("无法获取请求路径")
@@ -110,14 +110,14 @@ class WebSocketServer:
                 ][0]
 
         """处理新连接，每次创建独立的ConnectionHandler"""
-        # 先认证，后建立连接
+        # Сначала выполните аутентификацию, а затем подключитесь
         try:
             await self._handle_auth(websocket)
         except AuthenticationError:
             await websocket.send("认证失败")
             await websocket.close()
             return
-        # 创建ConnectionHandler时传入当前server实例
+        # Входящий текущий экземпляр сервера при создании ConnectionHandler
         handler = ConnectionHandler(
             self.config,
             self._vad,
@@ -132,15 +132,15 @@ class WebSocketServer:
         except Exception as e:
             self.logger.bind(tag=TAG).error(f"处理连接时出错: {e}")
         finally:
-            # 强制关闭连接（如果还没有关闭的话）
+            # Принудительно закрыть соединение (если оно еще не закрыто)
             try:
-                # 安全地检查WebSocket状态并关闭
+                # Безопасно проверьте состояние WebSocket и закройте
                 if hasattr(websocket, "closed") and not websocket.closed:
                     await websocket.close()
                 elif hasattr(websocket, "state") and websocket.state.name != "CLOSED":
                     await websocket.close()
                 else:
-                    # 如果没有closed属性，直接尝试关闭
+                    # Если нет закрытого объекта, попробуйте закрыть его напрямую
                     await websocket.close()
             except Exception as close_error:
                 self.logger.bind(tag=TAG).error(
@@ -148,12 +148,12 @@ class WebSocketServer:
                 )
 
     async def _http_response(self, websocket, request_headers):
-        # 检查是否为 WebSocket 升级请求
+        # Проверьте, является ли это запросом на обновление WebSocket
         if request_headers.headers.get("connection", "").lower() == "upgrade":
-            # 如果是 WebSocket 请求，返回 None 允许握手继续
+            # Если это запрос WebSocket, верните None, чтобы продолжить рукопожатие
             return None
         else:
-            # 如果是普通 HTTP 请求，返回 "server is running"
+            # Если это обычный HTTP-запрос, верните "сервер запущен"
             return websocket.respond(200, "Server is running\n")
 
     async def update_config(self) -> bool:
@@ -164,21 +164,21 @@ class WebSocketServer:
         """
         try:
             async with self.config_lock:
-                # 重新获取配置（使用异步版本）
+                # Повторная выборка конфигурации (с использованием асинхронной версии)
                 new_config = await get_config_from_api_async(self.config)
                 if new_config is None:
                     self.logger.bind(tag=TAG).error("获取新配置失败")
                     return False
                 self.logger.bind(tag=TAG).info(f"获取新配置成功")
-                # 检查 VAD 和 ASR 类型是否需要更新
+                # Проверьте, нужно ли обновлять типы VAD и ASR
                 update_vad = check_vad_update(self.config, new_config)
                 update_asr = check_asr_update(self.config, new_config)
                 self.logger.bind(tag=TAG).info(
                     f"检查VAD和ASR类型是否需要更新: {update_vad} {update_asr}"
                 )
-                # 更新配置
+                # Обновить конфигурацию
                 self.config = new_config
-                # 重新初始化组件
+                # Повторная инициализация компонента
                 modules = initialize_modules(
                     self.logger,
                     new_config,
@@ -190,7 +190,7 @@ class WebSocketServer:
                     "Intent" in new_config["selected_module"],
                 )
 
-                # 更新组件实例
+                # Обновить экземпляр компонента
                 if "vad" in modules:
                     self._vad = modules["vad"]
                 if "asr" in modules:
@@ -208,22 +208,22 @@ class WebSocketServer:
             return False
 
     async def _handle_auth(self, websocket: websockets.ServerConnection):
-        # 先认证，后建立连接
+        # Сначала выполните аутентификацию, а затем подключитесь
         if self.auth_enable:
             headers = dict(websocket.request.headers)
             device_id = headers.get("device-id", None)
             client_id = headers.get("client-id", None)
             if self.allowed_devices and device_id in self.allowed_devices:
-                # 如果属于白名单内的设备，不校验token，直接放行
+                # Если устройство относится к белому списку, не проверяйте токен и отпустите его напрямую
                 return
             else:
-                # 否则校验token
+                # В противном случае проверьте токен
                 token = headers.get("authorization", "")
                 if token.startswith("Bearer "):
                     token = token[7:]  # 移除'Bearer '前缀
                 else:
                     raise AuthenticationError("Missing or invalid Authorization header")
-                # 进行认证
+                # Получить сертификат
                 auth_success = self.auth.verify_token(
                     token, client_id=client_id, username=device_id
                 )

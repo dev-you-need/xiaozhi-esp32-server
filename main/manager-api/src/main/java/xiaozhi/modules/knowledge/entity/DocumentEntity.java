@@ -13,85 +13,85 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 /**
- * 文档表 (Shadow DB for RAGFlow Documents)
- * 对应表名: ai_knowledge_document
+ * Таблица документов (теневая БД для документов RAGFlow)
+ * Соответствующее имя таблицы: ai_knowledge_document
  */
 @Data
 @TableName(value = "ai_rag_knowledge_document", autoResultMap = true)
-@Schema(description = "知识库文档表")
+@Schema(description = "Таблица документов базы знаний")
 public class DocumentEntity implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @TableId(type = IdType.ASSIGN_UUID)
-    @Schema(description = "本地唯一ID")
+    @Schema(description = "Локальный уникальный ID")
     private String id;
 
-    @Schema(description = "知识库ID (关联 ai_rag_dataset.dataset_id)")
+    @Schema(description = "ID базы знаний (связь с ai_rag_dataset.dataset_id)")
     private String datasetId;
 
-    @Schema(description = "RAGFlow文档ID (远程ID)")
+    @Schema(description = "ID документа RAGFlow (удаленный ID)")
     private String documentId;
 
-    @Schema(description = "文档名称")
+    @Schema(description = "Название документа")
     private String name;
 
-    @Schema(description = "文件大小(Bytes)")
-    private Long size;
+    @Schema(description = "Размер файла (Байты)")
+    private String size;
 
-    @Schema(description = "文件类型(pdf/doc/txt等)")
+    @Schema(description = "Тип файла (pdf/doc/txt и т.д.)")
     private String type;
 
-    @Schema(description = "分块方法")
+    @Schema(description = "Метод разбиения на блоки")
     private String chunkMethod;
 
-    @Schema(description = "解析配置(JSON String)")
+    @Schema(description = "Конфигурация парсера (JSON строка)")
     private String parserConfig;
 
-    @Schema(description = "可用状态 (1: 启用/正常, 0: 禁用/失效)")
+    @Schema(description = "Статус доступности (1: включен/нормальный, 0: отключен/недействителен)")
     private String status;
 
-    @Schema(description = "运行状态 (UNSTART/RUNNING/CANCEL/DONE/FAIL)")
+    @Schema(description = "Статус выполнения (UNSTART/RUNNING/CANCEL/DONE/FAIL)")
     private String run;
 
-    @Schema(description = "解析进度 (0.0 ~ 1.0)")
+    @Schema(description = "Прогресс парсинга (0.0 ~ 1.0)")
     private Double progress;
 
-    @Schema(description = "缩略图 (Base64 或 URL)")
+    @Schema(description = "Эскиз (Base64 или URL)")
     private String thumbnail;
 
-    @Schema(description = "解析耗时 (单位: 秒)")
+    @Schema(description = "Время парсинга (в секундах)")
     private Double processDuration;
 
-    @Schema(description = "自定义元数据 (JSON 格式)")
+    @Schema(description = "Пользовательские метаданные (формат JSON)")
     private String metaFields;
 
-    @Schema(description = "来源类型 (local, s3, url 等)")
+    @Schema(description = "Тип источника (local, s3, url и т.д.)")
     private String sourceType;
 
-    @Schema(description = "解析错误信息")
+    @Schema(description = "Информация об ошибке парсинга")
     private String error;
 
-    @Schema(description = "分块数量")
+    @Schema(description = "Количество блоков")
     private Integer chunkCount;
 
-    @Schema(description = "Token数量")
+    @Schema(description = "Количество токенов")
     private Long tokenCount;
 
-    @Schema(description = "是否启用 (0:禁用 1:启用)")
+    @Schema(description = "Включен ли (0: отключен 1: включен)")
     private Integer enabled;
 
-    @Schema(description = "创建者")
+    @Schema(description = "Создатель")
     @TableField(fill = FieldFill.INSERT)
     private Long creator;
 
-    @Schema(description = "创建时间")
+    @Schema(description = "Время создания")
     @TableField(fill = FieldFill.INSERT)
     private Date createdAt;
 
-    @Schema(description = "更新时间")
+    @Schema(description = "Время обновления")
     @TableField(fill = FieldFill.UPDATE)
     private Date updatedAt;
 
-    @Schema(description = "最新同步时间")
+    @Schema(description = "Время последней синхронизации")
     private Date lastSyncAt;
 }

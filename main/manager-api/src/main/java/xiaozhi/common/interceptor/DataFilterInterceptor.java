@@ -21,7 +21,7 @@ import net.sf.jsqlparser.statement.select.PlainSelect;
 import net.sf.jsqlparser.statement.select.Select;
 
 /**
- * 数据过滤
+ * Фильтрация данных
  * Copyright (c) 人人开源 All rights reserved.
  * Website: https://www.renren.io
  */
@@ -32,15 +32,15 @@ public class DataFilterInterceptor implements InnerInterceptor {
     public void beforeQuery(Executor executor, MappedStatement ms, Object parameter, RowBounds rowBounds,
             ResultHandler resultHandler, BoundSql boundSql) {
         DataScope scope = getDataScope(parameter);
-        // 不进行数据过滤
+        // Не выполнять фильтрацию данных
         if (scope == null || StrUtil.isBlank(scope.getSqlFilter())) {
             return;
         }
 
-        // 拼接新SQL
+        // Собрать новый SQL
         String buildSql = getSelect(boundSql.getSql(), scope);
 
-        // 重写SQL
+        // Перезаписать SQL
         PluginUtils.mpBoundSql(boundSql).sql(buildSql);
     }
 
@@ -49,7 +49,7 @@ public class DataFilterInterceptor implements InnerInterceptor {
             return null;
         }
 
-        // 判断参数里是否有DataScope对象
+        // Проверить, есть ли в параметрах объект DataScope
         if (parameter instanceof Map) {
             Map<?, ?> parameterMap = (Map<?, ?>) parameter;
             for (Map.Entry<?, ?> entry : parameterMap.entrySet()) {

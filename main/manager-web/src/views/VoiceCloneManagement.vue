@@ -160,7 +160,7 @@ export default {
       }
     },
     handleViewDetails(row) {
-      console.log('查看详情:', row);
+      console.log('Подробнее:', row);
     },
     handlePageSizeChange(val) {
       this.pageSize = val;
@@ -246,20 +246,20 @@ export default {
               this.fetchVoiceCloneList();
             }
           } catch (error) {
-            console.error('处理响应时出错:', error);
-            this.$message.error('处理响应时出错');
+            console.error('Ошибка обработки ответа:', error);
+            this.$message.error('Ошибка обработки ответа');
             this.fetchVoiceCloneList();
           } finally {
             this.$set(row, '_cloning', false);
           }
         }, (error) => {
-          console.error('API调用失败:', error);
+          console.error('APIСбой вызова:', error);
           this.$message.error(this.$t('voiceClone.cloneErrorTip'));
           this.fetchVoiceCloneList();
           this.$set(row, '_cloning', false);
         });
       } catch (error) {
-        console.error('调用API时出错:', error);
+        console.error('ВызовAPIОшибка во время:', error);
         this.$message.error(this.$t('voiceClone.apiError'));
         this.fetchVoiceCloneList();
         this.$set(row, '_cloning', false);
@@ -293,9 +293,9 @@ export default {
       Api.voiceClone.updateName(params, (res) => {
         res = res.data;
         if (res.code === 0) {
-          this.$message.success(this.$t('voiceClone.updateNameSuccess') || '名称更新成功');
+          this.$message.success(this.$t('voiceClone.updateNameSuccess') || 'Имя успешно обновлено');
         } else {
-          this.$message.error(res.msg || this.$t('voiceClone.updateNameFailed') || '名称更新失败');
+          this.$message.error(res.msg || this.$t('voiceClone.updateNameFailed') || 'Не удалось обновить имя');
           this.fetchVoiceCloneList();
         }
         row._submitting = false;
@@ -336,13 +336,13 @@ export default {
             this.currentAudio = null;
           });
           audio.play().catch(err => {
-            console.error('播放失败:', err);
-            this.$message.error(this.$t('voiceClone.playFailed') || '播放失败');
+            console.error('Сбой воспроизведения:', err);
+            this.$message.error(this.$t('voiceClone.playFailed') || 'Сбой воспроизведения');
             this.playingRowId = null;
             this.currentAudio = null;
           });
         } else {
-          this.$message.error(res.msg || this.$t('voiceClone.audioNotExist') || '音频不存在');
+          this.$message.error(res.msg || this.$t('voiceClone.audioNotExist') || 'Аудио не существует');
         }
       });
     },

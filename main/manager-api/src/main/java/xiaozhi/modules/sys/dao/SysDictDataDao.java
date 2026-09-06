@@ -10,7 +10,7 @@ import xiaozhi.modules.sys.entity.SysDictDataEntity;
 import xiaozhi.modules.sys.vo.SysDictDataItem;
 
 /**
- * 字典数据
+ * Данные словаря
  */
 @Mapper
 public interface SysDictDataDao extends BaseDao<SysDictDataEntity> {
@@ -18,15 +18,15 @@ public interface SysDictDataDao extends BaseDao<SysDictDataEntity> {
     List<SysDictDataItem> getDictDataByType(String dictType);
 
     /**
-     * 根据字典类型ID获取字典类型编码
+     * Получить код типа словаря по ID типа словаря
      * 
-     * @param dictTypeId 字典类型ID
-     * @return 字典类型编码
+     * @param dictTypeId ID типа словаря
+     * @return Код типа словаря
      */
     String getTypeByTypeId(Long dictTypeId);
 
     /**
-     * 根据字典数据ID集合获取字典类型编码集合
+     * Получить набор кодов типов словаря по набору ID данных словаря
      */
     List<String> getDictTypesByIdList(@Param("dictDataIdList") List<Long> dictDataIdList);
 }

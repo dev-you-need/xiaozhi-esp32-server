@@ -118,7 +118,7 @@ export default {
       selectedDictType: null,
       selectedDictTypes: [],
       dictTypeDialogVisible: false,
-      dictTypeDialogTitle: '新增字典类型',
+      dictTypeDialogTitle: 'Добавить тип словаря',
       dictTypeForm: {
         id: null,
         dictName: '',
@@ -130,7 +130,7 @@ export default {
       dictDataLoading: false,
       isAllDictDataSelected: false,
       dictDataDialogVisible: false,
-      dictDataDialogTitle: '新增字典数据',
+      dictDataDialogTitle: 'Добавить данные словаря',
       dictDataForm: {
         id: null,
         dictTypeId: null,
@@ -155,10 +155,10 @@ export default {
   },
   methods: {
     handleCheckAllChange(val) {
-      // 根据当前实际选中状态决定是全选还是取消全选
+      // Определение, выделены ли все, на основе текущего состояния
       const isAllSelected = this.checkedDictTypesIds.length === this.dictTypeList.length;
       if (isAllSelected) {
-        // 已全选，取消全选
+        // 已全选，Снятие выделения со всех
         this.checkedDictTypesIds = [];
         this.checkAll = false;
         this.selectedDictTypes = [];
@@ -172,9 +172,9 @@ export default {
       this.isIndeterminate = false;
     },
     handleDictTypeSelectionChange(checkedIds) {
-      // 更新选中的字典类型列表
+      // Обновление списка выбранных типов словарей
       this.selectedDictTypes = this.dictTypeList.filter(item => checkedIds.includes(item.dictName));
-      // 部分选中时 checkAll 为 true，isIndeterminate 为 true 显示半选状态
+      // 部分选中时 checkAll 为 true，isIndeterminate 为 true Отображение частично выбранного состояния
       this.checkAll = checkedIds.length > 0;
       this.isIndeterminate = checkedIds.length > 0 && checkedIds.length < this.dictTypeList.length;
     },

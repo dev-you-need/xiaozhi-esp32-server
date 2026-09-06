@@ -82,7 +82,7 @@
         </el-table>
       </div>
 
-      <!-- 自定义滚动条 -->
+      <!-- Пользовательский скроллбар -->
       <div class="custom-scrollbar" ref="scrollbar">
         <div class="custom-scrollbar-track" ref="scrollbarTrack" @click="handleTrackClick">
           <div class="custom-scrollbar-thumb" ref="scrollbarThumb" @mousedown="startDrag"></div>
@@ -141,7 +141,7 @@ export default {
       selectAll: false,
       selectedRows: [],
       loading: false,
-      showReferenceColumns: false, // 控制是否显示参考列
+      showReferenceColumns: false, // Управлять отображением справочных столбцов
     };
   },
   watch: {
@@ -149,8 +149,8 @@ export default {
       this.localVisible = newVal;
       if (newVal) {
         this.currentPage = 1;
-        this.updateShowReferenceColumns(); // 更新显示状态
-        this.loadData(); // 对话框显示时加载数据
+        this.updateShowReferenceColumns(); // Обновление состояния отображения
+        this.loadData(); // Загрузка данных при отображении диалога
         this.$nextTick(() => {
           this.updateScrollbar();
         });
@@ -187,7 +187,7 @@ export default {
     window.removeEventListener('mousemove', this.handleDrag);
   },
   methods: {
-    // 更新是否显示参考列
+    // Обновление видимости столбца справки
     updateShowReferenceColumns() {
       if (this.modelConfig && this.modelConfig.configJson) {
         const providerType = this.modelConfig.configJson.type;
@@ -241,7 +241,7 @@ export default {
     },
 
     handleClose() {
-      // 重置状态
+      // Сброс состояния
       this.ttsModels = [];
       this.currentPage = 1;
       this.total = 0;
@@ -347,7 +347,7 @@ export default {
     },
 
     cancelEdit(row) {
-      // 通过新增创建的数据，取消编辑时，需要从数组中移除
+      // Данные, созданные при добавлении, При отмене редактирования, нужно удалить из массива
       if (!row.id) {
         this.ttsModels.shift(row);
       } else {
@@ -378,7 +378,7 @@ export default {
           sort: row.sort
         };
 
-        // 只有在显示参考列的情况下才添加参考字段
+        // Добавление справочного поля только при отображении столбца справки
         if (this.showReferenceColumns) {
           params.referenceAudio = row.referenceAudio;
           params.referenceText = row.referenceText;
@@ -386,13 +386,13 @@ export default {
 
         let res;
         if (row.id) {
-          // 已有ID，执行更新操作
+          // Есть ID, выполнить операцию обновления
           Api.timbre.updateVoice(params, (response) => {
             res = response;
             this.handleResponse(res, row);
           });
         } else {
-          // 没有ID，执行新增操作
+          // Нет ID, выполнить операцию добавления
           Api.timbre.saveVoice(params, (response) => {
             res = response;
             this.handleResponse(res, row);
@@ -400,7 +400,7 @@ export default {
         }
       } catch (error) {
         console.error('操作失败:', error);
-        // 异常情况下也恢复原始数据
+        // В случае исключения также восстановить исходные данные
         if (row.originalData) {
           Object.assign(row, row.originalData);
           row.editing = false;
@@ -421,9 +421,9 @@ export default {
         });
         row.editing = false;
         delete row.originalData;
-        this.loadData(); // 刷新数据
+        this.loadData(); // Обновление данных
       } else {
-        // 保存失败时恢复原始数据
+        // При неудачном сохранении восстановить исходные данные
         if (row.originalData) {
           Object.assign(row, row.originalData);
           row.editing = false;
@@ -464,14 +464,14 @@ export default {
         referenceText: '',
         selected: false,
         editing: true,
-        sort: 0 // 新增数据默认排序在顶部
+        sort: 0 // Новые данные по умолчанию Сортировка вверху
       };
 
       this.ttsModels.unshift(newRow);
     },
 
     deleteRow(row) {
-      // 处理单个音色或音色数组
+      // Обработка одного голоса или массива голосов
       const voices = Array.isArray(row) ? row : [row];
 
       if (Array.isArray(row) && row.length === 0) {
@@ -499,7 +499,7 @@ export default {
               message: this.$t('ttsModel.deleteVoiceSuccess', {count: voiceCount}),
               showClose: true
             });
-            this.loadData(); // 刷新参数列表
+            this.loadData(); // Обновление списка параметров
           } else {
             this.$message.error({
               message: data.msg || this.$t('ttsModel.deleteFailed'),
@@ -532,7 +532,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-/* 表格样式 */
+/* Стили таблицы */
 ::v-deep .data-table .el-table__header th {
   color: black;
   padding: 6px 0 !important;
@@ -558,7 +558,7 @@ export default {
   border: none !important;
 }
 
-/* 备注文本 */
+/* Примечание текст */
 ::v-deep .remark-input .el-textarea__inner {
   border-radius: 4px;
   border: 1px solid #e6e6e6;
@@ -580,7 +580,7 @@ export default {
 }
 
 
-/* 滚动容器 */
+/* Контейнер прокрутки */
 .scroll-wrapper {
   display: flex;
   max-height: 55vh;
@@ -599,7 +599,7 @@ export default {
   display: none;
 }
 
-/* 自定义滚动条 */
+/* Пользовательский скроллбар */
 .custom-scrollbar {
   width: 8px;
   background: #f1f1f1;
@@ -646,7 +646,7 @@ export default {
   display: none;
 }
 
-/* 音频播放器容器样式 */
+/* Аудиоплеер容器样式 */
 .custom-audio-container {
   width: 90%;
   margin: 0 auto;
@@ -671,7 +671,7 @@ export default {
   color: #5cca8e !important;
 }
 
-/* 表格单元格自适应 */
+/* Адаптация ячеек таблицы */
 ::v-deep .el-table__body-wrapper {
   overflow-x: hidden !important;
 }
@@ -681,25 +681,25 @@ export default {
   word-break: break-all !important;
 }
 
-/* 按钮组定位调整 */
+/* Настройка позиционирования группы кнопок */
 .action-buttons {
   padding-top: 10px;
   text-align: left;
 }
 
-/* 输入框自适应 */
+/* Адаптация полей ввода */
 ::v-deep .el-input__inner,
 ::v-deep .el-textarea__inner {
   width: 100% !important;
   min-width: 120px;
 }
 
-/* 音频输入框特殊处理 */
+/* Специальная обработка поля ввода аудио */
 .audio-input ::v-deep .el-input__inner {
   min-width: 200px;
 }
 
-/* 操作按钮弹性布局 */
+/* Гибкая компоновка кнопок операций */
 ::v-deep .el-table__row .el-button {
   flex-shrink: 0;
   margin: 2px !important;

@@ -11,7 +11,7 @@ from tabulate import tabulate
 from core.utils.llm import create_instance as create_llm_instance
 from config.settings import load_config
 
-# 设置全局日志级别为 WARNING，抑制 INFO 级别日志
+# Установите глобальный уровень журнала на предупреждение для подавления журналов уровня информации
 logging.basicConfig(level=logging.WARNING)
 
 description = "大语言模型性能测试"
@@ -20,7 +20,7 @@ description = "大语言模型性能测试"
 class LLMPerformanceTester:
     def __init__(self, config):
         self.config = config
-        # 使用更符合智能体场景的测试内容，包含系统提示词
+        # Используйте тестовый контент, который лучше соответствует сценарию агента, включая системные подсказки
         self.system_prompt = self._load_system_prompt()
         self.test_sentences = self.config.get("module_test", {}).get(
             "test_sentences",
@@ -42,7 +42,7 @@ class LLMPerformanceTester:
             )
             with open(prompt_file, "r", encoding="utf-8") as f:
                 content = f.read()
-                # 替换模板变量为测试值
+                # Замените переменные шаблона тестовыми значениями
                 content = content.replace(
                     "{{base_prompt}}", "你是小智，一个聪明可爱的AI助手"
                 )
@@ -71,19 +71,19 @@ class LLMPerformanceTester:
             chunk_count = 0
             for chunk in response_generator:
                 chunk_count += 1
-                # 每处理一定数量的chunk就检查一下是否应该中断
+                # Проверьте, следует ли прерывать каждый раз, когда вы обрабатываете определенное количество кусков
                 if chunk_count % 10 == 0:
-                    # 通过检查当前线程是否被标记为中断来提前退出
+                    # Выйдите раньше, проверив, отмечена ли текущая резьба как сломанная
                     import threading
 
                     if (
                         threading.current_thread().ident
                         != threading.main_thread().ident
                     ):
-                        # 如果不是主线程，检查是否应该停止
+                        # Если это не основная резьба, проверьте, следует ли ее остановить
                         pass
 
-                # 检查chunk是否包含错误信息
+                # Проверьте фрагмент на наличие сообщений об ошибках
                 chunk_str = str(chunk)
                 if (
                     "异常" in chunk_str
@@ -92,7 +92,7 @@ class LLMPerformanceTester:
                 ):
                     error_msg = chunk_str.lower()
                     print(f"{llm_name} 响应包含错误信息: {error_msg}")
-                    # 抛出一个包含错误信息的异常
+                    # Бросить исключение с сообщением об ошибке
                     raise Exception(chunk_str)
 
                 if not first_token_received and chunk.strip() != "":
@@ -101,10 +101,10 @@ class LLMPerformanceTester:
                     print(f"{llm_name} 首个 Token: {first_token_time:.3f}s")
                 chunks.append(chunk)
         except Exception as e:
-            # 更详细的错误信息
+            # Более подробная информация об ошибке
             error_msg = str(e).lower()
             print(f"{llm_name} 响应收集异常: {error_msg}")
-            # 对于502错误或网络错误，直接抛出异常让上层处理
+            # Для ошибок 502 или сетевых ошибок непосредственно создайте исключение для верхнего уровня
             if (
                 "502" in error_msg
                 or "bad gateway" in error_msg
@@ -113,7 +113,7 @@ class LLMPerformanceTester:
                 or "错误" in str(e)
             ):
                 raise e
-            # 对于其他错误，可以返回部分结果
+            # Для других ошибок некоторые результаты могут быть возвращены
             return chunks, first_token_time
 
         return chunks, first_token_time
@@ -153,17 +153,17 @@ class LLMPerformanceTester:
             first_token_received = False
             first_token_time = None
 
-            # 构建包含系统提示词的消息
+            # Создание сообщения с помощью системных подсказок
             messages = [
                 {"role": "system", "content": self.system_prompt},
                 {"role": "user", "content": sentence},
             ]
 
-            # 使用asyncio.wait_for进行超时控制
+            # Используйте asyncio.wait_for для управления тайм-аутом
             try:
                 loop = asyncio.get_event_loop()
                 with concurrent.futures.ThreadPoolExecutor() as executor:
-                    # 创建响应收集任务
+                    # Задача создания коллекции ответов
                     future = executor.submit(
                         self._collect_response_sync,
                         llm,
@@ -172,16 +172,16 @@ class LLMPerformanceTester:
                         sentence_start,
                     )
 
-                    # 使用asyncio.wait_for实现超时控制
+                    # Используйте asyncio.wait_for для управления тайм-аутом
                     try:
                         response_chunks, first_token_time = await asyncio.wait_for(
                             asyncio.wrap_future(future), timeout=10.0
                         )
                     except asyncio.TimeoutError:
                         print(f"{llm_name} 测试超时（10秒），跳过")
-                        # 强制取消future
+                        # Принудительная отмена в будущем
                         future.cancel()
-                        # 等待一小段时间确保线程池任务能够响应取消
+                        # Подождите некоторое время, чтобы убедиться, что задача пула потоков отвечает на отмену
                         try:
                             await asyncio.wait_for(
                                 asyncio.wrap_future(future), timeout=1.0
@@ -191,7 +191,7 @@ class LLMPerformanceTester:
                             concurrent.futures.CancelledError,
                             Exception,
                         ):
-                            # 忽略所有异常，确保程序继续执行
+                            # Игнорируйте все исключения и убедитесь, что программа продолжает выполняться
                             pass
                         return None
 
@@ -210,7 +210,7 @@ class LLMPerformanceTester:
             }
         except Exception as e:
             error_msg = str(e).lower()
-            # 检查是否为502错误或网络错误
+            # Проверьте наличие ошибок 502 или сетевых ошибок
             if (
                 "502" in error_msg
                 or "bad gateway" in error_msg
@@ -229,7 +229,7 @@ class LLMPerformanceTester:
     async def _test_llm(self, llm_name: str, config: Dict) -> Dict:
         """异步测试单个 LLM 性能"""
         try:
-            # 对于 Ollama，跳过 api_key 检查并进行特殊处理
+            # Для Олламы пропустите проверку api_key и сделайте специальную обработку
             if llm_name == "Ollama":
                 base_url = config.get("base_url", "http://localhost:11434")
                 model_name = config.get("model_name")
@@ -261,28 +261,28 @@ class LLMPerformanceTester:
                         "error_type": "配置错误",
                     }
 
-            # 获取实际类型（兼容旧配置）
+            # Получение фактического типа (совместимо с устаревшей конфигурацией)
             module_type = config.get("type", llm_name)
             llm = create_llm_instance(module_type, config)
 
-            # 统一使用 UTF-8 编码
+            # Унифицированное использование кодировки UTF-8
             test_sentences = [
                 s.encode("utf-8").decode("utf-8") for s in self.test_sentences
             ]
 
-            # 创建所有句子的测试任务
+            # Создать тестовое задание для всех предложений
             sentence_tasks = []
             for sentence in test_sentences:
                 sentence_tasks.append(
                     self._test_single_sentence(llm_name, llm, sentence)
                 )
 
-            # 并发执行所有句子测试，并处理可能的异常
+            # Выполнять все тесты предложений одновременно и обрабатывать возможные исключения
             sentence_results = await asyncio.gather(
                 *sentence_tasks, return_exceptions=True
             )
 
-            # 处理结果，过滤掉异常和None值
+            # Обработать результаты, отфильтровать исключения и значения None
             valid_results = []
             for result in sentence_results:
                 if isinstance(result, dict) and result is not None:
@@ -309,8 +309,8 @@ class LLMPerformanceTester:
                     "error_type": "网络错误",
                 }
 
-            # 检查有效结果数量，如果太少则认为测试失败
-            if len(valid_results) < len(test_sentences) * 0.3:  # 至少要有30%的成功率
+            # Проверьте количество действительных результатов и считайте тест неудачным, если он слишком мал
+            if len(valid_results) < len(test_sentences) * 0.3:  # Показатель успешности не менее 30%
                 print(
                     f"{llm_name} 成功测试句子过少({len(valid_results)}/{len(test_sentences)})，可能网络不稳定或接口有问题"
                 )
@@ -328,7 +328,7 @@ class LLMPerformanceTester:
             ]
             response_times = [r["response_time"] for r in valid_results]
 
-            # 过滤异常数据（超出3个标准差的数据）
+            # Данные исключения фильтра (данные за пределами 3 стандартных отклонений)
             if len(response_times) > 1:
                 mean = statistics.mean(response_times)
                 stdev = statistics.stdev(response_times)
@@ -377,13 +377,13 @@ class LLMPerformanceTester:
         headers = ["模型名称", "平均响应时间(s)", "首Token时间(s)", "成功率", "状态"]
         table_data = []
 
-        # 收集所有数据并分类
+        # Сбор и классификация всех данных
         valid_results = []
         error_results = []
 
         for name, data in self.results.items():
             if data["errors"] == 0:
-                # 正常结果
+                # Нормальные результаты
                 avg_response = f"{data['avg_response']:.3f}"
                 avg_first_token = (
                     f"{data['avg_first_token']:.3f}"
@@ -393,7 +393,7 @@ class LLMPerformanceTester:
                 success_rate = data.get("success_rate", "N/A")
                 status = "✅ 正常"
 
-                # 保存用于排序的值
+                # Сохранить значения для сортировки
                 first_token_value = (
                     data["avg_first_token"]
                     if data["avg_first_token"] > 0
@@ -411,12 +411,12 @@ class LLMPerformanceTester:
                     }
                 )
             else:
-                # 错误结果
+                # Результаты ошибки
                 avg_response = "-"
                 avg_first_token = "-"
                 success_rate = "0/5"
 
-                # 获取具体错误类型
+                # Получить конкретные типы ошибок
                 error_type = data.get("error_type", "网络错误")
                 status = f"❌ {error_type}"
 
@@ -424,10 +424,10 @@ class LLMPerformanceTester:
                     [name, avg_response, avg_first_token, success_rate, status]
                 )
 
-        # 按首Token时间升序排序
+        # Сортировать по возрастанию времени первого токена
         valid_results.sort(key=lambda x: x["sort_key"])
 
-        # 将排序后的有效结果转换为表格数据
+        # Преобразовать отсортированные действительные результаты в данные таблицы
         for result in valid_results:
             table_data.append(
                 [
@@ -439,7 +439,7 @@ class LLMPerformanceTester:
                 ]
             )
 
-        # 将错误结果添加到表格数据末尾
+        # Добавление результатов ошибки в конец данных таблицы
         table_data.extend(error_results)
 
         print(tabulate(table_data, headers=headers, tablefmt="grid"))
@@ -454,13 +454,13 @@ class LLMPerformanceTester:
         """执行全量异步测试"""
         print("开始筛选可用 LLM 模块...")
 
-        # 创建所有测试任务
+        # Создать все тестовые задачи
         all_tasks = []
 
-        # LLM 测试任务
+        # Задача тестирования LLM
         if self.config.get("LLM") is not None:
             for llm_name, config in self.config.get("LLM", {}).items():
-                # 检查配置有效性
+                # Проверить правильность конфигурации
                 if llm_name == "CozeLLM":
                     if any(x in config.get("bot_id", "") for x in ["你的"]) or any(
                         x in config.get("user_id", "") for x in ["你的"]
@@ -473,7 +473,7 @@ class LLMPerformanceTester:
                     print(f"LLM {llm_name} 未配置 api_key，已跳过")
                     continue
 
-                # 对于 Ollama，先检查服务状态
+                # Для Ollama сначала проверьте статус обслуживания
                 if llm_name == "Ollama":
                     base_url = config.get("base_url", "http://localhost:11434")
                     model_name = config.get("model_name")
@@ -490,7 +490,7 @@ class LLMPerformanceTester:
         print(f"\n找到 {len(all_tasks)} 个可用 LLM 模块")
         print("\n开始并发测试所有模块...\n")
 
-        # 并发执行所有测试任务，但为每个任务设置独立超时
+        # Выполняйте все тестовые задачи одновременно, но устанавливайте независимый тайм-аут для каждой задачи
         async def test_with_timeout(task, timeout=30):
             """为每个测试任务添加超时保护"""
             try:
@@ -512,25 +512,25 @@ class LLMPerformanceTester:
                     "error_type": "网络错误",
                 }
 
-        # 为每个任务包装超时保护
+        # Защита от тайм-аута переноса для каждой задачи
         protected_tasks = [test_with_timeout(task) for task in all_tasks]
 
-        # 并发执行所有测试任务
+        # Выполнять все тестовые задания одновременно
         all_results = await asyncio.gather(*protected_tasks, return_exceptions=True)
 
-        # 处理结果
+        # Результаты урегулирования
         for result in all_results:
             if isinstance(result, dict):
                 if result.get("errors") == 0:
                     self.results[result["name"]] = result
                 else:
-                    # 即使有错误也记录，用于显示失败状态
+                    # Зарегистрируйте ошибки четности, чтобы показать статус сбоя
                     if result.get("name") != "Unknown":
                         self.results[result["name"]] = result
             elif isinstance(result, Exception):
                 print(f"测试结果处理异常: {str(result)}")
 
-        # 打印结果
+        # Распечатать результаты
         print("\n生成测试报告...")
         self._print_results()
 

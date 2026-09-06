@@ -39,9 +39,9 @@ def build_module_string(selected_module):
 def formatter(record):
     """为没有 tag 的日志添加默认值，并处理动态模块字符串"""
     record["extra"].setdefault("tag", record["name"])
-    # 如果没有设置 selected_module，使用默认值
+    # Если Selected_Module не установлен, используйте значение по умолчанию
     record["extra"].setdefault("selected_module", "00000000000000")
-    # 将 selected_module 从 extra 提取到顶级，以支持 {selected_module} 格式
+    # Извлеките selected_module из extra на верхний уровень для поддержки формата {selected_module}
     record["selected_module"] = record["extra"]["selected_module"]
     return record["message"]
 
@@ -50,17 +50,17 @@ def setup_logging(config=None):
     """从配置文件中读取日志配置，并设置日志输出格式和级别"""
     if config is None:
         check_config_file()
-        # 先查缓存，避免在 async 上下文中重复 await load_config
+        # Сначала проверьте кэш, чтобы избежать дублирования await load_config в асинхронном контексте
         config = cache_manager.get(CacheType.CONFIG, "main_config")
         if config is None:
-            # 缓存也没有（理论上不该发生），才走 asyncio.run
+            # Также нет кэша (теоретически не должно возникать), чтобы перейти на asyncio.run
             config = asyncio.run(load_config())
     log_config = config["log"]
     global _logger_initialized
 
-    # 第一次初始化时配置日志
+    # Настройка журналов при первой инициализации
     if not _logger_initialized:
-        # 使用默认的模块字符串进行初始化
+        # Инициализировать строкой модуля по умолчанию
         logger.configure(
             extra={
                 "selected_module": log_config.get("selected_module", "00000000000000"),
@@ -86,31 +86,31 @@ def setup_logging(config=None):
         os.makedirs(log_dir, exist_ok=True)
         os.makedirs(data_dir, exist_ok=True)
 
-        # 配置日志输出
+        # Настройка вывода журнала
         logger.remove()
 
-        # 输出到控制台
+        # Вывод на консоль
         logger.add(sys.stdout, format=log_format, level=log_level, filter=formatter)
 
-        # 输出到文件 - 统一目录，按大小轮转
-        # 日志文件完整路径
+        # Вывод в файл - Единый каталог, поворот по размеру
+        # Полный путь к файлу журнала
         log_file_path = os.path.join(log_dir, log_file)
 
-        # 添加日志处理器
+        # Добавить обработчик журналов
         logger.add(
             log_file_path,
             format=log_format_file,
             level=log_level,
             filter=formatter,
-            rotation="10 MB",  # 每个文件最大10MB
-            retention="30 days",  # 保留30天
+            rotation="10 MB",  # До 10 МБ на файл
+            retention="30 days",  # Удерживать в течение 30 дней
             compression=None,
             encoding="utf-8",
-            enqueue=True,  # 异步安全
+            enqueue=True,  # Асинхронная безопасность
             backtrace=True,
             diagnose=True,
         )
-        _logger_initialized = True  # 标记为已初始化
+        _logger_initialized = True  # Отметить как инициализированный
 
     return logger
 

@@ -35,13 +35,12 @@ import lombok.extern.slf4j.Slf4j;
 import xiaozhi.common.utils.DateUtils;
 
 /**
- * WebSocketClientResource：支持 try-with-resources 模式
- */
+ * WebSocketClientResource: Поддержка режима try-with-resources */
 @Slf4j
 public class WebSocketClientManager implements Closeable {
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
-    // 全局回调线程池
+    //Глобальный пул потоков обратного вызова
     private static final ExecutorService CALLBACK_EXECUTOR = Executors
             .newFixedThreadPool(Runtime.getRuntime().availableProcessors(), new ThreadFactory() {
                 private final AtomicInteger cnt = new AtomicInteger();
@@ -66,7 +65,7 @@ public class WebSocketClientManager implements Closeable {
 
     private final int queueCapacity;
 
-    // 私有构造，仅由 Builder 调用
+    //Частная конструкция, вызываемая только Строителем
     private WebSocketClientManager(Builder b) {
         this.maxSessionDuration = b.maxSessionDuration;
         this.maxSessionDurationUnit = b.maxSessionDurationUnit;
@@ -86,7 +85,7 @@ public class WebSocketClientManager implements Closeable {
         if (sess == null || !sess.isOpen()) {
             throw new IOException("握手失败或会话未打开");
         }
-        // 设置缓冲区
+        //Установить буфер
         sess.setTextMessageSizeLimit(b.bufferSize);
         sess.setBinaryMessageSizeLimit(b.bufferSize);
         ws.session = sess;
@@ -95,8 +94,7 @@ public class WebSocketClientManager implements Closeable {
 
 
     /**
-     * 发送 Text
-     */
+     * Отправить текст     */
     public void sendText(String text) throws IOException {
         session.sendMessage(new TextMessage(text));
     }
@@ -168,26 +166,21 @@ public class WebSocketClientManager implements Closeable {
                 break;
             }
         }
-        // 不调用 close()，保持连接开放
+        //Держите соединения открытыми, не вызывая Close ()
         return collected;
     }
 
     /**
-     * 同步接收多条消息，直到 predicate 为 true 或超时抛异常；
-     * 
-     * @return 返回监听期间的所有消息列表
-     */
+     * Принимать несколько сообщений одновременно до тех пор, пока предикат не станет истинным или тайм-аут не выдаст исключение;     * 
+     * @ return возвращает список всех сообщений, которые отслеживались     */
     public List<String> listener(Predicate<String> predicate)
             throws InterruptedException, TimeoutException, ExecutionException {
         return listenerCustom(textMessageQueue, predicate);
     }
 
     /**
-     * 同步接收多条消息，直到 predicate 为 true 或超时抛异常；
-     * 不自动关闭连接，适用于需要在同一连接上发送多个消息的场景
-     * 
-     * @return 返回监听期间的所有消息列表
-     */
+     * Принимать несколько сообщений одновременно до тех пор, пока предикат не станет истинным или тайм-аут не выдаст исключение;     * Не закрывайте соединения автоматически, если необходимо отправить несколько сообщений по одному и тому же соединению     * 
+     * @ return возвращает список всех сообщений, которые отслеживались     */
     public List<String> listenerWithoutClose(Predicate<String> predicate)
             throws InterruptedException, TimeoutException, ExecutionException {
         return listenerCustomWithoutClose(textMessageQueue, predicate);
@@ -199,32 +192,28 @@ public class WebSocketClientManager implements Closeable {
     }
 
     /**
-     * 注册文本回调
-     */
+     * Зарегистрировать текстовый обратный звонок     */
     public WebSocketClientManager onText(Consumer<String> c) {
         this.onText = c;
         return this;
     }
 
     /**
-     * 注册二进制回调
-     */
+     * Регистрация двоичных обратных вызовов     */
     public WebSocketClientManager onBinary(Consumer<byte[]> c) {
         this.onBinary = c;
         return this;
     }
 
     /**
-     * 注册错误回调
-     */
+     * Обратный звонок об ошибке регистрации     */
     public WebSocketClientManager onError(Consumer<Throwable> c) {
         this.onError = c;
         return this;
     }
 
     /**
-     * 关闭会话，try-with-resources / finally 自动调用
-     */
+     * Закрыть сессию, попробовать с ресурсами/наконец вызвано автоматически     */
     @Override
     public void close() {
         try {
@@ -248,11 +237,10 @@ public class WebSocketClientManager implements Closeable {
         }
 
         /**
-         * 连接建立时回调
-         */
+         * Обратный звонок при установлении соединения         */
         @Override
         public void afterConnectionEstablished(WebSocketSession session) {
-            // 保存会话
+            //Сохранение сеанса
             WebSocketClientManager.this.session = session;
             this.stopWatch.start();
             log.info("ws连接成功, 目标URI: {}, 连接时间: {}", targetUri,
@@ -260,42 +248,39 @@ public class WebSocketClientManager implements Closeable {
         }
 
         /**
-         * 处理文本消息
-         */
+         * Обработка текстовых сообщений         */
         @Override
         protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
             String payload = message.getPayload();
-            // 入队
+            //Добавить
             textMessageQueue.offer(payload);
-            // 回调用户注册的 onText
+            //Обратный звонок для зарегистрированного пользователя onText
             if (onText != null) {
                 CALLBACK_EXECUTOR.submit(() -> onText.accept(payload));
             }
         }
 
         /**
-         * 处理二进制消息
-         */
+         * Обработка двоичных сообщений         */
         @Override
         protected void handleBinaryMessage(WebSocketSession session, BinaryMessage message) throws Exception {
             ByteBuffer buf = message.getPayload();
             byte[] data = new byte[buf.remaining()];
             buf.get(data);
-            // 入队
+            //Добавить
             binaryMessageQueue.offer(data);
-            // 回调用户注册的 onBinary
+            //Обратный звонок для зарегистрированного пользователя onBinary
             if (onBinary != null) {
                 CALLBACK_EXECUTOR.submit(() -> onBinary.accept(data));
             }
         }
 
         /**
-         * 传输错误时回调
-         */
+         * Обратный звонок при ошибке передачи         */
         @Override
         public void handleTransportError(WebSocketSession session, Throwable exception) throws Exception {
             super.handleTransportError(session, exception);
-            // 保持原有逻辑：完成 errorFuture、回调 onError、关闭会话、异步通知连接失败
+            //Сохранить логику: complete errorFuture, callback onError, close session, asynchronous notification connection failed
             errorFuture.completeExceptionally(exception);
             if (onError != null) {
                 CALLBACK_EXECUTOR.submit(() -> onError.accept(exception));
@@ -304,8 +289,7 @@ public class WebSocketClientManager implements Closeable {
         }
 
         /**
-         * 连接关闭时回调
-         */
+         * Обратный звонок при закрытии соединения         */
         @Override
         public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
             super.afterConnectionClosed(session, status);
@@ -320,18 +304,17 @@ public class WebSocketClientManager implements Closeable {
     }
 
     public static class Builder {
-        private String uri; // 目标 WS URI
-        private long connectTimeout = 3; // 请求连接等待时间
-        private TimeUnit connectUnit = TimeUnit.SECONDS; // 请求连接等待时间单位
-        private long maxSessionDuration = 5; // 最大连线时间，默认5秒
-        private TimeUnit maxSessionDurationUnit = TimeUnit.SECONDS; // 最大连线时间单位
-        private int queueCapacity = 100; // 消息队列容量
-        private int bufferSize = 8 * 1024; //默认 8kb
-        private WebSocketHttpHeaders headers; // 请求头
+        private String uri; //Конечный WS URI
+        private long connectTimeout = 3; //Запросить время ожидания подключения
+        private TimeUnit connectUnit = TimeUnit.SECONDS; //Запросить единицы времени ожидания подключения
+        private long maxSessionDuration = 5; //Максимальное время подключения, по умолчанию 5 секунд
+        private TimeUnit maxSessionDurationUnit = TimeUnit.SECONDS; //Максимальные единицы времени соединения
+        private int queueCapacity = 100; //Емкость очереди сообщений
+        private int bufferSize = 8 * 1024; //По умолчанию 8 КБ
+        private WebSocketHttpHeaders headers; //Заголовки запросов
 
         /**
-         * 目标 WS URI
-         */
+         * Конечный WS URI         */
         public Builder uri(String uri) {
             this.uri = Objects.requireNonNull(uri);
             return this;

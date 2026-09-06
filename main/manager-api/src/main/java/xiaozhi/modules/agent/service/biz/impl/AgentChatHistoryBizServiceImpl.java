@@ -23,6 +23,7 @@ import xiaozhi.modules.agent.service.biz.AgentChatHistoryBizService;
 import xiaozhi.modules.device.entity.DeviceEntity;
 import xiaozhi.modules.device.service.DeviceService;
 
+
 /**
  * {@link AgentChatHistoryBizService} impl
  *
@@ -30,6 +31,7 @@ import xiaozhi.modules.device.service.DeviceService;
  * @version 1.0, 2025/4/30
  * @since 1.0.0
  */
+
 @Service
 @Slf4j
 @RequiredArgsConstructor
@@ -41,12 +43,14 @@ public class AgentChatHistoryBizServiceImpl implements AgentChatHistoryBizServic
     private final RedisUtils redisUtils;
     private final DeviceService deviceService;
 
-    /**
-     * 处理聊天记录上报，包括文件上传和相关信息记录
+    
+/**
+     * Обработка отчёта истории чата, включая загрузку файла и запись информации
      *
-     * @param report 包含聊天上报所需信息的输入对象
-     * @return 上传结果，true表示成功，false表示失败
+     * @param report Входной объект, содержащий информацию для отчёта чата
+     * @return Результат загрузки: true — успех, false — неудача
      */
+
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Boolean report(AgentChatHistoryReportDTO report) {
@@ -56,7 +60,7 @@ public class AgentChatHistoryBizServiceImpl implements AgentChatHistoryBizServic
                 : System.currentTimeMillis();
         log.info("小智设备聊天上报请求: macAddress={}, type={} reportTime={}", macAddress, chatType, reportTimeMillis);
 
-        // 根据设备MAC地址查询对应的默认智能体，判断是否需要上报
+        // Запросить агента по умолчанию для устройства по MAC-адресу, определить необходимость отчёта
         AgentEntity agentEntity = agentService.getDefaultAgentByMacAddress(macAddress);
         if (agentEntity == null) {
             return Boolean.FALSE;
@@ -72,10 +76,10 @@ public class AgentChatHistoryBizServiceImpl implements AgentChatHistoryBizServic
             saveChatText(report, agentId, macAddress, audioId, reportTimeMillis);
         }
 
-        // 更新设备最后对话时间
+        // Обновить время последнего диалога устройства
         redisUtils.set(RedisKeys.getAgentDeviceLastConnectedAtById(agentId), new Date());
 
-        // 更新设备最后连接时间
+        // Обновить время последнего подключения устройства
         DeviceEntity device = deviceService.getDeviceByMacAddress(macAddress);
         if (device != null) {
             deviceService.updateDeviceConnectionInfo(agentId, device.getId(), null);
@@ -86,9 +90,11 @@ public class AgentChatHistoryBizServiceImpl implements AgentChatHistoryBizServic
         return Boolean.TRUE;
     }
 
-    /**
-     * base64解码report.getOpusDataBase64(),存入ai_agent_chat_audio表
+    
+/**
+     * Декодировать base64 из report.getOpusDataBase64() и сохранить в таблицу ai_agent_chat_audio
      */
+
     private String saveChatAudio(AgentChatHistoryReportDTO report) {
         String audioId = null;
 
@@ -105,12 +111,14 @@ public class AgentChatHistoryBizServiceImpl implements AgentChatHistoryBizServic
         return audioId;
     }
 
-    /**
-     * 组装上报数据
+    
+/**
+     * Собрать данные для отчёта
      */
+
     private void saveChatText(AgentChatHistoryReportDTO report, String agentId, String macAddress, String audioId,
             Long reportTime) {
-        // 构建聊天记录实体
+        // Сформировать сущность записи чата
         AgentChatHistoryEntity entity = AgentChatHistoryEntity.builder()
                 .macAddress(macAddress)
                 .agentId(agentId)
@@ -119,10 +127,10 @@ public class AgentChatHistoryBizServiceImpl implements AgentChatHistoryBizServic
                 .content(report.getContent())
                 .audioId(audioId)
                 .createdAt(new Date(reportTime))
-                // NOTE(haotian): 2025/5/26 updateAt可以不设置，重点是createAt，而且这样可以看到上报延迟
+                // NOTE(haotian): 2025/5/26 updateAt можно не устанавливать, важен createAt, так видна задержка отчёта
                 .build();
 
-        // 保存数据
+        // Сохранить данные
         agentChatHistoryService.save(entity);
 
         log.info("设备 {} 对应智能体 {} 上报成功", macAddress, agentId);

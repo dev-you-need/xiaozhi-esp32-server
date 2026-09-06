@@ -25,7 +25,7 @@
         关闭
       </div>
       <div class="dialog-btn" style="background: #5778ff;color: white;" @click="copyPassword">
-        复制密码
+        Копирование пароля
       </div>
     </div>
   </el-dialog>
@@ -45,7 +45,7 @@ export default {
     copyPassword() {
       navigator.clipboard.writeText(this.password)
       this.$message.success({
-        message: '密码已复制',
+        message: 'Пароль скопирован',
         showClose: true
       })
     }

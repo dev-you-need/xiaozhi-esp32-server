@@ -44,7 +44,7 @@ import xiaozhi.modules.sys.service.SysUserService;
 import xiaozhi.modules.sys.vo.SysDictDataItem;
 
 /**
- * 登录控制层
+ * Уровень управления входом
  */
 @Slf4j
 @AllArgsConstructor
@@ -61,16 +61,16 @@ public class LoginController {
     @GetMapping("/captcha")
     @Operation(summary = "验证码")
     public void captcha(HttpServletResponse response, String uuid) throws IOException {
-        // uuid不能为空
+        //uuid не может быть пустым
         AssertUtils.isBlank(uuid, ErrorCode.IDENTIFIER_NOT_NULL);
-        // 生成验证码
+        //Сгенерировать проверочный код
         captchaService.create(response, uuid);
     }
 
     @PostMapping("/smsVerification")
     @Operation(summary = "短信验证码")
     public Result<Void> smsVerification(@RequestBody SmsVerificationDTO dto) {
-        // 验证图形验证码
+        //Проверить графический проверочный код
         boolean validate = captchaService.validate(dto.getCaptchaId(), dto.getCaptcha(), false);
         if (!validate) {
             throw new RenException(ErrorCode.SMS_CAPTCHA_ERROR);
@@ -81,7 +81,7 @@ public class LoginController {
         if (!isMobileRegister) {
             throw new RenException(ErrorCode.MOBILE_REGISTER_DISABLED);
         }
-        // 发送短信验证码
+        //Отправить SMS-код подтверждения
         captchaService.sendSMSValidateCode(dto.getPhone());
         return new Result<>();
     }
@@ -91,19 +91,19 @@ public class LoginController {
     public Result<TokenDTO> login(@RequestBody LoginDTO login) {
         String password = login.getPassword();
 
-        // 使用工具类解密并验证验证码
+        //Используйте инструменты для расшифровки и проверки капчи
         String actualPassword = Sm2DecryptUtil.decryptAndValidateCaptcha(
                 password, login.getCaptchaId(), captchaService, sysParamsService);
 
         login.setPassword(actualPassword);
 
-        // 按照用户名获取用户
+        //Получаем пользователей по логину
         SysUserDTO userDTO = sysUserService.getByUsername(login.getUsername());
-        // 判断用户是否存在
+        //Определить, существует ли пользователь
         if (userDTO == null) {
             throw new RenException(ErrorCode.ACCOUNT_PASSWORD_ERROR);
         }
-        // 判断密码是否正确，不一样则进入if
+        //Определите, правильный ли пароль, в противном случае введите, если
         if (!PasswordUtils.matches(login.getPassword(), userDTO.getPassword())) {
             throw new RenException(ErrorCode.ACCOUNT_PASSWORD_ERROR);
         }
@@ -119,30 +119,30 @@ public class LoginController {
 
         String password = login.getPassword();
 
-        // 使用工具类解密并验证验证码
+        //Используйте инструменты для расшифровки и проверки капчи
         String actualPassword = Sm2DecryptUtil.decryptAndValidateCaptcha(
                 password, login.getCaptchaId(), captchaService, sysParamsService);
 
         login.setPassword(actualPassword);
 
-        // 是否开启手机注册
+        //Включить регистрацию по телефону?
         Boolean isMobileRegister = sysParamsService
                 .getValueObject(Constant.SysMSMParam.SERVER_ENABLE_MOBILE_REGISTER.getValue(), Boolean.class);
         boolean validate;
         if (isMobileRegister) {
-            // 验证用户是否是手机号码
+            //Убедитесь, что пользователь является номером телефона
             boolean validPhone = ValidatorUtils.isValidPhone(login.getUsername());
             if (!validPhone) {
                 throw new RenException(ErrorCode.USERNAME_NOT_PHONE);
             }
-            // 验证短信验证码是否正常
+            //Проверьте правильность кода подтверждения SMS
             validate = captchaService.validateSMSValidateCode(login.getUsername(), login.getMobileCaptcha(), false);
             if (!validate) {
                 throw new RenException(ErrorCode.SMS_CODE_ERROR);
             }
         }
 
-        // 按照用户名获取用户
+        //Получаем пользователей по логину
         SysUserDTO userDTO = sysUserService.getByUsername(login.getUsername());
         if (userDTO != null) {
             throw new RenException(ErrorCode.PHONE_ALREADY_REGISTERED);
@@ -166,7 +166,7 @@ public class LoginController {
     @PutMapping("/change-password")
     @Operation(summary = "修改用户密码")
     public Result<?> changePassword(@RequestBody PasswordDTO passwordDTO) {
-        // 判断非空
+        //определяем непустой
         ValidatorUtils.validateEntity(passwordDTO);
         Long userId = SecurityUser.getUserId();
         sysUserTokenService.changePassword(userId, passwordDTO);
@@ -176,35 +176,35 @@ public class LoginController {
     @PutMapping("/retrieve-password")
     @Operation(summary = "找回密码")
     public Result<?> retrievePassword(@RequestBody RetrievePasswordDTO dto) {
-        // 是否开启手机注册
+        //Включить регистрацию по телефону?
         Boolean isMobileRegister = sysParamsService
                 .getValueObject(Constant.SysMSMParam.SERVER_ENABLE_MOBILE_REGISTER.getValue(), Boolean.class);
         if (!isMobileRegister) {
             throw new RenException(ErrorCode.RETRIEVE_PASSWORD_DISABLED);
         }
-        // 判断非空
+        //определяем непустой
         ValidatorUtils.validateEntity(dto);
-        // 验证用户是否是手机号码
+        //Убедитесь, что пользователь является номером телефона
         boolean validPhone = ValidatorUtils.isValidPhone(dto.getPhone());
         if (!validPhone) {
             throw new RenException(ErrorCode.PHONE_FORMAT_ERROR);
         }
 
-        // 按照用户名获取用户
+        //Получаем пользователей по логину
         SysUserDTO userDTO = sysUserService.getByUsername(dto.getPhone());
         if (userDTO == null) {
             throw new RenException(ErrorCode.PHONE_NOT_REGISTERED);
         }
-        // 验证短信验证码是否正常
+        //Проверьте правильность кода подтверждения SMS
         boolean validate = captchaService.validateSMSValidateCode(dto.getPhone(), dto.getCode(), false);
-        // 判断是否通过验证
+        //Определить, проходит ли он валидацию
         if (!validate) {
             throw new RenException(ErrorCode.SMS_CODE_ERROR);
         }
 
         String password = dto.getPassword();
 
-        // 使用工具类解密并验证验证码
+        //Используйте инструменты для расшифровки и проверки капчи
         String actualPassword = Sm2DecryptUtil.decryptAndValidateCaptcha(
                 password, dto.getCaptchaId(), captchaService, sysParamsService);
 
@@ -229,14 +229,14 @@ public class LoginController {
         config.put("beianGaNum", sysParamsService.getValue(Constant.SysBaseParam.BEIAN_GA_NUM.getValue(), true));
         config.put("name", sysParamsService.getValue(Constant.SysBaseParam.SERVER_NAME.getValue(), true));
 
-        // SM2公钥
+        //SM2 открытый ключ
         String publicKey = sysParamsService.getValue(Constant.SM2_PUBLIC_KEY, true);
         if (StringUtils.isBlank(publicKey)) {
             throw new RenException(ErrorCode.SM2_KEY_NOT_CONFIGURED);
         }
         config.put("sm2PublicKey", publicKey);
 
-        // 获取system-web.menu参数配置
+        //Получение конфигурации параметров system-web.menu
         String menuConfig = sysParamsService.getValue("system-web.menu", true);
         if (StringUtils.isNotBlank(menuConfig)) {
             config.put("systemWebMenu", JsonUtils.parseObject(menuConfig, Object.class));

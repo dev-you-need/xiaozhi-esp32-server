@@ -20,12 +20,12 @@ import { useConfigStore, useUserStore } from '@/store'
 import { getEnvBaseUrl, sm2Encrypt } from '@/utils'
 import { toast } from '@/utils/toast'
 
-// 获取屏幕边界到安全区域距离
+// Получение расстояния от края экрана до безопасной области
 let safeAreaInsets
 let systemInfo
 
 // #ifdef MP-WEIXIN
-// 微信小程序使用新的API
+// WeChat Mini Program использует новый API
 systemInfo = uni.getWindowInfo()
 safeAreaInsets = systemInfo.safeArea
   ? {
@@ -38,7 +38,7 @@ safeAreaInsets = systemInfo.safeArea
 // #endif
 
 // #ifndef MP-WEIXIN
-// 其他平台继续使用uni API
+// Другие платформы продолжают использовать uni API
 systemInfo = uni.getSystemInfoSync()
 safeAreaInsets = systemInfo.safeAreaInsets
 // #endif
@@ -63,35 +63,35 @@ const loginType = ref<'username' | 'mobile'>('username')
 const configStore = useConfigStore()
 const userStore = useUserStore()
 
-// 区号选择相关
+// Настройки выбора кода области
 const showAreaCodeSheet = ref(false)
 const selectedAreaCode = ref('+86')
-const selectedAreaName = ref('中国大陆')
+const selectedAreaName = ref('Китай')
 
-// 计算属性：是否启用手机号登录
+// Вычисляемые свойства：是否启用手机号登录
 const enableMobileLogin = computed(() => {
   return configStore.config.enableMobileRegister
 })
 
-// 计算属性：区号列表
+// Вычисляемые свойства：区号列表
 const areaCodeList = computed(() => {
-  return configStore.config.mobileAreaList || [{ name: '中国大陆', key: '+86' }]
+  return configStore.config.mobileAreaList || [{ name: 'Китай', key: '+86' }]
 })
 
-// 切换登录方式
+// Переключение способа входа
 function toggleLoginType() {
   loginType.value = loginType.value === 'username' ? 'mobile' : 'username'
-  // 清空输入框
+  // Очистка полей ввода
   formData.value.username = ''
   formData.value.mobile = ''
 }
 
-// 打开区号选择弹窗
+// Открытие диалога выбора кода области
 function openAreaCodeSheet() {
   showAreaCodeSheet.value = true
 }
 
-// 选择区号
+// Выбор кода области
 function selectAreaCode(item: { name: string, key: string }) {
   selectedAreaCode.value = item.key
   selectedAreaName.value = item.name
@@ -99,7 +99,7 @@ function selectAreaCode(item: { name: string, key: string }) {
   showAreaCodeSheet.value = false
 }
 
-// 关闭区号选择弹窗
+// Закрытие диалога выбора кода области
 function closeAreaCodeSheet() {
   showAreaCodeSheet.value = false
 }
@@ -134,7 +134,7 @@ function goToPrivacyPolicy() {
   })
 }
 
-// 生成UUID
+// Генерация UUID
 function generateUUID() {
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
     const r = Math.random() * 16 | 0
@@ -159,7 +159,7 @@ async function refreshCaptcha() {
 
 // 登录
 async function handleLogin() {
-  // 表单验证
+  // Проверка формы
   if (loginType.value === 'username') {
     if (!formData.value.username) {
       toast.warning(t('login.enterUsername'))
@@ -171,7 +171,7 @@ async function handleLogin() {
       toast.warning(t('login.enterPhone'))
       return
     }
-    // 手机号格式验证
+    // Проверка формата номера телефона
     const phoneRegex = /^1[3-9]\d{9}$/
     if (!phoneRegex.test(formData.value.mobile)) {
       toast.warning(t('login.enterPhone'))
@@ -187,7 +187,7 @@ async function handleLogin() {
     return
   }
 
-  // 检查SM2公钥是否配置
+  // 检查SM2Проверка конфигурации публичного ключа
   const sm2PublicKey = configStore.config.sm2PublicKey
   if (!sm2PublicKey) {
     toast.warning(t('sm2.publicKeyNotConfigured'))
@@ -200,24 +200,24 @@ async function handleLogin() {
     // 加密密码
     let encryptedPassword
     try {
-      // 拼接验证码和密码
+      // Объединение кода подтверждения и пароля
       const captchaAndPassword = formData.value.captcha + formData.value.password
       encryptedPassword = sm2Encrypt(sm2PublicKey, captchaAndPassword)
     }
     catch (error) {
-      console.error('密码加密失败:', error)
+      console.error('Ошибка шифрования пароля:', error)
       toast.warning(t('sm2.encryptionFailed'))
       return
     }
 
-    // 构建登录数据
+    // Формирование данных входа
     const loginData: LoginData = {
       username: '',
       password: encryptedPassword,
       captchaId: formData.value.captchaId,
     }
 
-    // 如果是手机号登录，将区号+手机号拼接到username字段
+    // Если вход по номеру телефона，将区号+手机号拼接到username字段
     if (loginType.value === 'mobile') {
       loginData.username = `${selectedAreaCode.value}${formData.value.mobile}`
     }
@@ -240,7 +240,7 @@ async function handleLogin() {
     }, 1000)
   }
   catch (error: any) {
-    // 登录失败重新获取验证码
+    // 登录失败Повторное получение кода подтверждения
     refreshCaptcha()
   }
   finally {
@@ -248,7 +248,7 @@ async function handleLogin() {
   }
 }
 
-// 页面加载时获取验证码
+// Получение кода подтверждения при загрузке страницы
 onLoad(() => {
   refreshCaptcha()
 })
@@ -257,16 +257,16 @@ onLoad(() => {
 const showLanguageSheet = ref(false)
 const supportedLanguages = getSupportedLanguages()
 
-// 初始化国际化
+// Инициализация интернационализации
 initI18n()
 
-// 切换语言
+// Смена языка
 function handleLanguageChange(lang: Language) {
   changeLanguage(lang)
   showLanguageSheet.value = false
 }
 
-// 组件挂载时确保配置已加载
+// Обеспечение загрузки конфигурации при монтировании компонента
 onMounted(async () => {
   if (!configStore.config.name) {
     try {
@@ -431,7 +431,7 @@ onMounted(async () => {
       </view>
     </view>
 
-    <!-- 区号选择弹窗 -->
+    <!-- Диалог выбора кода области -->
     <wd-action-sheet
       v-model="showAreaCodeSheet"
       :title="t('login.selectCountry')"
@@ -818,7 +818,7 @@ onMounted(async () => {
   }
 }
 
-// 区号选择弹窗样式
+// Стиль диалога выбора кода области
 .area-code-sheet {
   background: #ffffff;
   border-radius: 24rpx 24rpx 0 0;

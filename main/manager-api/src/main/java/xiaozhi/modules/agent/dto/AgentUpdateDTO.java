@@ -11,11 +11,13 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import xiaozhi.common.utils.JsonUtils;
 
+
 /**
- * 智能体更新DTO
- * 专用于更新智能体，id字段是必需的，用于标识要更新的智能体
- * 其他字段均为非必填，只更新提供的字段
+ * DTO обновления агента
+ * Для обновления агента; поле id обязательно для идентификации обновляемого агента
+ * Остальные поля необязательны — обновляются только предоставленные
  */
+
 @Data
 @Schema(description = "智能体更新对象")
 public class AgentUpdateDTO implements Serializable {

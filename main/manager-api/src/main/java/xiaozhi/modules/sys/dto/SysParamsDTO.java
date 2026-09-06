@@ -18,7 +18,7 @@ import xiaozhi.common.validator.group.DefaultGroup;
 import xiaozhi.common.validator.group.UpdateGroup;
 
 /**
- * 参数管理
+ * Управление параметрами
  */
 @Data
 @Schema(description = "参数管理")

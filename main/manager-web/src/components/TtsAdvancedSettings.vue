@@ -147,7 +147,7 @@ export default {
   watch: {
     visible(newVal) {
       if (newVal) {
-        // 当抽屉打开时，复制当前设置到本地
+        // При открытии рисунк копировать текущие настройки в локальное хранилище
         this.localSettings = { ...this.settings };
         this.changedTtsFields = {
           volume: false,
@@ -164,11 +164,11 @@ export default {
       this.$emit('update:visible', false);
     },
     handleCancel() {
-      // 取消时不保存，直接关闭
+      // При отмене не сохранять, сразу закрыть
       this.handleClose();
     },
     handleSave() {
-      // 保存设置并关闭
+      // Сохранить настройки и закрыть
       const changedTtsFields = Object.keys(this.changedTtsFields)
         .filter((field) => this.changedTtsFields[field]);
       this.$emit('save', {

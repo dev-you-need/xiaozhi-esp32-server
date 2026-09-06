@@ -12,7 +12,7 @@ import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.StrUtil;
 
 /**
- * JSON 工具类
+ * Утилита JSON
  * Copyright (c) 人人开源 All rights reserved.
  * Website: https://www.renren.io
  */

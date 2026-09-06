@@ -8,30 +8,30 @@ import xiaozhi.modules.sys.dto.PasswordDTO;
 import xiaozhi.modules.sys.dto.SysUserDTO;
 
 /**
- * 用户Token
- * Copyright (c) 人人开源 All rights reserved.
+ * Токен пользователя
+ * Copyright (c) Renren Open Source All rights reserved.
  * Website: https://www.renren.io
  */
 public interface SysUserTokenService extends BaseService<SysUserTokenEntity> {
 
     /**
-     * 生成token
+     * Сгенерировать токен
      *
-     * @param userId 用户ID
+     * @param userId ID пользователя
      */
     Result<TokenDTO> createToken(Long userId);
 
     SysUserDTO getUserByToken(String token);
 
     /**
-     * 退出
+     * Выход из системы
      *
-     * @param userId 用户ID
+     * @param userId ID пользователя
      */
     void logout(Long userId);
 
     /**
-     * 修改密码
+     * Изменить пароль
      *
      * @param userId
      * @param passwordDTO

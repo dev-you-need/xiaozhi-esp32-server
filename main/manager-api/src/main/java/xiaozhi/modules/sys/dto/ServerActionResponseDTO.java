@@ -6,7 +6,7 @@ import xiaozhi.modules.sys.enums.ServerActionResponseEnum;
 import java.util.Map;
 
 /**
- * 服务端动作响应体
+ * Тело ответа действия сервера
  */
 @Data
 public class ServerActionResponseDTO
@@ -14,7 +14,7 @@ public class ServerActionResponseDTO
     private ServerActionResponseEnum status;
     private String message;
     private String type;
-    private Map<String, Object> content; // 后续这个字段可以移除，并把这个类作为基类，针对业务写自己的content类型
+    private Map<String, Object> content; // В дальнейшем это поле можно удалить и сделать этот класс базовым, написав собственный тип content для бизнеса
     public static final String DEFAULT_TYPE_FORM_SERVER = "server";
 
     public static Boolean isSuccess(ServerActionResponseDTO actionResponseDTO) {

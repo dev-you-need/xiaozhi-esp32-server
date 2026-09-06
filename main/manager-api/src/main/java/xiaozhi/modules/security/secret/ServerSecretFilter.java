@@ -20,7 +20,7 @@ import xiaozhi.common.utils.Result;
 import xiaozhi.modules.sys.service.SysParamsService;
 
 /**
- * Config API 过滤器
+ * Фильтр Config API
  */
 @Slf4j
 @RequiredArgsConstructor
@@ -29,7 +29,7 @@ public class ServerSecretFilter extends AuthenticatingFilter {
 
     @Override
     protected ServerSecretToken createToken(ServletRequest request, ServletResponse response) {
-        // 获取请求token
+        // Получить токен запроса
         String token = getRequestToken((HttpServletRequest) request);
 
         if (StringUtils.isBlank(token)) {
@@ -42,7 +42,7 @@ public class ServerSecretFilter extends AuthenticatingFilter {
 
     @Override
     protected boolean isAccessAllowed(ServletRequest request, ServletResponse response, Object mappedValue) {
-        // 对OPTIONS请求放行
+        // Разрешить запросы OPTIONS
         if (((HttpServletRequest) request).getMethod().equals(RequestMethod.OPTIONS.name())) {
             return true;
         }
@@ -51,18 +51,18 @@ public class ServerSecretFilter extends AuthenticatingFilter {
 
     @Override
     protected boolean onAccessDenied(ServletRequest servletRequest, ServletResponse servletResponse) throws Exception {
-        // 获取token并校验
+        // Получить токен и проверить
         String token = getRequestToken((HttpServletRequest) servletRequest);
         if (StringUtils.isBlank(token)) {
-            // token为空，返回401
+            //токен пуст, возвращается 401
             this.sendUnauthorizedResponse((HttpServletResponse) servletResponse, "服务器密钥不能为空");
             return false;
         }
 
-        // 验证token是否匹配
+        //Убедитесь, что токены совпадают
         String serverSecret = getServerSecret();
         if (StringUtils.isBlank(serverSecret) || !serverSecret.equals(token)) {
-            // token无效，返回401
+            //недействительный токен, возвращает 401
             this.sendUnauthorizedResponse((HttpServletResponse) servletResponse, "无效的服务器密钥");
             return false;
         }
@@ -71,8 +71,7 @@ public class ServerSecretFilter extends AuthenticatingFilter {
     }
 
     /**
-     * 发送未授权响应
-     */
+     * Отправить несанкционированный ответ     */
     private void sendUnauthorizedResponse(HttpServletResponse response, String message) {
         response.setContentType("application/json;charset=utf-8");
         response.setHeader("Access-Control-Allow-Credentials", "true");
@@ -87,11 +86,10 @@ public class ServerSecretFilter extends AuthenticatingFilter {
     }
 
     /**
-     * 获取请求的token
-     */
+     * Получить запрошенный токен     */
     private String getRequestToken(HttpServletRequest httpRequest) {
         String token = null;
-        // 从header中获取token
+        //Получить токен из заголовка
         String authorization = httpRequest.getHeader("Authorization");
         if (StringUtils.isNotBlank(authorization) && authorization.startsWith("Bearer ")) {
             token = authorization.replace("Bearer ", "");

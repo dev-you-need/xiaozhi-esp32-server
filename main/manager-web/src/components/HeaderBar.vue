@@ -1,13 +1,13 @@
 <template>
   <el-header class="header">
     <div class="header-container">
-      <!-- 左侧元素 -->
+      <!-- Левый элемент -->
       <div class="header-left" @click="handleRouter('home')">
         <img loading="lazy" alt="" src="@/assets/xiaozhi-logo.png" class="logo-img" />
         <img loading="lazy" alt="" :src="xiaozhiAiIcon" class="brand-img" />
       </div>
 
-      <!-- 中间导航菜单 -->
+      <!-- Среднее меню навигации -->
       <div class="header-center">
         <div class="equipment-management" :class="{
           'active-tab':
@@ -38,7 +38,7 @@
           <span class="nav-text">{{ $t("header.voiceCloneManagement") }}</span>
         </div>
 
-        <!-- 超级管理员显示音色克隆下拉菜单 -->
+        <!-- Для суперадминистратора отображается выпадающее меню клонирования голоса -->
         <el-dropdown v-if="userInfo.superAdmin && featureStatus.voiceClone" trigger="click"
           class="equipment-management more-dropdown" :class="{
             'active-tab':
@@ -158,7 +158,7 @@
       <div class="header-right">
         <img loading="lazy" alt="" src="@/assets/home/avatar.png" class="avatar-img" @click="handleAvatarClick" />
         <span class="el-user-dropdown" @click="handleAvatarClick">
-          {{ userInfo.username || "加载中..." }}
+          {{ userInfo.username || "Загрузка..." }}
           <i class="el-icon-arrow-down el-icon--right" :class="{ 'rotate-down': userMenuVisible }"></i>
         </span>
         <el-cascader :options="userMenuOptions" trigger="click" :props="cascaderProps"
@@ -171,16 +171,16 @@
       </div>
     </div>
 
-    <!-- 修改密码弹窗 -->
+    <!-- Диалог изменения пароля -->
     <ChangePasswordDialog v-model="isChangePasswordDialogVisible" />
   </el-header>
 </template>
 
 <script>
 import i18n, { changeLanguage } from "@/i18n";
-import featureManager from "@/utils/featureManager"; // 引入功能管理工具类
+import featureManager from "@/utils/featureManager"; // Импорт класса инструмента управления функциями
 import { mapActions, mapState } from "vuex";
-import ChangePasswordDialog from "./ChangePasswordDialog.vue"; // 引入修改密码弹窗组件
+import ChangePasswordDialog from "./ChangePasswordDialog.vue"; // Импорт компонента диалога изменения пароля
 
 export default {
   name: "HeaderBar",
@@ -194,7 +194,7 @@ export default {
       isChangePasswordDialogVisible: false, // 控制修改密码弹窗的显示
       paramDropdownVisible: false,
       voiceCloneDropdownVisible: false,
-      userMenuVisible: false, // 添加用户菜单可见状态
+      userMenuVisible: false, // Добавление состояния видимости пользовательского меню
       menuVisibleTimer: null, // 菜单显示定时器，防止够快触发
       // Cascader 配置
       cascaderProps: {
@@ -226,17 +226,17 @@ export default {
   computed: {
     ...mapState({
       featureStatus: (state) => ({
-        voiceClone: state.pubConfig.systemWebMenu?.features?.voiceClone?.enabled, // 音色克隆功能状态
-        knowledgeBase: state.pubConfig.systemWebMenu?.features?.knowledgeBase?.enabled, // 知识库功能状态
-        addressBook: state.pubConfig.systemWebMenu?.features?.addressBook?.enabled, // 通讯录功能状态
+        voiceClone: state.pubConfig.systemWebMenu?.features?.voiceClone?.enabled, // Состояние функции клонирования голоса
+        knowledgeBase: state.pubConfig.systemWebMenu?.features?.knowledgeBase?.enabled, // Состояние функции базы знаний
+        addressBook: state.pubConfig.systemWebMenu?.features?.addressBook?.enabled, // Состояние функции адресной книги
       }),
       userInfo: (state) => state.userInfo,
     }),
-    // 获取当前语言
+    // Получить текущий язык
     currentLanguage() {
       return i18n.locale || "zh_CN";
     },
-    // 获取当前语言显示文本
+    // Получение отображаемого текста текущего языка
     currentLanguageText() {
       const currentLang = this.currentLanguage;
       switch (currentLang) {
@@ -256,7 +256,7 @@ export default {
           return this.$t("language.zhCN");
       }
     },
-    // 根据当前语言获取对应的xiaozhi-ai图标
+    // Получить соответствующий xiaozhi-ai значок в зависимости от текущего языка
     xiaozhiAiIcon() {
       const currentLang = this.currentLanguage;
       switch (currentLang) {
@@ -276,7 +276,7 @@ export default {
           return require("@/assets/xiaozhi-ai.png");
       }
     },
-    // 用户菜单选项
+    // Параметры пользовательского меню
     userMenuOptions() {
       return [
         {
@@ -321,25 +321,25 @@ export default {
     },
   },
   async mounted() {
-    // 等待featureManager初始化完成后再加载功能状态
+    // Ожидание загрузки состояния функций featureManager после завершения инициализации
     await this.loadFeatureStatus();
   },
   methods: {
     handleRouter(type) {
       this.$router.push(this.routerPaths[type]);
     },
-    // 加载功能状态
+    // Загрузить состояние функций
     async loadFeatureStatus() {
-      // 等待featureManager初始化完成
+      // Ожидать завершения инициализации featureManager
       await featureManager.waitForInitialization();
     },
-    // 显示修改密码弹窗
+    // Показать диалог изменения пароля
     showChangePasswordDialog() {
       this.isChangePasswordDialogVisible = true;
-      // 添加：显示修改密码弹窗后重置用户菜单可见状态
+      // Добавлено: сброс видимости пользовательского меню после отображения диалога изменения пароля
       this.userMenuVisible = false;
     },
-    // 退出登录
+    // Выход из системы
     async handleLogout() {
       try {
         // 调用 Vuex 的 logout action
@@ -356,17 +356,17 @@ export default {
         });
       }
     },
-    // 监听参数字典下拉菜单的可见状态变化
+    // Отслеживание изменений видимости выпадающего меню словаря параметров
     handleParamDropdownVisibleChange(visible) {
       this.paramDropdownVisible = visible;
     },
 
-    // 监听音色克隆下拉菜单的可见状态变化
+    // Отслеживание изменений видимости выпадающего меню клонирования голоса
     handleVoiceCloneDropdownVisibleChange(visible) {
       this.voiceCloneDropdownVisible = visible;
     },
-    // 在data中添加一个key用于强制重新渲染组件
-    // 处理 Cascader 选择变化
+    // В data добавить ключ для принудительной перерисовки компонента
+    // Обработка изменения выбора Cascader
     handleCascaderChange(value) {
       if (!value || value.length === 0) {
         return;
@@ -374,11 +374,11 @@ export default {
 
       const action = value[value.length - 1];
 
-      // 处理语言切换
+      // Обработка смены языка
       if (value.length === 2 && value[0] === "language") {
         this.changeLanguage(action);
       } else {
-        // 处理其他操作
+        // Обработка других операций
         switch (action) {
           case "changePassword":
             this.showChangePasswordDialog();
@@ -395,28 +395,28 @@ export default {
       }, 300);
     },
 
-    // 切换语言
+    // Смена языка
     changeLanguage(lang) {
       changeLanguage(lang);
       this.$message.success({
         message: this.$t("message.success"),
         showClose: true,
       });
-      // 添加：切换语言后重置用户菜单可见状态
+      // Добавлено: Сброс видимости пользовательского меню после смены языка
       this.userMenuVisible = false;
     },
 
-    // 完全重置级联选择器
+    // Полный сброс каскадного селектора
     completeResetCascader() {
       if (this.$refs.userCascader) {
         try {
-          // 尝试所有可能的方法来清空选择
-          // 1. 尝试使用组件提供的clearValue方法
+          // Попытка всех возможных способов очистки выбора
+          // 1. Попытка использовать提供的 компонентомclearValue方法
           if (this.$refs.userCascader.clearValue) {
             this.$refs.userCascader.clearValue();
           }
 
-          // 2. 直接清空内部属性
+          // 2. Очистить внутренние свойства напрямую
           if (this.$refs.userCascader.$data) {
             this.$refs.userCascader.$data.selectedPaths = [];
             this.$refs.userCascader.$data.displayLabels = [];
@@ -425,7 +425,7 @@ export default {
             this.$refs.userCascader.$data.showAllLevels = false;
           }
 
-          // 3. 操作DOM清除选中状态
+          // 3. Операция DOM очистки состояния выбора
           const menuElement = this.$refs.userCascader.$refs.menu;
           if (menuElement && menuElement.$el) {
             const activeItems = menuElement.$el.querySelectorAll(
@@ -446,13 +446,13 @@ export default {
       }
     },
 
-    // 点击头像触发cascader下拉菜单
+    // Клик по аватару активирует выпадающее меню cascader
     handleAvatarClick() {
       if (this.$refs.userCascader) {
-        // 切换菜单可见状态
+        // Переключение видимости меню
         this.userMenuVisible = !this.userMenuVisible;
 
-        // 菜单收起时清空选择值
+        // При закрытии меню очистить выбранное значение
         if (!this.userMenuVisible) {
           this.completeResetCascader();
         }
@@ -462,7 +462,7 @@ export default {
           // 尝试使用toggleDropDownVisible方法
           this.$refs.userCascader.toggleDropDownVisible(this.userMenuVisible);
         } catch (error) {
-          // 如果toggle方法失败，尝试直接设置属性
+          // 如果toggle方法失败，Попытка напрямую установить свойство
           if (this.$refs.userCascader.$refs.menu) {
             this.$refs.userCascader.$refs.menu.showMenu(this.userMenuVisible);
           } else {
@@ -472,7 +472,7 @@ export default {
       }
     },
 
-    // 处理用户菜单可见性变化
+    // Обработка изменений видимости пользовательского меню
     handleUserMenuVisibleChange(visible) {
       if (this.menuVisibleTimer) return;
       this.menuVisibleTimer = setTimeout(() => {
@@ -481,7 +481,7 @@ export default {
         this.menuVisibleTimer = null;
       }, 100);
 
-      // 如果菜单关闭了，也要清空选择值
+      // Если меню закрыто，也要清空选择值
       if (!visible) {
         this.completeResetCascader();
       }
@@ -595,7 +595,7 @@ export default {
   cursor: pointer;
 }
 
-/* 导航文本样式 - 支持中英文换行 */
+/* Стили текста навигации - поддержка переноса китайского и английского */
 .nav-text {
   white-space: normal;
   text-align: center;
@@ -608,7 +608,7 @@ export default {
   gap: 7px;
 }
 
-/* 响应式调整 */
+/* Адаптивная настройка */
 @media (max-width: 1200px) {
   .header-center {
     gap: 14px;
@@ -639,7 +639,7 @@ export default {
   white-space: nowrap;
 }
 
-/* 添加倒三角旋转样式 */
+/* Добавление стиля вращения перевёрнутого треугольника */
 .rotate-down {
   transform: rotate(180deg);
   transition: transform 0.3s ease;

@@ -1,9 +1,9 @@
-// Audio recording module
+// Модуль записи аудио
 import { log } from '../../utils/logger.js?v=0205';
 import { initOpusEncoder } from './opus-codec.js?v=0205';
 import { getAudioPlayer } from './player.js?v=0205';
 
-// Audio recorder class
+// Класс аудиорекордера
 export class AudioRecorder {
     constructor() {
         this.isRecording = false;
@@ -19,23 +19,23 @@ export class AudioRecorder {
         this.visualizationRequest = null;
         this.recordingTimer = null;
         this.websocket = null;
-        // Callback functions
+        // Функции обратного вызова
         this.onRecordingStart = null;
         this.onRecordingStop = null;
         this.onVisualizerUpdate = null;
     }
 
-    // Set WebSocket instance
+    // Установка экземпляра WebSocket
     setWebSocket(ws) {
         this.websocket = ws;
     }
 
-    // Get AudioContext instance
+    // Получение экземпляра AudioContext
     getAudioContext() {
         return getAudioPlayer().getAudioContext();
     }
 
-    // Initialize encoder
+    // Инициализация кодера
     initEncoder() {
         if (!this.opusEncoder) {
             this.opusEncoder = initOpusEncoder();
@@ -43,7 +43,7 @@ export class AudioRecorder {
         return this.opusEncoder;
     }
 
-    // PCM processor code
+    // Код обработчика PCM
     getAudioProcessorCode() {
         return `
             class AudioRecorderProcessor extends AudioWorkletProcessor {
@@ -87,7 +87,7 @@ export class AudioRecorder {
         `;
     }
 
-    // Create audio processor
+    // Создание аудиообработчика
     async createAudioProcessor() {
         this.audioContext = this.getAudioContext();
         try {
@@ -102,23 +102,23 @@ export class AudioRecorder {
                         this.processPCMBuffer(event.data.buffer);
                     }
                 };
-                log('使用AudioWorklet处理音频', 'success');
+                log('Использование AudioWorklet для обработки аудио', 'success');
                 const silent = this.audioContext.createGain();
                 silent.gain.value = 0;
                 audioProcessor.connect(silent);
                 silent.connect(this.audioContext.destination);
                 return { node: audioProcessor, type: 'worklet' };
             } else {
-                log('AudioWorklet不可用，使用ScriptProcessorNode作为后备方案', 'warning');
+                log('AudioWorklet недоступен, использование ScriptProcessorNode в качестве резервного варианта', 'warning');
                 return this.createScriptProcessor();
             }
         } catch (error) {
-            log(`创建音频处理器失败: ${error.message}，尝试后备方案`, 'error');
+            log(`Ошибка создания аудиообработчика: ${error.message}, попытка резервного варианта`, 'error');
             return this.createScriptProcessor();
         }
     }
 
-    // Create ScriptProcessor as fallback
+    // Создание ScriptProcessor в качестве резервного варианта
     createScriptProcessor() {
         try {
             const frameSize = 4096;
@@ -136,15 +136,15 @@ export class AudioRecorder {
             silent.gain.value = 0;
             scriptProcessor.connect(silent);
             silent.connect(this.audioContext.destination);
-            log('使用ScriptProcessorNode作为后备方案成功', 'warning');
+            log('Успешное использование ScriptProcessorNode в качестве резервного варианта', 'warning');
             return { node: scriptProcessor, type: 'processor' };
         } catch (fallbackError) {
-            log(`后备方案也失败: ${fallbackError.message}`, 'error');
+            log(`Резервный вариант также не удался: ${fallbackError.message}`, 'error');
             return null;
         }
     }
 
-    // Process PCM buffer data
+    // Обработка данных PCM-буфера
     processPCMBuffer(buffer) {
         if (!this.isRecording) return;
         const newBuffer = new Int16Array(this.pcmDataBuffer.length + buffer.length);
@@ -159,10 +159,10 @@ export class AudioRecorder {
         }
     }
 
-    // Encode and send Opus data
+    // Кодирование и отправка данных Opus
     encodeAndSendOpus(pcmData = null) {
         if (!this.opusEncoder) {
-            log('Opus编码器未初始化', 'error');
+            log('Кодер Opus не инициализирован', 'error');
             return;
         }
         try {
@@ -175,11 +175,11 @@ export class AudioRecorder {
                         try {
                             this.websocket.send(opusData.buffer);
                         } catch (error) {
-                            log(`WebSocket发送错误: ${error.message}`, 'error');
+                            log(`Ошибка отправки WebSocket: ${error.message}`, 'error');
                         }
                     }
                 } else {
-                    log('Opus编码失败，未返回有效数据', 'error');
+                    log('Ошибка кодирования Opus, не возвращены допустимые данные', 'error');
                 }
             } else {
                 if (this.pcmDataBuffer.length > 0) {
@@ -195,19 +195,19 @@ export class AudioRecorder {
                 }
             }
         } catch (error) {
-            log(`Opus编码错误: ${error.message}`, 'error');
+            log(`Ошибка кодирования Opus: ${error.message}`, 'error');
         }
     }
 
-    // Start recording
+    // Начало записи
     async start() {
         if (this.isRecording) return false;
         try {
             if (!this.initEncoder()) {
-                log('无法开始录音: Opus编码器初始化失败', 'error');
+                log('Невозможно начать запись: ошибка инициализации кодера Opus', 'error');
                 return false;
             }
-            log('请至少录制1-2秒音频以确保收集足够的数据', 'info');
+            log('Записывайте аудио не менее 1-2 секунд для сбора достаточного количества данных', 'info');
             const stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, sampleRate: 16000, channelCount: 1 } });
             this.audioContext = this.getAudioContext();
             if (this.audioContext.state === 'suspended') {
@@ -215,7 +215,7 @@ export class AudioRecorder {
             }
             const processorResult = await this.createAudioProcessor();
             if (!processorResult) {
-                log('无法创建音频处理器', 'error');
+                log('Не удалось создать аудиообработчик', 'error');
                 return false;
             }
             this.audioProcessor = processorResult.node;
@@ -232,23 +232,23 @@ export class AudioRecorder {
             if (this.audioProcessorType === 'worklet' && this.audioProcessor.port) {
                 this.audioProcessor.port.postMessage({ command: 'start' });
             }
-            // Send listening start message
+            // Отправка сообщения о начале прослушивания
             if (this.websocket && this.websocket.readyState === WebSocket.OPEN) {
-                log(`已发送录音开始消息`, 'info');
+                log(`Отправлено сообщение о начале записи`, 'info');
             } else {
-                log('WebSocket未连接，无法发送开始消息', 'error');
+                log('WebSocket не подключен, невозможно отправить сообщение о начале', 'error');
                 return false;
             }
-            // Start visualization
+            // Начало визуализации
             if (this.onVisualizerUpdate) {
                 const dataArray = new Uint8Array(this.analyser.frequencyBinCount);
                 this.startVisualization(dataArray);
             }
-            // Immediately notify recording start, update button state
+            // Немедленное уведомление о начале записи, обновление состояния кнопки
             if (this.onRecordingStart) {
                 this.onRecordingStart(0);
             }
-            // Start recording timer
+            // Запуск таймера записи
             let recordingSeconds = 0;
             this.recordingTimer = setInterval(() => {
                 recordingSeconds += 0.1;
@@ -256,16 +256,16 @@ export class AudioRecorder {
                     this.onRecordingStart(recordingSeconds);
                 }
             }, 100);
-            log('已开始PCM直接录音', 'success');
+            log('Начата прямая PCM-запись', 'success');
             return true;
         } catch (error) {
-            log(`直接录音启动错误: ${error.message}`, 'error');
+            log(`Ошибка запуска прямой записи: ${error.message}`, 'error');
             this.isRecording = false;
             return false;
         }
     }
 
-    // Start visualization
+    // Начало визуализации
     startVisualization(dataArray) {
         const draw = () => {
             this.visualizationRequest = requestAnimationFrame(() => draw());
@@ -278,7 +278,7 @@ export class AudioRecorder {
         draw();
     }
 
-    // Stop recording
+    // Остановка записи
     stop() {
         if (!this.isRecording) return false;
         try {
@@ -302,32 +302,32 @@ export class AudioRecorder {
                 clearInterval(this.recordingTimer);
                 this.recordingTimer = null;
             }
-            // Encode and send remaining data
+            // Кодирование и отправка оставшихся данных
             this.encodeAndSendOpus();
-            // Send end signal
+            // Отправка сигнала завершения
             if (this.websocket && this.websocket.readyState === WebSocket.OPEN) {
                 const emptyOpusFrame = new Uint8Array(0);
                 this.websocket.send(emptyOpusFrame);
-                log('已发送录音停止信号', 'info');
+                log('Отправлен сигнал остановки записи', 'info');
             }
             if (this.onRecordingStop) {
                 this.onRecordingStop();
             }
-            log('已停止PCM直接录音', 'success');
+            log('Прямая PCM-запись остановлена', 'success');
             return true;
         } catch (error) {
-            log(`直接录音停止错误: ${error.message}`, 'error');
+            log(`Ошибка остановки прямой записи: ${error.message}`, 'error');
             return false;
         }
     }
 
-    // Get analyser
+    // Получение анализатора
     getAnalyser() {
         return this.analyser;
     }
 }
 
-// Create singleton instance
+// Создание синглтона
 let audioRecorderInstance = null;
 
 export function getAudioRecorder() {
@@ -338,47 +338,47 @@ export function getAudioRecorder() {
 }
 
 /**
- * Check if microphone is available
- * @returns {Promise<boolean>} Returns true if available, false if not available
+ * Проверка доступности микрофона
+ * @returns {Promise<boolean>} Возвращает true, если доступен, false, если недоступен
  */
 export async function checkMicrophoneAvailability() {
-    // Check if browser supports getUserMedia API
+    // Проверка поддержки браузером API getUserMedia
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        log('浏览器不支持getUserMedia API', 'warning');
+        log('Браузер не поддерживает API getUserMedia', 'warning');
         return false;
     }
     try {
-        // Try to access microphone
+        // Попытка доступа к микрофону
         const stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, sampleRate: 16000, channelCount: 1 } });
-        // Immediately stop all tracks to release microphone
+        // Немедленная остановка всех дорожек для освобождения микрофона
         stream.getTracks().forEach(track => track.stop());
-        log('麦克风可用性检查成功', 'success');
+        log('Проверка доступности микрофона прошла успешно', 'success');
         return true;
     } catch (error) {
-        log(`麦克风不可用: ${error.message}`, 'warning');
+        log(`Микрофон недоступен: ${error.message}`, 'warning');
         return false;
     }
 }
 
 /**
- * Check if it is HTTP non-localhost access
- * @returns {boolean} Returns true if it is HTTP non-localhost access
+ * Проверка, является ли это доступом HTTP не через localhost
+ * @returns {boolean} Возвращает true, если это доступ HTTP не через localhost
  */
 export function isHttpNonLocalhost() {
     const protocol = window.location.protocol;
     const hostname = window.location.hostname;
-    // Check if it is HTTP protocol
+    // Проверка, является ли это протоколом HTTP
     if (protocol !== 'http:') {
         return false;
     }
-    // localhost and 127.0.0.1 can use microphone
+    // localhost и 127.0.0.1 могут использовать микрофон
     if (hostname === 'localhost' || hostname === '127.0.0.1') {
         return false;
     }
-    // Private IP addresses can also use microphone (browser allows)
+    // Частные IP-адреса также могут использовать микрофон (браузер разрешает)
     if (hostname.startsWith('192.168.') || hostname.startsWith('10.') || hostname.startsWith('172.')) {
         return false;
     }
-    // Other HTTP access is considered non-localhost
+    // Другие HTTP-доступы считаются не через localhost
     return true;
 }

@@ -189,7 +189,7 @@ export default {
     },
     handleClose() {
       this.saving = false;
-      // 处理关闭弹窗闪动问题
+      // Обработка проблемы мерцания при закрытии диалога
       setTimeout(() => {
         this.resetForm();
       }, 200)
@@ -225,7 +225,7 @@ export default {
               model.modelCode =
                 this.modelData.modelCode + this.$t("modelConfigDialog.copySuffix");
 
-              // 处理敏感字段
+              // Обработка чувствительных полей
               if (model.configJson) {
                 Object.keys(model.configJson).forEach((key) => {
                   if (this.isSensitiveField(key) && model.configJson[key]) {
@@ -248,7 +248,7 @@ export default {
       }
     },
     handleSave() {
-      this.saving = true; // 开始保存加载
+      this.saving = true; // Начало сохранения загрузки
 
       // 处理所有JSON字段
       Object.keys(this.fieldJsonMap).forEach((key) => {
@@ -278,7 +278,7 @@ export default {
         },
       });
 
-      // 如果父组件不处理done回调，3秒后自动关闭加载状态
+      // Если родительский компонент не обрабатываетdone回调，3秒后自动关闭加载状态
       setTimeout(() => {
         this.saving = false;
       }, 3000);
@@ -391,7 +391,7 @@ export default {
       return typeof value === "object" ? value : {};
     },
 
-    // 检测字段是否为敏感字段
+    // Проверка, является ли поле чувствительным
     isSensitiveField(fieldName) {
       // 将字段名转换为小写进行比较
       const lowerFieldName = fieldName.toLowerCase();
@@ -399,7 +399,7 @@ export default {
       return this.sensitive_keys.includes(lowerFieldName);
     },
 
-    // 获取敏感字段对应的中文名称
+    // Получение китайского имени чувствительного поля
     getSensitiveFieldName(fieldName) {
       const keyMap = {
         api_key: "API密钥",
@@ -421,7 +421,7 @@ export default {
 
     // 处理input聚焦事件
     handleInputFocus(field, value) {
-      // 如果值包含星号，清空显示
+      // Если значение содержит звёздочку，Очистка отображения
       if (value && value.includes("*")) {
         // 存储原始值，用于失焦时恢复
         this.$set(this.originalValues, field, this.form.configJson[field]);
@@ -431,9 +431,9 @@ export default {
 
     // 处理input失焦事件
     handleInputBlur(field) {
-      // 检查是否为敏感字段
+      // Проверка, является ли поле чувствительным
       if (this.isSensitiveField(field)) {
-        // 如果值为空，恢复掩码值
+        // Если значение пусто，恢复掩码值
         if (!this.form.configJson[field] || this.form.configJson[field].trim() === "") {
           // 如果有原始值，则恢复原始值；否则设置为掩码提示
           if (this.originalValues[field]) {
@@ -442,7 +442,7 @@ export default {
             const sensitiveName = this.getSensitiveFieldName(field);
             this.$set(this.form.configJson, field, `你的${sensitiveName}`);
           }
-          // 清除临时存储的原始值
+          // Очистка временно сохранённых исходных значений
           this.$delete(this.originalValues, field);
         }
       }

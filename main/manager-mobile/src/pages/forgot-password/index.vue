@@ -19,12 +19,12 @@ import { useConfigStore } from '@/store'
 import { getEnvBaseUrl, sm2Encrypt } from '@/utils'
 import { toast } from '@/utils/toast'
 
-// 获取屏幕边界到安全区域距离
+// Получение расстояния от края экрана до безопасной области
 let safeAreaInsets
 let systemInfo
 
 // #ifdef MP-WEIXIN
-// 微信小程序使用新的API
+// WeChat Mini Program использует новый API
 systemInfo = uni.getWindowInfo()
 safeAreaInsets = systemInfo.safeArea
   ? {
@@ -37,7 +37,7 @@ safeAreaInsets = systemInfo.safeArea
 // #endif
 
 // #ifndef MP-WEIXIN
-// 其他平台继续使用uni API
+// Другие платформы продолжают использовать uni API
 systemInfo = uni.getSystemInfoSync()
 safeAreaInsets = systemInfo.safeAreaInsets
 // #endif
@@ -96,24 +96,24 @@ const sm2PublicKey = computed(() => {
   return configStore.config.sm2PublicKey
 })
 
-// 打开区号选择弹窗
+// Открытие диалога выбора кода области
 function openAreaCodeSheet() {
   showAreaCodeSheet.value = true
 }
 
-// 选择区号
+// Выбор кода области
 function selectAreaCode(item: { value: string, label: string }) {
   selectedAreaCode.value = item.value
   formData.value.areaCode = item.value
   showAreaCodeSheet.value = false
 }
 
-// 关闭区号选择弹窗
+// Закрытие диалога выбора кода области
 function closeAreaCodeSheet() {
   showAreaCodeSheet.value = false
 }
 
-// 生成UUID
+// Генерация UUID
 function generateUUID() {
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
     const r = (Math.random() * 16) | 0
@@ -131,7 +131,7 @@ async function refreshCaptcha() {
 
 // 发送短信验证码
 async function handleSendSmsCode() {
-  // 手机号格式验证
+  // Проверка формата номера телефона
   const phoneRegex = /^1[3-9]\d{9}$/
   if (!phoneRegex.test(formData.value.mobile)) {
     toast.warning(t('retrievePassword.inputCorrectMobile'))
@@ -156,7 +156,7 @@ async function handleSendSmsCode() {
 
     toast.success(t('retrievePassword.captchaSendSuccess'))
 
-    // 开始倒计时
+    // Начало обратного отсчёта
     smsCountdown.value = 60
     const timer = setInterval(() => {
       smsCountdown.value--
@@ -166,7 +166,7 @@ async function handleSendSmsCode() {
     }, 1000)
   }
   catch (error: any) {
-    // 处理验证码错误
+    // Обработка ошибки кода подтверждения
     if (error.message.includes('请求错误[10067]')) {
       toast.warning(t('login.captchaError'))
     }
@@ -180,13 +180,13 @@ async function handleSendSmsCode() {
 
 // 重置密码
 async function handleResetPassword() {
-  // 表单验证
+  // Проверка формы
   if (!formData.value.mobile) {
     toast.warning(t('retrievePassword.mobileRequired'))
     return
   }
 
-  // 手机号格式验证
+  // Проверка формата номера телефона
   const phoneRegex = /^1[3-9]\d{9}$/
   if (!phoneRegex.test(formData.value.mobile)) {
     toast.warning(t('retrievePassword.inputCorrectMobile'))
@@ -224,7 +224,7 @@ async function handleResetPassword() {
   try {
     loading.value = true
 
-    // 检查SM2公钥是否配置
+    // 检查SM2Проверка конфигурации публичного ключа
     if (!sm2PublicKey.value) {
       toast.warning(t('sm2.publicKeyNotConfigured'))
       return
@@ -233,12 +233,12 @@ async function handleResetPassword() {
     // 加密密码
     let encryptedPassword
     try {
-      // 拼接图形验证码和新密码进行加密
+      // Объединение графического кода подтверждения и нового пароля для шифрования
       const captchaAndPassword = formData.value.captcha + formData.value.newPassword
       encryptedPassword = sm2Encrypt(sm2PublicKey.value, captchaAndPassword)
     }
     catch (error) {
-      console.error('密码加密失败:', error)
+      console.error('Ошибка шифрования пароля:', error)
       toast.warning(t('sm2.encryptionFailed'))
       return
     }
@@ -261,11 +261,11 @@ async function handleResetPassword() {
     }, 1000)
   }
   catch (error: any) {
-    // 处理验证码错误
+    // Обработка ошибки кода подтверждения
     if (error.message.includes('请求错误[10067]')) {
       toast.warning(t('login.captchaError'))
     }
-    // 重置失败重新获取验证码
+    // 重置失败Повторное получение кода подтверждения
     refreshCaptcha()
   }
   finally {
@@ -280,22 +280,22 @@ function goBack() {
   })
 }
 
-// 页面加载时获取验证码
+// Получение кода подтверждения при загрузке страницы
 onLoad(() => {
   refreshCaptcha()
 })
 
-// 组件挂载时确保配置已加载
+// Обеспечение загрузки конфигурации при монтировании компонента
 onMounted(async () => {
   if (!configStore.config.name) {
     try {
       await configStore.fetchPublicConfig()
     }
     catch (error) {
-      console.error('获取配置失败:', error)
+      console.error('Ошибка получения конфигурации:', error)
     }
   }
-  // 初始化国际化
+  // Инициализация интернационализации
   initI18n()
 })
 </script>
@@ -410,7 +410,7 @@ onMounted(async () => {
           </view>
         </view>
 
-        <!-- 重置密码按钮 -->
+        <!-- Кнопка сброса пароля -->
         <view class="reset-btn" @click="handleResetPassword">
           {{ loading ? t("common.loading") : t("retrievePassword.resetButton") }}
         </view>
@@ -424,7 +424,7 @@ onMounted(async () => {
       </view>
     </view>
 
-    <!-- 区号选择弹窗 -->
+    <!-- Диалог выбора кода области -->
     <wd-action-sheet
       v-model="showAreaCodeSheet"
       :title="t('login.selectCountry')"
@@ -750,7 +750,7 @@ onMounted(async () => {
   }
 }
 
-// 区号选择弹窗样式
+// Стиль диалога выбора кода области
 .area-code-sheet {
   background: #ffffff;
   border-radius: 24rpx 24rpx 0 0;

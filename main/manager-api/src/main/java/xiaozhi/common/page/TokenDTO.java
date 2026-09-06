@@ -6,7 +6,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 /**
- * 令牌信息
+ * Информация о токене
  *
  * @author Jack
  */

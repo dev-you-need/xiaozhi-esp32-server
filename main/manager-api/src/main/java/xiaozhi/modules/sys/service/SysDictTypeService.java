@@ -10,51 +10,51 @@ import xiaozhi.modules.sys.entity.SysDictTypeEntity;
 import xiaozhi.modules.sys.vo.SysDictTypeVO;
 
 /**
- * 数据字典
+ * Словарь данных
  */
 public interface SysDictTypeService extends BaseService<SysDictTypeEntity> {
 
     /**
-     * 分页查询字典类型信息
+     * Постраничный запрос информации о типах словаря
      *
-     * @param params 查询参数，包含分页信息和查询条件
-     * @return 返回分页的字典类型数据
+     * @param params Параметры запроса, включая информацию о постраничности и условия запроса
+     * @return Возвращает данные о типах словаря постранично
      */
     PageData<SysDictTypeVO> page(Map<String, Object> params);
 
     /**
-     * 根据ID获取字典类型信息
+     * Получить информацию о типе словаря по ID
      *
-     * @param id 字典类型ID
-     * @return 返回字典类型对象
+     * @param id ID типа словаря
+     * @return Возвращает объект типа словаря
      */
     SysDictTypeVO get(Long id);
 
     /**
-     * 保存字典类型信息
+     * Сохранить информацию о типе словаря
      *
-     * @param dto 字典类型数据传输对象
+     * @param dto Объект передачи данных типа словаря
      */
     void save(SysDictTypeDTO dto);
 
     /**
-     * 更新字典类型信息
+     * Обновить информацию о типе словаря
      *
-     * @param dto 字典类型数据传输对象
+     * @param dto Объект передачи данных типа словаря
      */
     void update(SysDictTypeDTO dto);
 
     /**
-     * 删除字典类型信息
+     * Удалить информацию о типе словаря
      *
-     * @param ids 要删除的字典类型ID数组
+     * @param ids Массив ID типов словаря для удаления
      */
     void delete(Long[] ids);
 
     /**
-     * 列出所有字典类型信息
+     * Вывести список всей информации о типах словаря
      *
-     * @return 返回字典类型列表
+     * @return Возвращает список типов словаря
      */
     List<SysDictTypeVO> list(Map<String, Object> params);
 }

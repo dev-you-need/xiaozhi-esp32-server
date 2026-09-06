@@ -9,14 +9,14 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.validation.constraints.*;
 
 /**
- * 切片管理聚合 DTO
+ * Агрегация управления нарезкой DTO
  */
 @Schema(description = "切片管理聚合 DTO")
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ChunkDTO {
 
     /**
-     * 新增切片请求参数
+     * Новый параметр запроса среза
      */
     @Data
     @Builder
@@ -40,7 +40,7 @@ public class ChunkDTO {
     }
 
     /**
-     * 更新切片请求参数
+     * Обновить параметры запроса среза
      */
     @Data
     @Builder
@@ -63,7 +63,7 @@ public class ChunkDTO {
     }
 
     /**
-     * 获取切片列表请求参数
+     * Получить параметры запроса списка срезов
      */
     @Data
     @Builder
@@ -89,7 +89,7 @@ public class ChunkDTO {
     }
 
     /**
-     * 批量删除切片请求参数
+     * Пакетное удаление параметров запроса на нарезку
      */
     @Data
     @Builder
@@ -107,7 +107,7 @@ public class ChunkDTO {
     }
 
     /**
-     * 文档切片信息 VO
+     * Информация о срезе документа VO
      */
     @Data
     @Builder
@@ -159,7 +159,7 @@ public class ChunkDTO {
     }
 
     /**
-     * 分片列表聚合响应
+     * Ответ агрегации списка шардов
      */
     @Data
     @Builder

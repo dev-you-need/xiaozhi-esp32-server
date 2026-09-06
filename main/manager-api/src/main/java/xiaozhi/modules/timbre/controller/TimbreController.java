@@ -27,7 +27,7 @@ import xiaozhi.modules.timbre.service.TimbreService;
 import xiaozhi.modules.timbre.vo.TimbreDetailsVO;
 
 /**
- * 音色控制层
+ * Слой управления тембром
  *
  * @author zjy
  * @since 2025-3-21

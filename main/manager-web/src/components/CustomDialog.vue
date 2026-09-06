@@ -82,11 +82,11 @@ export default {
     },
     cancelText: {
       type: String,
-      default: "取消"
+      default: "Отмена"
     },
     confirmText: {
       type: String,
-      default: "确认保存"
+      default: "Подтвердить сохранение"
     }
   },
   data() {

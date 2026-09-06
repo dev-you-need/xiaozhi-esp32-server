@@ -25,7 +25,7 @@ interface Props {
   agentId?: string
 }
 
-// 获取屏幕边界到安全区域距离
+// Получение расстояния от края экрана до безопасной области
 let safeAreaInsets: any
 let systemInfo: any
 
@@ -75,7 +75,7 @@ function selectBindMode(row) {
     openBindDialog()
   }
   else if (row.item.key === 'manual') {
-    // 打开弹窗前重置表单和错误提示
+    // 打开弹窗前Сброс формы и подсказок ошибок
     manualBindForm.value = {
       board: '',
       appVersion: '',
@@ -93,7 +93,7 @@ function selectBindMode(row) {
 // 消息组件
 const message = useMessage()
 
-// 使用传入的智能体ID
+// Использование переданного агентаID
 const currentAgentId = computed(() => {
   return props.agentId
 })
@@ -101,7 +101,7 @@ const currentAgentId = computed(() => {
 // 获取设备列表
 async function loadDeviceList() {
   try {
-    // 检查是否有当前选中的智能体
+    // Проверка наличия текущего выбранного агента
     if (!currentAgentId.value) {
       deviceList.value = []
       return
@@ -112,7 +112,7 @@ async function loadDeviceList() {
     deviceList.value = response || []
   }
   catch (error) {
-    console.error('获取设备列表失败:', error)
+    console.error('Ошибка получения списка устройств:', error)
     deviceList.value = []
   }
   finally {
@@ -125,7 +125,7 @@ async function refresh() {
   await loadDeviceList()
 }
 
-// 获取设备类型名称
+// Получение имени типа устройства
 function getDeviceTypeName(boardKey: string): string {
   const firmwareType = firmwareTypes.value.find(type => type.key === boardKey)
   return firmwareType?.name || boardKey
@@ -151,7 +151,7 @@ function formatTime(timestamp: string | null) {
   return date.toLocaleDateString()
 }
 
-// 切换OTA自动更新
+// 切换OTAАвтообновление
 async function toggleAutoUpdate(device: Device) {
   try {
     const newStatus = device.autoUpdate === 1 ? 0 : 1
@@ -160,7 +160,7 @@ async function toggleAutoUpdate(device: Device) {
     toast.success(newStatus === 1 ? t('device.otaAutoUpdateEnabled') : t('device.otaAutoUpdateDisabled'))
   }
   catch (error: any) {
-    console.error('更新设备OTA状态失败:', error)
+    console.error('Обновление устройстваOTA状态失败:', error)
     toast.error(t('device.operationFailed'))
   }
 }
@@ -235,7 +235,7 @@ function openBindDialog() {
 // 手动绑定设备
 async function handleManualBind() {
   try {
-    // 先校验整个表单
+    // 先Проверка всей формы
     const isValid = validateForm()
     if (!isValid) {
       return
@@ -255,7 +255,7 @@ async function handleManualBind() {
     await loadDeviceList()
     toast.success(t('manualAddDeviceDialog.addSuccess'))
     isManualBindDialog.value = false
-    // 重置表单和错误提示
+    // Сброс формы и подсказок ошибок
     manualBindForm.value = {
       board: '',
       appVersion: '',
@@ -306,21 +306,21 @@ function validateField(field: string) {
   }
 }
 
-// 清除字段错误提示
+// Очистка подсказок ошибок полей
 function clearFieldError(field: string) {
   formErrors.value[field] = ''
 }
 
-// 处理选择器变化
+// Обработка изменений селектора
 function handlePickerChange() {
   clearFieldError('board')
 }
 
-// 校验整个表单
+// Проверка всей формы
 function validateForm(): boolean {
   let isValid = true
 
-  // 校验设备类型
+  // Проверка типа устройства
   if (!manualBindForm.value.board) {
     formErrors.value.board = t('manualAddDeviceDialog.deviceTypePlaceholder')
     isValid = false
@@ -329,7 +329,7 @@ function validateForm(): boolean {
     formErrors.value.board = ''
   }
 
-  // 校验固件版本
+  // Проверка версии прошивки
   if (!manualBindForm.value.appVersion) {
     formErrors.value.appVersion = t('manualAddDeviceDialog.firmwareVersionPlaceholder')
     isValid = false
@@ -354,14 +354,14 @@ function validateForm(): boolean {
   return isValid
 }
 
-// 获取设备类型列表
+// Получение списка типов устройств
 async function loadFirmwareTypes() {
   try {
     const response = await getFirmwareTypes()
     firmwareTypes.value = response
   }
   catch (error) {
-    console.error('获取设备类型失败:', error)
+    console.error('Ошибка получения типа устройства:', error)
   }
 }
 
@@ -390,7 +390,7 @@ defineExpose({
 
     <!-- 设备列表 -->
     <view v-else-if="deviceList.length > 0" class="device-list">
-      <!-- 设备卡片列表 -->
+      <!-- Список карточек устройств -->
       <view class="box-border flex flex-col gap-[24rpx] p-[20rpx]">
         <view v-for="device in deviceList" :key="device.id">
           <wd-swipe-action>

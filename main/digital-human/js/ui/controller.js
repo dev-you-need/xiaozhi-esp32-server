@@ -1,4 +1,4 @@
-// UI controller module
+// Модуль контроллера интерфейса
 import { loadConfig, saveConfig } from '../config/manager.js?v=0205';
 import { getAudioPlayer } from '../core/audio/player.js?v=0205';
 import { getAudioRecorder } from '../core/audio/recorder.js?v=0205';
@@ -6,7 +6,7 @@ import { requestWakewordBridge, stopWakewordBridgeListener, startWakewordBridgeL
 import { getWebSocketHandler } from '../core/network/websocket.js?v=0205';
 import { log } from '../utils/logger.js?v=0205';
 
-// UI controller class
+// Класс контроллера интерфейса
 class UIController {
     constructor() {
         this.isEditing = false;
@@ -19,7 +19,7 @@ class UIController {
         this.isConnecting = false;
         this.lastWakewordDialTime = 0;
 
-        // Bind methods
+        // Привязка методов
         this.init = this.init.bind(this);
         this.initEventListeners = this.initEventListeners.bind(this);
         this.updateDialButton = this.updateDialButton.bind(this);
@@ -34,9 +34,9 @@ class UIController {
         this.triggerWakewordDial = this.triggerWakewordDial.bind(this);
     }
 
-    // Initialize
+    // Инициализация
     init() {
-        console.log('UIController init started');
+        console.log('Инициализация UIController начата');
 
         this.visualizerCanvas = document.getElementById('audioVisualizer');
         if (this.visualizerCanvas) {
@@ -44,23 +44,23 @@ class UIController {
             this.initVisualizer();
         }
 
-        // Check if connect button exists during initialization
+        // Проверка наличия кнопки подключения при инициализации
         const connectBtn = document.getElementById('connectBtn');
-        console.log('connectBtn during init:', connectBtn);
+        console.log('Кнопка подключения при инициализации:', connectBtn);
 
         this.initEventListeners();
         this.startAudioStatsMonitor();
         loadConfig();
 
-        // Register recording callback
+        // Регистрация обратного вызова записи
         const audioRecorder = getAudioRecorder();
         audioRecorder.onRecordingStart = (seconds) => {
             this.updateRecordButtonState(true, seconds);
         };
 
-        // Initialize status display
+        // Инициализация отображения статуса
         this.updateConnectionUI(false);
-        // Apply saved background
+        // Применение сохраненного фона
         const backgroundContainer = document.querySelector('.background-container');
         if (backgroundContainer) {
             backgroundContainer.style.backgroundImage = `url('./images/${this.backgroundImages[this.currentBackgroundIndex]}')`;
@@ -68,10 +68,10 @@ class UIController {
 
         this.updateDialButton(false);
 
-        console.log('UIController init completed');
+        console.log('Инициализация UIController завершена');
     }
 
-    // Initialize visualizer
+    // Инициализация визуализатора
     initVisualizer() {
         if (this.visualizerCanvas) {
             this.visualizerCanvas.width = this.visualizerCanvas.clientWidth;
@@ -81,9 +81,9 @@ class UIController {
         }
     }
 
-    // Initialize event listeners
+    // Инициализация слушателей событий
     initEventListeners() {
-        // Settings button
+        // Кнопка настроек
         const settingsBtn = document.getElementById('settingsBtn');
         if (settingsBtn) {
             settingsBtn.addEventListener('click', () => {
@@ -91,13 +91,13 @@ class UIController {
             });
         }
 
-        // Background switch button
+        // Кнопка переключения фона
         const backgroundBtn = document.getElementById('backgroundBtn');
         if (backgroundBtn) {
             backgroundBtn.addEventListener('click', this.switchBackground);
         }
 
-        // Model select change event
+        // Событие изменения выбора модели
         const modelSelect = document.getElementById('live2dModelSelect');
         if (modelSelect) {
             modelSelect.addEventListener('change', () => {
@@ -105,7 +105,7 @@ class UIController {
             });
         }
 
-        // Camera switch button
+        // Кнопка переключения камеры
         const cameraSwitch = document.getElementById('cameraSwitch');
         const cameraSwitchMask = document.getElementById('cameraSwitchMask');
         if (cameraSwitchMask) {
@@ -117,7 +117,7 @@ class UIController {
             })
         }
 
-        // Dial button
+        // Кнопка набора номера
         const dialBtn = document.getElementById('dialBtn');
         if (dialBtn) {
             dialBtn.addEventListener('click', () => {
@@ -135,25 +135,25 @@ class UIController {
                     wsHandler.disconnect();
                     this.updateDialButton(false);
                     if (cameraSwitch) cameraSwitch.classList.remove('active');
-                    this.addChatMessage('Disconnected, see you next time~😊', false);
+                    this.addChatMessage('Отключено, до встречи~😊', false);
                 } else {
-                    // Check if OTA URL is filled
+                    // Проверка заполненности URL OTA
                     const otaUrlInput = document.getElementById('otaUrl');
                     if (!otaUrlInput || !otaUrlInput.value.trim()) {
-                        // If OTA URL is not filled, show settings modal and switch to device tab
+                        // Если URL OTA не заполнен, отображение модального окна настроек и переключение на вкладку устройства
                         this.showModal('settingsModal');
                         this.switchTab('device');
-                        this.addChatMessage('Please fill in OTA server URL', false);
+                        this.addChatMessage('Пожалуйста, заполните URL OTA-сервера', false);
                         return;
                     }
 
-                    // Start connection process
+                    // Запуск процесса подключения
                     this.handleConnect();
                 }
             });
         }
 
-        // Camera button
+        // Кнопка камеры
         const cameraBtn = document.getElementById('cameraBtn');
         let cameraTimer = null;
         if (cameraBtn) {
@@ -165,43 +165,43 @@ class UIController {
                 cameraTimer = setTimeout(() => {
                     const cameraContainer = document.getElementById('cameraContainer');
                     if (!cameraContainer) {
-                        log('摄像头容器不存在', 'warning');
+                        log('Контейнер камеры не существует', 'warning');
                         return;
                     }
 
                     const isActive = cameraContainer.classList.contains('active');
                     if (isActive) {
-                        // 关闭摄像头
+                        // Отключение камеры
                         if (typeof window.stopCamera === 'function') {
                             if (cameraSwitch) cameraSwitch.classList.remove('active');
                             window.stopCamera();
                         }
                         cameraContainer.classList.remove('active');
                         cameraBtn.classList.remove('camera-active');
-                        cameraBtn.querySelector('.btn-text').textContent = '摄像头';
-                        log('摄像头已关闭', 'info');
+                        cameraBtn.querySelector('.btn-text').textContent = 'Камера';
+                        log('Камера отключена', 'info');
                     } else {
-                        // 打开摄像头
+                        // Включение камеры
                         if (typeof window.startCamera === 'function') {
                             window.startCamera().then(success => {
                                 if (success) {
                                     cameraBtn.classList.add('camera-active');
-                                    cameraBtn.querySelector('.btn-text').textContent = '关闭';
+                                    cameraBtn.querySelector('.btn-text').textContent = 'Выкл.';
                                 } else {
-                                    this.addChatMessage('⚠️ 摄像头启动失败，请检查浏览器权限', false);
+                                    this.addChatMessage('⚠️ Ошибка запуска камеры, проверьте разрешения браузера', false);
                                 }
                             }).catch(error => {
-                                log(`启动摄像头异常: ${error.message}`, 'error');
+                                log(`Исключение при запуске камеры: ${error.message}`, 'error');
                             });
                         } else {
-                            log('startCamera函数未定义', 'warning');
+                            log('Функция startCamera не определена', 'warning');
                         }
                     }
                 }, 300);
             });
         }
 
-        // Record button
+        // Кнопка записи
         const recordBtn = document.getElementById('recordBtn');
         if (recordBtn) {
             let recordTimer = null;
@@ -214,15 +214,15 @@ class UIController {
                     const audioRecorder = getAudioRecorder();
                     if (audioRecorder.isRecording) {
                         audioRecorder.stop();
-                        // Restore record button to normal state
+                        // Восстановление кнопки записи в нормальное состояние
                         recordBtn.classList.remove('recording');
-                        recordBtn.querySelector('.btn-text').textContent = '录音';
+                        recordBtn.querySelector('.btn-text').textContent = 'Запись';
                     } else {
-                        // Update button state to recording
+                        // Обновление состояния кнопки на запись
                         recordBtn.classList.add('recording');
-                        recordBtn.querySelector('.btn-text').textContent = '录音中';
+                        recordBtn.querySelector('.btn-text').textContent = 'Запись...';
 
-                        // Start recording, update button state after delay
+                        // Начало записи, обновление состояния кнопки с задержкой
                         setTimeout(() => {
                             audioRecorder.start();
                         }, 100);
@@ -231,7 +231,7 @@ class UIController {
             });
         }
 
-        // Chat input event listener
+        // Слушатель событий ввода сообщения чата
         const chatIpt = document.getElementById('chatIpt');
         if (chatIpt) {
             const wsHandler = getWebSocketHandler();
@@ -246,7 +246,7 @@ class UIController {
             });
         }
 
-        // Close button
+        // Кнопка закрытия
         const closeButtons = document.querySelectorAll('.close-btn');
         closeButtons.forEach(btn => {
             btn.addEventListener('click', (e) => {
@@ -261,7 +261,7 @@ class UIController {
             });
         });
 
-        // Settings tab switch
+        // Переключение вкладок настроек
         const tabBtns = document.querySelectorAll('.tab-btn');
         tabBtns.forEach(btn => {
             btn.addEventListener('click', (e) => {
@@ -274,22 +274,22 @@ class UIController {
             applyWakewordBtn.addEventListener('click', this.handleApplyWakeword);
         }
 
-        // 点击模态框背景关闭（仅对特定模态框禁用此功能）
+        // Закрытие модального окна по клику на фон (только для определенных модальных окон отключено)
         const modals = document.querySelectorAll('.modal');
         modals.forEach(modal => {
             modal.addEventListener('click', (e) => {
                 if (e.target === modal) {
-                    // settingsModal、mcpToolModal、mcpPropertyModal 只能通过点击X关闭
+                    // settingsModal, mcpToolModal, mcpPropertyModal могут быть закрыты только по клику на X
                     const nonClosableModals = ['settingsModal', 'mcpToolModal', 'mcpPropertyModal'];
                     if (nonClosableModals.includes(modal.id)) {
-                        return; // 禁止点击背景关闭
+                        return; // Запрет закрытия по клику на фон
                     }
                     this.hideModal(modal.id);
                 }
             });
         });
 
-        // Add MCP tool button
+        // Кнопка добавления инструмента MCP
         const addMCPToolBtn = document.getElementById('addMCPToolBtn');
         if (addMCPToolBtn) {
             addMCPToolBtn.addEventListener('click', (e) => {
@@ -298,22 +298,22 @@ class UIController {
             });
         }
 
-        // Connect button and send button are not removed, can be added to dial button later
+        // Кнопки подключения и отправки не удалены, могут быть добавлены к кнопке набора номера позже
     }
 
-    // Update connection status UI
+    // Обновление интерфейса состояния подключения
     updateConnectionUI(isConnected) {
         const connectionStatus = document.getElementById('connectionStatus');
         const statusDot = document.querySelector('.status-dot');
 
         if (connectionStatus) {
             if (isConnected) {
-                connectionStatus.textContent = '已连接';
+                connectionStatus.textContent = 'Подключено';
                 if (statusDot) {
                     statusDot.className = 'status-dot status-connected';
                 }
             } else {
-                connectionStatus.textContent = '离线';
+                connectionStatus.textContent = 'Не в сети';
                 if (statusDot) {
                     statusDot.className = 'status-dot status-disconnected';
                 }
@@ -321,7 +321,7 @@ class UIController {
         }
     }
 
-    // Update dial button state
+    // Обновление состояния кнопки набора номера
     updateDialButton(isConnected) {
         const dialBtn = document.getElementById('dialBtn');
         const recordBtn = document.getElementById('recordBtn');
@@ -330,113 +330,113 @@ class UIController {
         if (dialBtn) {
             if (isConnected) {
                 dialBtn.classList.add('dial-active');
-                dialBtn.querySelector('.btn-text').textContent = '挂断';
-                // Update dial button icon to hang up icon
+                dialBtn.querySelector('.btn-text').textContent = 'Завершить';
+                // Обновление иконки кнопки набора номера на иконку завершения вызова
                 dialBtn.querySelector('svg').innerHTML = `
                     <path d="M12,9C10.4,9 9,10.4 9,12C9,13.6 10.4,15 12,15C13.6,15 15,13.6 15,12C15,10.4 13.6,9 12,9M12,17C9.2,17 7,14.8 7,12C7,9.2 9.2,7 12,7C14.8,7 17,9.2 17,12C17,14.8 14.8,17 12,17M12,4.5C7,4.5 2.7,7.6 1,12C2.7,16.4 7,19.5 12,19.5C17,19.5 21.3,16.4 23,12C21.3,7.6 17,4.5 12,4.5Z"/>
                 `;
             } else {
                 dialBtn.classList.remove('dial-active');
-                dialBtn.querySelector('.btn-text').textContent = '拨号';
-                // Restore dial button icon
+                dialBtn.querySelector('.btn-text').textContent = 'Вызов';
+                // Восстановление иконки кнопки набора номера
                 dialBtn.querySelector('svg').innerHTML = `
                     <path d="M6.62,10.79C8.06,13.62 10.38,15.94 13.21,17.38L15.41,15.18C15.69,14.9 16.08,14.82 16.43,14.93C17.55,15.3 18.75,15.5 20,15.5A1,1 0 0,1 21,16.5V20A1,1 0 0,1 20,21A17,17 0 0,1 3,4A1,1 0 0,1 4,3H7.5A1,1 0 0,1 8.5,4C8.5,5.25 8.7,6.45 9.07,7.57C9.18,7.92 9.1,8.31 8.82,8.59L6.62,10.79Z"/>
                 `;
             }
         }
 
-        // Update camera button state - reset to default when disconnected
+        // Обновление состояния кнопки камеры - сброс значения по умолчанию при отключении
         if (cameraBtn && !isConnected) {
             const cameraContainer = document.getElementById('cameraContainer');
             if (cameraContainer && cameraContainer.classList.contains('active')) {
                 cameraContainer.classList.remove('active');
             }
             cameraBtn.classList.remove('camera-active');
-            cameraBtn.querySelector('.btn-text').textContent = '摄像头';
+            cameraBtn.querySelector('.btn-text').textContent = 'Камера';
             cameraBtn.disabled = true;
-            cameraBtn.title = '请先连接服务器';
-            // 关闭摄像头
+            cameraBtn.title = 'Сначала подключитесь к серверу';
+            // Отключение камеры
             if (typeof window.stopCamera === 'function') {
                 window.stopCamera();
             }
         }
 
-        // Update camera button state - enable when connected and camera is available
+        // Обновление состояния кнопки камеры - включение при подключении и доступности камеры
         if (cameraBtn && isConnected) {
             if (window.cameraAvailable) {
                 cameraBtn.disabled = false;
-                cameraBtn.title = '打开/关闭摄像头';
+                cameraBtn.title = 'Включить/выключить камеру';
             } else {
                 cameraBtn.disabled = true;
-                cameraBtn.title = '请先绑定验证码';
+                cameraBtn.title = 'Сначала введите код привязки';
             }
         }
 
-        // Update record button state
+        // Обновление состояния кнопки записи
         if (recordBtn) {
             const microphoneAvailable = window.microphoneAvailable !== false;
             if (isConnected && microphoneAvailable) {
                 recordBtn.disabled = false;
-                recordBtn.title = '开始录音';
-                // Restore record button to normal state
-                recordBtn.querySelector('.btn-text').textContent = '录音';
+                recordBtn.title = 'Начать запись';
+                // Восстановление кнопки записи в нормальное состояние
+                recordBtn.querySelector('.btn-text').textContent = 'Запись';
                 recordBtn.classList.remove('recording');
             } else {
                 recordBtn.disabled = true;
                 if (!microphoneAvailable) {
-                    recordBtn.title = window.isHttpNonLocalhost ? '当前由于是http访问，无法录音，只能用文字交互' : '麦克风不可用';
+                    recordBtn.title = window.isHttpNonLocalhost ? 'В настоящее время из-за HTTP-доступа запись невозможна, доступно только текстовое взаимодействие' : 'Микрофон недоступен';
                 } else {
-                    recordBtn.title = '请先连接服务器';
+                    recordBtn.title = 'Сначала подключитесь к серверу';
                 }
-                // Restore record button to normal state
-                recordBtn.querySelector('.btn-text').textContent = '录音';
+                // Восстановление кнопки записи в нормальное состояние
+                recordBtn.querySelector('.btn-text').textContent = 'Запись';
                 recordBtn.classList.remove('recording');
             }
         }
     }
 
-    // Update record button state
+    // Обновление состояния кнопки записи
     updateRecordButtonState(isRecording, seconds = 0) {
         const recordBtn = document.getElementById('recordBtn');
         if (recordBtn) {
             if (isRecording) {
-                recordBtn.querySelector('.btn-text').textContent = `录音中`;
+                recordBtn.querySelector('.btn-text').textContent = `Запись...`;
                 recordBtn.classList.add('recording');
             } else {
-                recordBtn.querySelector('.btn-text').textContent = '录音';
+                recordBtn.querySelector('.btn-text').textContent = 'Запись';
                 recordBtn.classList.remove('recording');
             }
-            // Only enable button when microphone is available
+            // Включение кнопки только при доступности микрофона
             recordBtn.disabled = window.microphoneAvailable === false;
         }
     }
 
     /**
-     * Update microphone availability state
-     * @param {boolean} isAvailable - Whether microphone is available
-     * @param {boolean} isHttpNonLocalhost - Whether it is HTTP non-localhost access
+     * Обновление состояния доступности микрофона
+     * @param {boolean} isAvailable - Доступен ли микрофон
+     * @param {boolean} isHttpNonLocalhost - Является ли это HTTP-доступом не через localhost
      */
     updateMicrophoneAvailability(isAvailable, isHttpNonLocalhost) {
         const recordBtn = document.getElementById('recordBtn');
         if (!recordBtn) return;
         if (!isAvailable) {
-            // Disable record button
+            // Отключение кнопки записи
             recordBtn.disabled = true;
-            // Update button text and title
-            recordBtn.querySelector('.btn-text').textContent = '录音';
-            recordBtn.title = isHttpNonLocalhost ? '当前由于是http访问，无法录音，只能用文字交互' : '麦克风不可用';
+            // Обновление текста и заголовка кнопки
+            recordBtn.querySelector('.btn-text').textContent = 'Запись';
+            recordBtn.title = isHttpNonLocalhost ? 'В настоящее время из-за HTTP-доступа запись невозможна, доступно только текстовое взаимодействие' : 'Микрофон недоступен';
 
         } else {
-            // If connected, enable record button
+            // Если подключено, включение кнопки записи
             const wsHandler = getWebSocketHandler();
             if (wsHandler && wsHandler.isConnected()) {
                 recordBtn.disabled = false;
-                recordBtn.title = '开始录音';
+                recordBtn.title = 'Начать запись';
             }
         }
     }
 
-    // Add chat message
+    // Добавление сообщения чата
     addChatMessage(content, isUser = false) {
         const chatStream = document.getElementById('chatStream');
         if (!chatStream) return;
@@ -446,11 +446,11 @@ class UIController {
         messageDiv.innerHTML = `<div class="message-bubble">${content}</div>`;
         chatStream.appendChild(messageDiv);
 
-        // Scroll to bottom
+        // Прокрутка вниз
         chatStream.scrollTop = chatStream.scrollHeight;
     }
 
-    // Switch background
+    // Переключение фона
     switchBackground() {
         this.currentBackgroundIndex = (this.currentBackgroundIndex + 1) % this.backgroundImages.length;
         const backgroundContainer = document.querySelector('.background-container');
@@ -460,11 +460,11 @@ class UIController {
         localStorage.setItem('backgroundIndex', this.currentBackgroundIndex);
     }
 
-    // Switch Live2D model
+    // Переключение модели Live2D
     switchLive2DModel() {
         const modelSelect = document.getElementById('live2dModelSelect');
         if (!modelSelect) {
-            console.error('模型选择下拉框不存在');
+            console.error('Выпадающий список выбора модели не существует');
             return;
         }
 
@@ -475,21 +475,21 @@ class UIController {
             app.live2dManager.switchModel(selectedModel)
                 .then(success => {
                     if (success) {
-                        this.addChatMessage(`已切换到模型: ${selectedModel}`, false);
+                        this.addChatMessage(`Переключено на модель: ${selectedModel}`, false);
                     } else {
-                        this.addChatMessage('模型切换失败', false);
+                        this.addChatMessage('Ошибка переключения модели', false);
                     }
                 })
                 .catch(error => {
-                    console.error('模型切换错误:', error);
-                    this.addChatMessage('模型切换出错', false);
+                    console.error('Ошибка переключения модели:', error);
+                    this.addChatMessage('Ошибка переключения модели', false);
                 });
         } else {
-            this.addChatMessage('Live2D管理器未初始化', false);
+            this.addChatMessage('Менеджер Live2D не инициализирован', false);
         }
     }
 
-    // Show modal
+    // Отображение модального окна
     showModal(modalId) {
         const modal = document.getElementById(modalId);
         if (modal) {
@@ -497,7 +497,7 @@ class UIController {
         }
     }
 
-    // Hide modal
+    // Скрытие модального окна
     hideModal(modalId) {
         const modal = document.getElementById(modalId);
         if (modal) {
@@ -505,16 +505,16 @@ class UIController {
         }
     }
 
-    // Switch tab
+    // Переключение вкладки
     switchTab(tabName) {
-        // Remove active class from all tabs
+        // Удаление активного класса со всех вкладок
         const tabBtns = document.querySelectorAll('.tab-btn');
         const tabContents = document.querySelectorAll('.tab-content');
 
         tabBtns.forEach(btn => btn.classList.remove('active'));
         tabContents.forEach(content => content.classList.remove('active'));
 
-        // Activate selected tab
+        // Активация выбранной вкладки
         const activeTabBtn = document.querySelector(`[data-tab="${tabName}"]`);
         const activeTabContent = document.getElementById(`${tabName}Tab`);
 
@@ -561,47 +561,47 @@ class UIController {
         };
 
         if (payload.enabled && payload.wakeWords.length === 0) {
-            this.addChatMessage('启用唤醒词时，至少需要填写一个唤醒词。', false);
+            this.addChatMessage('При включении слов активации необходимо ввести хотя бы одно слово активации.', false);
             return;
         }
 
         const applyWakewordBtn = document.getElementById('applyWakewordBtn');
         if (applyWakewordBtn) {
             applyWakewordBtn.disabled = true;
-            applyWakewordBtn.textContent = '应用中...';
+            applyWakewordBtn.textContent = 'Применение...';
         }
 
         try {
-            // 保存地址到 localStorage
+            // Сохранение адреса в localStorage
             if (wakewordWsUrlInput && wakewordWsUrlInput.value.trim()) {
                 localStorage.setItem('xz_tester_wakewordWsUrl', wakewordWsUrlInput.value.trim());
             }
 
-            // 比较新地址和当前连接地址
+            // Сравнение нового адреса и текущего адреса подключения
             const newWsUrl = localStorage.getItem('xz_tester_wakewordWsUrl');
             const currentWsUrl = getWakewordBridgeUrl();
             const urlChanged = newWsUrl !== currentWsUrl;
 
             if (urlChanged) {
-                // 地址变了，先确认
-                const shouldRestart = window.confirm('地址已变更，是否继续？（将断开旧连接并重新连接）');
+                // Адрес изменился, сначала подтверждение
+                const shouldRestart = window.confirm('Адрес изменился, продолжить? (Старое соединение будет разорвано и установлено новое)');
                 if (!shouldRestart) {
-                    // 恢复 localStorage 里的旧地址
+                    // Восстановление старого адреса из localStorage
                     localStorage.setItem('xz_tester_wakewordWsUrl', currentWsUrl);
-                    this.addChatMessage('已取消地址变更。', false);
+                    this.addChatMessage('Изменение адреса отменено.', false);
                     return;
                 }
 
-                // 断开旧连接
+                // Разрыв старого соединения
                 stopWakewordBridgeListener();
 
-                // 启动新连接（自动用新地址）
+                // Запуск нового соединения (автоматическое использование нового адреса)
                 startWakewordBridgeListener();
 
-                // 等 bridge_connected
+                // Ожидание bridge_connected
                 await new Promise((resolve, reject) => {
                     const timeout = setTimeout(() => {
-                        reject(new Error('连接新服务器超时'));
+                        reject(new Error('Тайм-аут подключения к новому серверу'));
                     }, 5000);
 
                     onNextBridgeConnected(() => {
@@ -610,139 +610,139 @@ class UIController {
                     });
                 });
 
-                // 发配置和重启
+                // Отправка конфигурации и перезапуск
                 await requestWakewordBridge('set_wakeword_config', payload);
                 this.applyWakewordConfig(payload);
                 await requestWakewordBridge('restart_wakeword_service');
-                this.addChatMessage('唤醒词配置已保存，唤醒词服务正在重启。', false);
+                this.addChatMessage('Конфигурация слов активации сохранена, служба слов активации перезапускается.', false);
             } else {
-                // 地址没变：直接在当前连接操作
+                // Адрес не изменился:操作 непосредственно в текущем соединении
                 const response = await requestWakewordBridge('set_wakeword_config', payload);
                 this.applyWakewordConfig(response.payload || payload);
 
-                const shouldRestart = window.confirm('唤醒词已保存。是否现在重启唤醒词服务以立即生效？');
+                const shouldRestart = window.confirm('Слова активации сохранены. Перезапустить службу слов активации сейчас для немедленного применения?');
                 if (!shouldRestart) {
-                    this.addChatMessage('唤醒词配置已保存，可稍后手动重启服务后生效。', false);
+                    this.addChatMessage('Конфигурация слов активации сохранена, для применения можно перезапустить службу позже.', false);
                     return;
                 }
 
                 await requestWakewordBridge('restart_wakeword_service');
-                this.addChatMessage('唤醒词配置已保存，唤醒词服务正在重启。', false);
+                this.addChatMessage('Конфигурация слов активации сохранена, служба слов активации перезапускается.', false);
             }
         } catch (error) {
-            this.addChatMessage(`应用唤醒词失败: ${error.message}`, false);
+            this.addChatMessage(`Ошибка применения слов активации: ${error.message}`, false);
         } finally {
             if (applyWakewordBtn) {
                 applyWakewordBtn.disabled = false;
-                applyWakewordBtn.textContent = '应用唤醒词';
+                applyWakewordBtn.textContent = 'Применить слова активации';
             }
         }
     }
 
-    // Start AI chat session after connection
+    // Начало сеанса AI-чата после подключения
     startAIChatSession() {
-        this.addChatMessage('连接成功，开始聊天吧~😊', false);
-        // Check microphone availability and show error messages if needed
+        this.addChatMessage('Подключение успешно, начните общение~😊', false);
+        // Проверка доступности микрофона и отображение сообщений об ошибках при необходимости
         if (!window.microphoneAvailable) {
             if (window.isHttpNonLocalhost) {
-                this.addChatMessage('⚠️ 当前由于是http访问，无法录音，只能用文字交互', false);
+                this.addChatMessage('⚠️ В настоящее время из-за HTTP-доступа запись невозможна, доступно только текстовое взаимодействие', false);
             } else {
-                this.addChatMessage('⚠️ 麦克风不可用，请检查权限设置，只能用文字交互', false);
+                this.addChatMessage('⚠️ Микрофон недоступен, проверьте настройки разрешений, доступно только текстовое взаимодействие', false);
             }
         }
-        // Start recording only if microphone is available
+        // Начало записи только при доступности микрофона
         if (window.microphoneAvailable) {
             const recordBtn = document.getElementById('recordBtn');
             if (recordBtn) {
                 recordBtn.click();
             }
         }
-        // Start camera only if camera is available (bound with verification code)
+        // Запуск камеры только при доступности камеры (привязанной кодом подтверждения)
         if (window.cameraAvailable && typeof window.startCamera === 'function') {
             window.startCamera().then(success => {
                 if (success) {
                     const cameraBtn = document.getElementById('cameraBtn');
                     if (cameraBtn) {
                         cameraBtn.classList.add('camera-active');
-                        cameraBtn.querySelector('.btn-text').textContent = '关闭';
+                        cameraBtn.querySelector('.btn-text').textContent = 'Выкл.';
                     }
                 } else {
-                    this.addChatMessage('⚠️ 摄像头启动失败，可能被浏览器拒绝', false);
+                    this.addChatMessage('⚠️ Ошибка запуска камеры, возможно, отклонено браузером', false);
                 }
             }).catch(error => {
-                log(`启动摄像头异常: ${error.message}`, 'error');
+                log(`Исключение при запуске камеры: ${error.message}`, 'error');
             });
         }
     }
 
-    // Handle connect button click
+    // Обработка нажатия кнопки подключения
     async handleConnect() {
         const wsHandler = getWebSocketHandler();
         if (this.isConnecting || (wsHandler && wsHandler.isConnected())) {
-            log('连接已存在或正在进行，忽略本次拨号请求', 'info');
+            log('Соединение уже существует или выполняется, пропуск данного запроса на набор номера', 'info');
             return;
         }
 
         this.isConnecting = true;
-        console.log('handleConnect called');
+        console.log('Вызов handleConnect');
 
         try {
-            // Switch to device settings tab
+            // Переключение на вкладку настроек устройства
             this.switchTab('device');
 
-            // Wait for DOM update
+            // Ожидание обновления DOM
             await new Promise(resolve => setTimeout(resolve, 50));
 
             const otaUrlInput = document.getElementById('otaUrl');
 
-            console.log('otaUrl element:', otaUrlInput);
+            console.log('Элемент otaUrl:', otaUrlInput);
 
             if (!otaUrlInput || !otaUrlInput.value) {
-                this.addChatMessage('请输入OTA服务器地址', false);
+                this.addChatMessage('Пожалуйста, введите адрес OTA-сервера', false);
                 return;
             }
 
             const otaUrl = otaUrlInput.value;
-            console.log('otaUrl value:', otaUrl);
+            console.log('Значение otaUrl:', otaUrl);
 
-            // Update dial button state to connecting
+            // Обновление состояния кнопки набора номера на "Подключение"
             const dialBtn = document.getElementById('dialBtn');
             if (dialBtn) {
                 dialBtn.classList.add('dial-active');
-                dialBtn.querySelector('.btn-text').textContent = '连接中...';
+                dialBtn.querySelector('.btn-text').textContent = 'Подключение...';
                 dialBtn.disabled = true;
             }
 
-            // Show connecting message
-            this.addChatMessage('正在连接服务器...', false);
+            // Отображение сообщения о подключении
+            this.addChatMessage('Подключение к серверу...', false);
 
             const chatIpt = document.getElementById('chatIpt');
             if (chatIpt) {
                 chatIpt.style.display = 'flex';
             }
 
-            // Get WebSocket handler instance
-            // Register connection state callback BEFORE connecting
+            // Получение экземпляра обработчика WebSocket
+            // Регистрация обратного вызова состояния подключения ДО подключения
             wsHandler.onConnectionStateChange = (isConnected) => {
                 this.updateConnectionUI(isConnected);
                 this.updateDialButton(isConnected);
             };
 
-            // Register chat message callback BEFORE connecting
+            // Регистрация обратного вызова сообщения чата ДО подключения
             wsHandler.onChatMessage = (text, isUser) => {
                 this.addChatMessage(text, isUser);
             };
 
-            // Register record button state callback BEFORE connecting
+            // Регистрация обратного вызова состояния кнопки записи ДО подключения
             wsHandler.onRecordButtonStateChange = (isRecording) => {
                 const recordBtn = document.getElementById('recordBtn');
                 if (recordBtn) {
                     if (isRecording) {
                         recordBtn.classList.add('recording');
-                        recordBtn.querySelector('.btn-text').textContent = '录音中';
+                        recordBtn.querySelector('.btn-text').textContent = 'Запись...';
                     } else {
                         recordBtn.classList.remove('recording');
-                        recordBtn.querySelector('.btn-text').textContent = '录音';
+                        recordBtn.querySelector('.btn-text').textContent = 'Запись';
                     }
                 }
             };
@@ -750,88 +750,88 @@ class UIController {
             const isConnected = await wsHandler.connect();
 
             if (isConnected) {
-                // Check microphone availability (check again after connection)
+                // Проверка доступности микрофона (повторная проверка после подключения)
                 const { checkMicrophoneAvailability } = await import('../core/audio/recorder.js?v=0205');
                 const micAvailable = await checkMicrophoneAvailability();
 
                 if (!micAvailable) {
                     const isHttp = window.isHttpNonLocalhost;
                     if (isHttp) {
-                        this.addChatMessage('⚠️ 当前由于是http访问，无法录音，只能用文字交互', false);
+                        this.addChatMessage('⚠️ В настоящее время из-за HTTP-доступа запись невозможна, доступно только текстовое взаимодействие', false);
                     }
-                    // Update global state
+                    // Обновление глобального состояния
                     window.microphoneAvailable = false;
                 }
 
-                // Update dial button state
+                // Обновление состояния кнопки набора номера
                 const dialBtn = document.getElementById('dialBtn');
                 if (dialBtn) {
                     if (!this.dialBtnDisabled) {
                         dialBtn.disabled = false;
                     }
-                    dialBtn.querySelector('.btn-text').textContent = '挂断';
+                    dialBtn.querySelector('.btn-text').textContent = 'Завершить';
                     dialBtn.classList.add('dial-active');
                 }
 
                 this.hideModal('settingsModal');
             } else {
-                throw new Error('OTA连接失败');
+                throw new Error('Ошибка подключения OTA');
             }
         } catch (error) {
-            console.error('Connection error details:', {
+            console.error('Подробности ошибки подключения:', {
                 message: error.message,
                 stack: error.stack,
                 name: error.name
             });
 
-            // Show error message
+            // Отображение сообщения об ошибке
             const errorMessage = error.message.includes('Cannot set properties of null')
-                ? '连接失败：请检查设备连接'
-                : `连接失败: ${error.message}`;
+                ? 'Ошибка подключения: проверьте подключение устройства'
+                : `Ошибка подключения: ${error.message}`;
 
             this.addChatMessage(errorMessage, false);
 
-            // Restore dial button state
+            // Восстановление состояния кнопки набора номера
             const dialBtn = document.getElementById('dialBtn');
             if (dialBtn) {
                 if (!this.dialBtnDisabled) {
                     dialBtn.disabled = false;
                 }
-                dialBtn.querySelector('.btn-text').textContent = '拨号';
+                dialBtn.querySelector('.btn-text').textContent = 'Вызов';
                 dialBtn.classList.remove('dial-active');
-                console.log('Dial button state restored successfully');
+                console.log('Состояние кнопки набора номера успешно восстановлено');
             }
         } finally {
             this.isConnecting = false;
         }
     }
 
-    async triggerWakewordDial(wakeWord = '唤醒词') {
+    async triggerWakewordDial(wakeWord = 'Слово активации') {
         const wsHandler = getWebSocketHandler();
         const now = Date.now();
 
         if (wsHandler && wsHandler.isConnected()) {
-            log('页面已连接，忽略自动拨号', 'info');
+            log('Страница подключена, пропуск автоматического набора номера', 'info');
             return false;
         }
 
         if (this.isConnecting || this.dialBtnDisabled) {
-            log('页面正在连接中，忽略重复唤醒', 'info');
+            log('Страница подключается, пропуск повторной активации', 'info');
             return false;
         }
 
         if (now - this.lastWakewordDialTime < 3000) {
-            log('唤醒触发过于频繁，忽略本次自动拨号', 'warning');
+            log('Слишком частая активация, пропуск данного автоматического набора номера', 'warning');
             return false;
         }
 
         this.lastWakewordDialTime = now;
-        this.addChatMessage(`检测到唤醒词“${wakeWord}”，准备连接服务器...`, false);
+        this.addChatMessage(`Обнаружено слово активации "${wakeWord}", подготовка к подключению к серверу...`, false);
         await this.handleConnect();
         return true;
     }
 
-    // Add MCP tool
+    // Добавление инструмента MCP
     addMCPTool() {
         const mcpToolsList = document.getElementById('mcpToolsList');
         if (!mcpToolsList) return;
@@ -841,16 +841,16 @@ class UIController {
         toolDiv.className = 'properties-container';
         toolDiv.innerHTML = `
             <div class="property-item">
-                <input type="text" placeholder="工具名称" value="新工具">
-                <input type="text" placeholder="工具描述" value="工具描述">
-                <button class="remove-property" onclick="uiController.removeMCPTool('${toolId}')">删除</button>
+                <input type="text" placeholder="Название инструмента" value="Новый инструмент">
+                <input type="text" placeholder="Описание инструмента" value="Описание инструмента">
+                <button class="remove-property" onclick="uiController.removeMCPTool('${toolId}')">Удалить</button>
             </div>
         `;
 
         mcpToolsList.appendChild(toolDiv);
     }
 
-    // Remove MCP tool
+    // Удаление инструмента MCP
     removeMCPTool(toolId) {
         const toolElement = document.getElementById(toolId);
         if (toolElement) {
@@ -858,24 +858,24 @@ class UIController {
         }
     }
 
-    // Update audio statistics display
+    // Обновление отображения статистики аудио
     updateAudioStats() {
         const audioPlayer = getAudioPlayer();
         if (!audioPlayer) return;
 
         const stats = audioPlayer.getAudioStats();
-        // Here can add audio statistics UI update logic
+        // Здесь можно добавить логику обновления интерфейса статистики аудио
     }
 
-    // Start audio statistics monitor
+    // Запуск мониторинга статистики аудио
     startAudioStatsMonitor() {
-        // Update audio statistics every 100ms
+        // Обновление статистики аудио каждые 100 мс
         this.audioStatsTimer = setInterval(() => {
             this.updateAudioStats();
         }, 100);
     }
 
-    // Stop audio statistics monitor
+    // Остановка мониторинга статистики аудио
     stopAudioStatsMonitor() {
         if (this.audioStatsTimer) {
             clearInterval(this.audioStatsTimer);
@@ -883,7 +883,7 @@ class UIController {
         }
     }
 
-    // Draw audio visualizer waveform
+    // Отрисовка формы волны визуализатора аудио
     drawVisualizer(dataArray) {
         if (!this.visualizerContext || !this.visualizerCanvas) return;
 
@@ -897,7 +897,7 @@ class UIController {
         for (let i = 0; i < dataArray.length; i++) {
             barHeight = dataArray[i] / 2;
 
-            // Create gradient color: from purple to blue to green
+            // Создание градиентного цвета: от фиолетового к синему к зеленому
             const gradient = this.visualizerContext.createLinearGradient(0, 0, 0, this.visualizerCanvas.height);
             gradient.addColorStop(0, '#8e44ad');
             gradient.addColorStop(0.5, '#3498db');
@@ -909,21 +909,21 @@ class UIController {
         }
     }
 
-    // Update session status UI
+    // Обновление интерфейса статуса сеанса
     updateSessionStatus(isSpeaking) {
-        // Here can add session status UI update logic
-        // For example: update Live2D model's mouth movement status
+        // Здесь можно добавить логику обновления интерфейса статуса сеанса
+        // Например: обновление статуса движения рта модели Live2D
     }
 
-    // Update session emotion
+    // Обновление эмоции сеанса
     updateSessionEmotion(emoji) {
-        // Here can add emotion update logic
-        // For example: display emoji in status indicator
+        // Здесь можно добавить логику обновления эмоции
+        // Например: отображение эмодзи в индикаторе статуса
     }
 }
 
-// Create singleton instance
+// Создание синглтона
 export const uiController = new UIController();
 
-// Export class for module usage
+// Экспорт класса для использования в модуле
 export { UIController };

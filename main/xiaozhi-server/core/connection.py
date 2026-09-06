@@ -55,8 +55,8 @@ auto_import_modules("plugins_func.functions")
 class TTSException(RuntimeError):
     pass
 
-# direct_answer 虚拟工具定义
-# 不是真实工具，是路由机制：将"调不调工具"的二选一变为"调哪个"的多选，防止小模型误触发真实工具
+# direct_answer виртуальное определение инструмента
+# Не настоящий инструмент, а механизм маршрутизации: изменяет выбор "использовать инструмент или нет" на множественный выбор "какой инструмент использовать", предотвращая случайное срабатывание настоящих инструментов малой моделью
 DIRECT_ANSWER_TOOL = {
     "type": "function",
     "function": {
@@ -91,7 +91,7 @@ class ConnectionHandler:
         self.config = copy.deepcopy(config)
         self.session_id = str(uuid.uuid4())
         self.logger = setup_logging()
-        self.server = server  # 保存server实例的引用
+        self.server = server  # Сохранить ссылку на экземпляр server
 
         self.need_bind = False  # 是否需要绑定设备
         self.bind_completed_event = asyncio.Event()

@@ -5,7 +5,7 @@ import jakarta.validation.constraints.Min;
 import lombok.Data;
 
 /**
- * 管理员分页用户的参数DTO
+ * DTO параметров постраничного запроса пользователей администратором
  * 
  * @author zjy
  * @since 2025-3-21

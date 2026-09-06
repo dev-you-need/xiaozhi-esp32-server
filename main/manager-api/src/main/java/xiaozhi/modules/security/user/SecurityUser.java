@@ -6,9 +6,9 @@ import org.apache.shiro.subject.Subject;
 import xiaozhi.common.user.UserDetail;
 
 /**
- * Shiro工具类
- * Copyright (c) 人人开源 All rights reserved.
- * Website: https://www.renren.io
+ * Класс инструмента Shiro
+ * Авторское право (c) Open Source for All. Все права защищены.
+ * Веб-сайт: https://www.renren.io
  */
 public class SecurityUser {
 
@@ -21,7 +21,7 @@ public class SecurityUser {
     }
 
     /**
-     * 获取用户信息
+     * Получить информацию о пользователе
      */
     public static UserDetail getUser() {
         Subject subject = getSubject();
@@ -42,7 +42,7 @@ public class SecurityUser {
     }
 
     /**
-     * 获取用户ID
+     * Получить идентификатор пользователя
      */
     public static Long getUserId() {
         return getUser().getId();

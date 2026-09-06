@@ -6,24 +6,30 @@ import com.baomidou.mybatisplus.annotation.TableName;
 
 import lombok.Data;
 
+
 /**
- * 智能体聊天音频数据表
+ * Таблица аудиоданных чата агента
  *
  * @author Goody
  * @version 1.0, 2025/5/8
  * @since 1.0.0
  */
+
 @Data
 @TableName("ai_agent_chat_audio")
 public class AgentChatAudioEntity {
-    /**
-     * 主键ID
+    
+/**
+     * ID первичного ключа
      */
+
     @TableId(type = IdType.ASSIGN_UUID)
     private String id;
 
-    /**
-     * 音频opus数据
+    
+/**
+     * Аудиоданные opus
      */
+
     private byte[] audio;
 }

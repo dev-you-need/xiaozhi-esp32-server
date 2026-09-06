@@ -71,7 +71,7 @@ public class HttpContextUtils {
     }
 
     public static String getLanguage() {
-        // 默认语言
+        // Язык по умолчанию
         String defaultLanguage = "zh-CN";
         // request
         HttpServletRequest request = getHttpServletRequest();
@@ -79,14 +79,14 @@ public class HttpContextUtils {
             return defaultLanguage;
         }
 
-        // 请求语言
+        // Язык запроса
         defaultLanguage = request.getHeader(HttpHeaders.ACCEPT_LANGUAGE);
 
         return defaultLanguage;
     }
 
     /**
-     * 获取客户端的唯一标识
+     * Получение уникального идентификатора клиента
      *
      * @return
      */

@@ -7,7 +7,7 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 /**
- * 登录表单
+ * Форма входа
  */
 @Data
 @Schema(description = "登录表单")

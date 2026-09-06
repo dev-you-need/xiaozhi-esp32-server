@@ -35,7 +35,7 @@ import xiaozhi.modules.device.service.DeviceService;
 import xiaozhi.common.redis.RedisUtils;
 
 /**
- * 服务端管理控制器
+ * Контроллер управления серверной стороной
  */
 @RestController
 @RequestMapping("/admin/server")
@@ -48,7 +48,7 @@ public class ServerSideManageController {
     private static final ObjectMapper objectMapper;
     static {
         objectMapper = new ObjectMapper();
-        // 忽略json字符串中存在，但pojo中不存在对应字段的情况
+        // Игнорирование ситуаций, когда JSON-строка содержит поле, отсутствующее в POJO
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     }
 
@@ -77,7 +77,7 @@ public class ServerSideManageController {
         }
         String targetWs = emitSeverActionDTO.getTargetWs();
         String[] wsList = wsText.split(";");
-        // 找到需要发起的
+        // Найти тот, который нужно отправить
         if (StringUtils.isBlank(targetWs) || !Arrays.asList(wsList).contains(targetWs)) {
             throw new RenException(ErrorCode.TARGET_WEBSOCKET_NOT_EXIST);
         }
@@ -94,7 +94,7 @@ public class ServerSideManageController {
         String clientId = UUID.randomUUID().toString();
 
         String redisKey = xiaozhi.common.redis.RedisKeys.getTmpRegisterMacKey(deviceId);
-        redisUtils.set(redisKey, "true", 300); // 5分钟有效期
+        redisUtils.set(redisKey, "true", 300); // Срок действия 5 минут
 
         WebSocketHttpHeaders headers = new WebSocketHttpHeaders();
         headers.add("device-id", deviceId);
@@ -112,12 +112,12 @@ public class ServerSideManageController {
                 .uri(targetWsUri)
                 .headers(headers)
                 .build()) {
-            // 如果连接成功则发送一个json数据包并等待服务端响应
+            // Если подключение успешно, отправить JSON-пакет и ждать ответа сервера
             client.sendJson(
                     ServerActionPayloadDTO.build(
                             actionEnum,
                             Map.of("secret", serverSK)));
-            // 等待服务端响应并持续监听信息
+            // Ожидание ответа сервера и непрерывный мониторинг сообщений
             client.listener((jsonText) -> {
                 if (StringUtils.isBlank(jsonText)) {
                     return false;
@@ -131,7 +131,7 @@ public class ServerSideManageController {
                 }
             });
         } catch (Exception e) {
-            // 捕获全部错误，由全局异常处理器返回
+            // Перехват всех ошибок, возврат через глобальный обработчик исключений
             throw new RenException(ErrorCode.WEB_SOCKET_CONNECT_FAILED);
         }
         return true;

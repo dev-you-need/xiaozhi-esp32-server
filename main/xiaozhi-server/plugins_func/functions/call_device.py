@@ -63,13 +63,13 @@ async def call_device(conn: "ConnectionHandler", nickname: str):
 
     headers = {"Authorization": f"Bearer {api_secret}"}
 
-    # 区分是主动呼叫还是接听来电
+    # Различать активные и входящие вызовы
     is_answer = _is_answering(conn)
     params = {"callerMac": caller_mac, "nickname": nickname}   
     if is_answer:
         params["answer"] = "true"
 
-    # 查询通讯录并发起呼叫
+    # Запросите адресную книгу и начните звонок
     try:
         resp = await _request_api(
             f"{api_url}/device/address-book/call",

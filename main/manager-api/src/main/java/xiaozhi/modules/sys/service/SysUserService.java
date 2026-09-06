@@ -9,7 +9,7 @@ import xiaozhi.modules.sys.entity.SysUserEntity;
 import xiaozhi.modules.sys.vo.AdminPageUserVO;
 
 /**
- * 系统用户
+ * Системный пользователь
  */
 public interface SysUserService extends BaseService<SysUserEntity> {
 
@@ -20,56 +20,56 @@ public interface SysUserService extends BaseService<SysUserEntity> {
     void save(SysUserDTO dto);
 
     /**
-     * 删除指定用户，且有关联的数据设备和智能体
+     * Удалить указанного пользователя и связанные данные об устройствах и агентах
      * 
      * @param ids
      */
     void deleteById(Long ids);
 
     /**
-     * 验证是否允许修改密码更改
+     * Проверить, разрешено ли изменение пароля
      * 
-     * @param userId      用户id
-     * @param passwordDTO 验证密码的参数
+     * @param userId      ID пользователя
+     * @param passwordDTO Параметры проверки пароля
      */
     void changePassword(Long userId, PasswordDTO passwordDTO);
 
     /**
-     * 直接修改密码，不需要验证
+     * Изменить пароль напрямую, без проверки
      * 
-     * @param userId   用户id
-     * @param password 密码
+     * @param userId   ID пользователя
+     * @param password Пароль
      */
     void changePasswordDirectly(Long userId, String password);
 
     /**
-     * 重置密码
+     * Сбросить пароль
      * 
-     * @param userId 用户id
-     * @return 随机生成符合规范的密码
+     * @param userId ID пользователя
+     * @return Случайно сгенерированный пароль, соответствующий стандартам
      */
     String resetPassword(Long userId);
 
     /**
-     * 管理员分页用户信息
+     * Постраничная информация о пользователях для администратора
      * 
-     * @param dto 分页查找参数
-     * @return 用户列表分页数据
+     * @param dto Параметры постраничного поиска
+     * @return Данные постраничного списка пользователей
      */
     PageData<AdminPageUserVO> page(AdminPageUserDTO dto);
 
     /**
-     * 批量修改用户状态
+     * Пакетное изменение статуса пользователя
      * 
-     * @param status  用户状态
-     * @param userIds 用户ID数组
+     * @param status  Статус пользователя
+     * @param userIds Массив ID пользователей
      */
     void changeStatus(Integer status, String[] userIds);
 
     /**
-     * 获取是否允许用户注册
+     * Получить, разрешена ли регистрация пользователей
      * 
-     * @return 是否允许用户注册
+     * @return Разрешена ли регистрация пользователей
      */
     boolean getAllowUserRegister();
 }

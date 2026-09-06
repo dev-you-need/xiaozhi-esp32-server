@@ -6,31 +6,39 @@ import com.baomidou.mybatisplus.extension.repository.IRepository;
 
 import xiaozhi.modules.agent.entity.AgentPluginMapping;
 
+
 /**
- * @description 针对表【ai_agent_plugin_mapping(Agent与插件的唯一映射表)】的数据库操作Service
+ * @description Сервис работы с БД для таблицы ai_agent_plugin_mapping (уникальные отображения агент-плагин)
  * @createDate 2025-05-25 22:33:17
  */
+
 public interface AgentPluginMappingService extends IRepository<AgentPluginMapping> {
 
-    /**
-     * 根据智能体id获取插件参数
+    
+/**
+     * Получить параметры плагина по ID агента
      *
      * @param agentId
      * @return
      */
+
     List<AgentPluginMapping> agentPluginParamsByAgentId(String agentId);
 
-    /**
-     * 根据智能体id删除插件参数
+    
+/**
+     * Удалить параметры плагина по ID агента
      *
      * @param agentId
      */
+
     void deleteByAgentId(String agentId);
 
-    /**
-     * 根据插件ID删除所有智能体的插件映射
+    
+/**
+     * Удалить отображения плагина для всех агентов по ID плагина
      *
-     * @param pluginId 插件ID
+     * @param pluginId ID плагина
      */
+
     void deleteByPluginId(String pluginId);
 }

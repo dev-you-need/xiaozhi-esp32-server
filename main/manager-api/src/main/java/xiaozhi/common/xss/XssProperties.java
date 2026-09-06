@@ -8,7 +8,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import lombok.Data;
 
 /**
- * XSS 配置项
+ * Параметры конфигурации XSS
  * Copyright (c) 人人开源 All rights reserved.
  * Website: https://www.renren.io
  */
@@ -16,11 +16,11 @@ import lombok.Data;
 @ConfigurationProperties(prefix = "renren.xss")
 public class XssProperties {
     /**
-     * 是否开启 XSS
+     * Включена ли XSS-фильтрация
      */
     private boolean enabled;
     /**
-     * 排除的URL列表
+     * Список исключённых URL
      */
     private List<String> excludeUrls = Collections.emptyList();
 }

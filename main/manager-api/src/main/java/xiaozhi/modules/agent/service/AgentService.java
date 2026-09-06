@@ -12,145 +12,170 @@ import xiaozhi.modules.agent.dto.AgentUpdateDTO;
 import xiaozhi.modules.agent.entity.AgentEntity;
 import xiaozhi.modules.agent.vo.AgentInfoVO;
 
+
 /**
- * 智能体表处理service
+ * АгентСервис обработки таблицы
  *
  * @author Goody
  * @version 1.0, 2025/4/30
  * @since 1.0.0
  */
+
 public interface AgentService extends BaseService<AgentEntity> {
-    /**
-     * 获取管理员智能体列表
+    
+/**
+     * Получить список агентов администратора
      *
-     * @param params 查询参数
-     * @return 分页数据
+     * @param params Параметры запроса
+     * @return Данные постраничной навигации
      */
+
     PageData<AgentEntity> adminAgentList(Map<String, Object> params);
 
-    /**
-     * 根据ID获取智能体
+    
+/**
+     * Получить агента по ID
      *
-     * @param id 智能体ID
-     * @return 智能体实体
+     * @param id ID агента
+     * @return Сущность агента
      */
+
     AgentInfoVO getAgentById(String id);
 
-    /**
-     * 根据ID获取当前用户有权访问的智能体
+    
+/**
+     * Получить агента, доступного текущему пользователю, по ID
      *
-     * @param id     智能体ID
-     * @param userId 当前用户ID
-     * @return 智能体实体
+     * @param id     ID агента
+     * @ param userId текущий идентификатор пользователя     * @return Сущность агента
      */
+
     AgentInfoVO getAgentById(String id, Long userId);
 
-    /**
-     * 插入智能体
+    
+/**
+     * Вставить агента
      *
-     * @param entity 智能体实体
-     * @return 是否成功
+     * @param entity Сущность агента
+     * @return Успешность выполнения
      */
+
     boolean insert(AgentEntity entity);
 
-    /**
-     * 根据用户ID删除智能体
+    
+/**
+     * Удалить агента по ID пользователя
      *
-     * @param userId 用户ID
+     * @param userId ID пользователя
      */
+
     void deleteAgentByUserId(Long userId);
 
-    /**
-     * 删除智能体及其关联数据
+    
+/**
+     * Удалить агента и связанные данные
      *
-     * @param agentId 智能体ID
+     * @param agentId ID агента
      */
+
     void deleteAgent(String agentId);
 
-    /**
-     * 获取用户智能体列表
+    
+/**
+     * Получить список агентов пользователя
      *
-     * @param userId 用户ID
-     * @param keyword 搜索关键词
-     * @param searchType 搜索类型（name - 按名称搜索，mac - 按MAC地址搜索）
-     * @return 智能体列表
-     */
+     * @param userId ID пользователя
+     * @param keyword Ключевое слово поиска
+     * @ param searchType тип поиска (name - Поиск по названиy, mac - поиск по MAC-адресу)     * @ return Список агентов     */
+
     List<AgentDTO> getUserAgents(Long userId, String keyword, String searchType);
 
-    /**
-     * 根据智能体ID获取设备数量
+    
+/**
+     * Получить количество устройств по ID агента
      *
-     * @param agentId 智能体ID
-     * @return 设备数量
+     * @param agentId ID агента
+     * @return Количество устройств
      */
+
     Integer getDeviceCountByAgentId(String agentId);
 
-    /**
-     * 根据设备MAC地址查询对应设备的默认智能体信息
+    
+/**
+     * Запросить информацию агента по умолчанию для устройства по MAC-адресу
      *
-     * @param macAddress 设备MAC地址
-     * @return 默认智能体信息，不存在时返回null
+     * @ param macAddress устройство MAC-адрес     * @return Информация агента по умолчанию，Возвращает null, если не существует
      */
+
     AgentEntity getDefaultAgentByMacAddress(String macAddress);
 
-    /**
-     * 检查用户是否有权限访问智能体
+    
+/**
+     * Проверить, имеет ли пользователь доступ к агенту
      *
-     * @param agentId 智能体ID
-     * @param userId  用户ID
-     * @return 是否有权限
+     * @param agentId ID агента
+     * @param userId  ID пользователя
+     * @return Наличие доступа
      */
+
     boolean checkAgentPermission(String agentId, Long userId);
 
-    /**
-     * 更新智能体
+    
+/**
+     * Обновить агента
      *
-     * @param agentId 智能体ID
-     * @param dto     更新智能体所需的信息
+     * @param agentId ID агента
+     * @param dto     Обновить агентаНеобходимая информация
      */
+
     void updateAgentById(String agentId, AgentUpdateDTO dto);
 
-    /**
-     * 更新当前用户有权访问的智能体
+    
+/**
+     * Обновить агента, доступного текущему пользователю
      *
-     * @param agentId 智能体ID
-     * @param dto     更新智能体所需的信息
-     * @param userId  当前用户ID
-     */
+     * @param agentId ID агента
+     * @param dto     Обновить агентаНеобходимая информация
+     * @ param userId текущий идентификатор пользователя     */
+
     void updateAgentById(String agentId, AgentUpdateDTO dto, Long userId);
 
-    /**
-     * 根据设备MAC地址更新当前用户有权访问的智能体记忆
+    
+/**
+     * Обновить память агента по MAC-адресу устройства
      *
-     * @param macAddress 设备MAC地址
-     * @param dto        智能体记忆
-     * @param userId     当前用户ID
-     */
+     * @ param macAddress устройство MAC-адрес     * @ param dto Память агента     * @ param userId текущий идентификатор пользователя     */
+
     void updateAgentMemoryByDeviceMacAddress(String macAddress, AgentMemoryDTO dto, Long userId);
 
-    /**
-     * 删除当前用户有权访问的智能体
+    
+/**
+     * Удалить агента, доступного текущему пользователю
      *
-     * @param agentId 智能体ID
-     * @param userId  当前用户ID
-     */
+     * @param agentId ID агента
+     * @ param userId текущий идентификатор пользователя     */
+
     void deleteAgentById(String agentId, Long userId);
 
-    /**
-     * 更新智能体
+    
+/**
+     * Обновить агента
      *
-     * @param agentId        智能体ID
-     * @param dto            更新智能体所需的信息
-     * @param createSnapshot 是否创建配置快照
+     * @param agentId        ID агента
+     * @param dto            Обновить агентаНеобходимая информация
+     * @param createSnapshot Создавать ли снимок конфигурации
      */
+
     void updateAgentById(String agentId, AgentUpdateDTO dto, boolean createSnapshot);
 
-    /**
-     * 创建智能体
+    
+/**
+     * Создать агента
      *
-     * @param dto 创建智能体所需的信息
-     * @return 创建的智能体ID
+     * @param dto Создать агентаНеобходимая информация
+     * @return ID созданного агента
      */
+
     String createAgent(AgentCreateDTO dto);
 
 

@@ -26,20 +26,22 @@ public class AgentMcpAccessPointController {
     private final AgentMcpAccessPointService agentMcpAccessPointService;
     private final AgentService agentService;
 
-    /**
-     * 获取智能体的Mcp接入点地址
+    
+/**
+     * Получить адрес точки доступа MCP агента
      * 
-     * @param agentId 智能体id
-     * @return 返回错误提醒或者Mcp接入点地址
+     * @param agentId ID агента
+     * @return Возвращает сообщение об ошибке или адрес точки доступа MCP
      */
+
     @Operation(summary = "获取智能体的Mcp接入点地址")
     @GetMapping("/address/{agentId}")
     @RequiresPermissions("sys:role:normal")
     public Result<String> getAgentMcpAccessAddress(@PathVariable("agentId") String agentId) {
-        // 获取当前用户
+        // Получить текущего пользователя
         UserDetail user = SecurityUser.getUser();
 
-        // 检查权限
+        // Проверить права доступа
         if (!agentService.checkAgentPermission(agentId, user.getId())) {
             return new Result<String>().error(ErrorCode.MCP_ACCESS_POINT_ADDRESS_NO_PERMISSION);
         }
@@ -54,10 +56,10 @@ public class AgentMcpAccessPointController {
     @GetMapping("/tools/{agentId}")
     @RequiresPermissions("sys:role:normal")
     public Result<List<String>> getAgentMcpToolsList(@PathVariable("agentId") String agentId) {
-        // 获取当前用户
+        // Получить текущего пользователя
         UserDetail user = SecurityUser.getUser();
 
-        // 检查权限
+        // Проверить права доступа
         if (!agentService.checkAgentPermission(agentId, user.getId())) {
             return new Result<List<String>>().error(ErrorCode.MCP_ACCESS_POINT_TOOLS_LIST_NO_PERMISSION);
         }

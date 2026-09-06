@@ -32,8 +32,7 @@ import xiaozhi.modules.sys.service.SysDictTypeService;
 import xiaozhi.modules.sys.vo.SysDictTypeVO;
 
 /**
- * 字典类型
- */
+ * Тип словаря */
 @Service
 @AllArgsConstructor
 public class SysDictTypeServiceImpl extends BaseServiceImpl<SysDictTypeDao, SysDictTypeEntity>
@@ -76,7 +75,7 @@ public class SysDictTypeServiceImpl extends BaseServiceImpl<SysDictTypeDao, SysD
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void save(SysDictTypeDTO dto) {
-        // 字典类型编码不能重复
+        //Кодировка типа словаря не может быть повторена
         checkDictTypeUnique(dto.getDictType(), null);
 
         SysDictTypeEntity entity = ConvertUtils.sourceToTarget(dto, SysDictTypeEntity.class);
@@ -87,7 +86,7 @@ public class SysDictTypeServiceImpl extends BaseServiceImpl<SysDictTypeDao, SysD
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void update(SysDictTypeDTO dto) {
-        // 字典类型编码不能重复
+        //Кодировка типа словаря не может быть повторена
         checkDictTypeUnique(dto.getDictType(), String.valueOf(dto.getId()));
 
         SysDictTypeEntity entity = ConvertUtils.sourceToTarget(dto, SysDictTypeEntity.class);
@@ -98,11 +97,11 @@ public class SysDictTypeServiceImpl extends BaseServiceImpl<SysDictTypeDao, SysD
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void delete(Long[] ids) {
-        // 先删除对应的字典数据
+        //Сначала удалите соответствующие данные словаря
         for (Long id : ids) {
             sysDictDataService.deleteByTypeId(id);
         }
-        // 再删除字典类型
+        //Снова удалить тип словаря
         deleteBatchIds(Arrays.asList(ids));
     }
 
@@ -110,26 +109,24 @@ public class SysDictTypeServiceImpl extends BaseServiceImpl<SysDictTypeDao, SysD
     public List<SysDictTypeVO> list(Map<String, Object> params) {
         List<SysDictTypeEntity> entityList = baseDao.selectList(getWrapper(params));
         List<SysDictTypeVO> sysDictTypeVOList = ConvertUtils.sourceToTarget(entityList, SysDictTypeVO.class);
-        // 设置用户名
+        //Задать имя пользователя
         setUserName(sysDictTypeVOList);
 
         return sysDictTypeVOList;
     }
 
     /**
-     * 设置用户名
-     *
-     * @param sysDictTypeList 字典类型集合
-     */
+     * Задать имя пользователя     *
+     * Коллекция типов словаря @ param sysDictTypeList     */
     private void setUserName(List<SysDictTypeVO> sysDictTypeList) {
-        // 收集所有用户 ID
+        //Соберите все идентификаторы пользователей
         Set<Long> userIds = sysDictTypeList.stream().flatMap(vo -> Stream.of(vo.getCreator(), vo.getUpdater()))
                 .filter(Objects::nonNull).collect(Collectors.toSet());
 
-        // 设置更新者和创建者名称
+        //Задать имя обновителя и креатора
         if (!userIds.isEmpty()) {
             List<SysUserEntity> sysUserEntities = sysUserDao.selectByIds(userIds);
-            // 把List转成Map，Map<Long, String>
+            //Преобразовать список в карту, карту<Long, String>
             Map<Long, String> userNameMap = sysUserEntities.stream().collect(Collectors.toMap(SysUserEntity::getId,
                     SysUserEntity::getUsername, (existing, replacement) -> existing));
 

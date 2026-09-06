@@ -11,137 +11,189 @@ import com.baomidou.mybatisplus.annotation.TableName;
 
 import lombok.Data;
 
+
 /**
- * 智能体配置模板表
+ * Таблица шаблонов конфигурации агента
  * 
  * @TableName ai_agent_template
  */
+
 @TableName(value = "ai_agent_template")
 @Data
 public class AgentTemplateEntity implements Serializable {
-    /**
-     * 智能体唯一标识
+    
+/**
+     * Уникальный идентификатор агента
      */
+
     @TableId(type = IdType.ASSIGN_UUID)
     private String id;
 
-    /**
-     * 智能体编码
+    
+/**
+     * Код агента
      */
+
     private String agentCode;
 
-    /**
-     * 智能体名称
+    
+/**
+     * Название агента
      */
+
     private String agentName;
 
-    /**
-     * 语音识别模型标识
+    
+/**
+     * Идентификатор модели распознавания речи
      */
+
     private String asrModelId;
 
-    /**
-     * 语音活动检测标识
+    
+/**
+     * Идентификатор модели обнаружения голосовой активности
      */
+
     private String vadModelId;
 
-    /**
-     * 大语言模型标识
+    
+/**
+     * Идентификатор большой языковой модели
      */
+
     private String llmModelId;
 
-    /**
-     * VLLM模型标识
+    
+/**
+     * Идентификатор модели VLLM
      */
+
     private String vllmModelId;
 
-    /**
-     * 语音合成模型标识
+    
+/**
+     * Идентификатор модели синтеза речи
      */
+
     private String ttsModelId;
 
-    /**
-     * 音色标识
+    
+/**
+     * Идентификатор голоса
      */
+
     private String ttsVoiceId;
 
-    /**
-     * 音色语言
+    
+/**
+     * Язык голоса
      */
+
     private String ttsLanguage;
 
-    /**
-     * TTS音量
+    
+/**
+     * Громкость TTS
      */
+
     private Integer ttsVolume;
 
-    /**
-     * TTS语速
+    
+/**
+     * Скорость речи TTS
      */
+
     private Integer ttsRate;
 
-    /**
-     * TTS音调
+    
+/**
+     * Тон TTS
      */
+
     private Integer ttsPitch;
 
-    /**
-     * 记忆模型标识
+    
+/**
+     * Идентификатор модели памяти
      */
+
     private String memModelId;
 
-    /**
-     * 意图模型标识
+    
+/**
+     * Идентификатор модели намерений
      */
+
     private String intentModelId;
 
-    /**
-     * 聊天记录配置（0不记录 1仅记录文本 2记录文本和语音）
+    
+/**
+     * Конфигурация истории чата (0 — не записывать, 1 — только текст, 2 — текст и аудио)
      */
+
     private Integer chatHistoryConf;
 
-    /**
-     * 角色设定参数
+    
+/**
+     * Параметры настройки роли
      */
+
     private String systemPrompt;
 
-    /**
-     * 总结记忆
+    
+/**
+     * Память итогов
      */
+
     private String summaryMemory;
-    /**
-     * 语言编码
+    
+/**
+     * Код языка
      */
+
     private String langCode;
 
-    /**
-     * 交互语种
+    
+/**
+     * Язык взаимодействия
      */
+
     private String language;
 
-    /**
-     * 排序权重
+    
+/**
+     * Вес сортировки
      */
+
     private Integer sort;
 
-    /**
-     * 创建者 ID
+    
+/**
+     * Создатель ID
      */
+
     private Long creator;
 
-    /**
-     * 创建时间
+    
+/**
+     * Время создания
      */
+
     private Date createdAt;
 
-    /**
-     * 更新者 ID
+    
+/**
+     * Обновивший ID
      */
+
     private Long updater;
 
-    /**
-     * 更新时间
+    
+/**
+     * Время обновления
      */
+
     private Date updatedAt;
 
     @TableField(exist = false)

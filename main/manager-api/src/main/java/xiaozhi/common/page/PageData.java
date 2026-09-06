@@ -7,7 +7,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 /**
- * 分页工具类
+ * Утилита постраничного разбиения
  * Copyright (c) 人人开源 All rights reserved.
  * Website: https://www.renren.io
  */
@@ -21,10 +21,10 @@ public class PageData<T> implements Serializable {
     private List<T> list;
 
     /**
-     * 分页
+     * Постраничное разбиение
      *
-     * @param list  列表数据
-     * @param total 总记录数
+     * @param list  данные списка
+     * @param total общее количество записей
      */
     public PageData(List<T> list, long total) {
         this.list = list;

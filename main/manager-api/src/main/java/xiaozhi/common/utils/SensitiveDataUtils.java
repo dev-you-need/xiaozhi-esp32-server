@@ -11,24 +11,24 @@ import org.apache.commons.lang3.StringUtils;
 import cn.hutool.json.JSONObject;
 
 /**
- * 敏感数据处理工具类
+ * Утилита обработки конфиденциальных данных
  */
 public class SensitiveDataUtils {
 
-    // 敏感字段列表
+    // Список конфиденциальных полей
     private static final Set<String> SENSITIVE_FIELDS = new HashSet<>(Arrays.asList(
             "api_key", "personal_access_token", "access_token", "token",
             "secret", "access_key_secret", "secret_key"));
 
     /**
-     * 检查字段是否为敏感字段
+     * Проверка, является ли поле конфиденциальным
      */
     public static boolean isSensitiveField(String fieldName) {
         return StringUtils.isNotBlank(fieldName) && SENSITIVE_FIELDS.contains(fieldName.toLowerCase());
     }
 
     /**
-     * 隐藏字符串中间部分
+     * Маскировка средней части строки
      */
     public static String maskMiddle(String value) {
         if (StringUtils.isBlank(value) || value.length() == 1) {
@@ -37,10 +37,10 @@ public class SensitiveDataUtils {
 
         int length = value.length();
         if (length <= 8) {
-            // 短字符串保留前2后2
+            // Для коротких строк — сохранить первые 2 и последние 2 символа
             return value.substring(0, 2) + "****" + value.substring(length - 2);
         } else {
-            // 长字符串保留前4后4
+            // Для длинных строк — сохранить первые 4 и последние 4 символа
             int maskLength = length - 8;
             StringBuilder maskBuilder = new StringBuilder();
             for (int i = 0; i < maskLength; i++) {
@@ -51,18 +51,18 @@ public class SensitiveDataUtils {
     }
 
     /**
-     * 判断字符串是否是被掩码处理过的值
+     * Проверка, обработана ли строка маской
      */
     public static boolean isMaskedValue(String value) {
         if (StringUtils.isBlank(value)) {
             return false;
         }
-        // 掩码值至少包含4个连续的*
+        // Значение маски содержит как минимум 4 подряд идущих символа *
         return value.contains("****");
     }
 
     /**
-     * 处理JSONObject中的敏感字段
+     * Обработка конфиденциальных полей в JSONObject
      */
     public static JSONObject maskSensitiveFields(JSONObject jsonObject) {
         if (jsonObject == null) {
@@ -87,8 +87,8 @@ public class SensitiveDataUtils {
     }
 
     /**
-     * 比较两个JSONObject的敏感字段是否相同
-     * 特别针对api_key等敏感字段进行单独比较
+     * Сравнение конфиденциальных полей двух JSONObject
+     * Особое сравнение конфиденциальных полей, таких как api_key
      */
     public static boolean isSensitiveDataEqual(JSONObject original, JSONObject updated) {
         if (original == null && updated == null) {
@@ -98,7 +98,7 @@ public class SensitiveDataUtils {
             return false;
         }
 
-        // 提取并比较特定敏感字段
+        // Извлечение и сравнение определённых конфиденциальных полей
         return compareSpecificSensitiveFields(original, updated, "api_key") &&
                 compareSpecificSensitiveFields(original, updated, "personal_access_token") &&
                 compareSpecificSensitiveFields(original, updated, "access_token") &&
@@ -109,24 +109,24 @@ public class SensitiveDataUtils {
     }
 
     /**
-     * 比较两个JSON对象中特定敏感字段是否相同
-     * 遍历整个JSON对象树，查找并比较指定敏感字段
+     * Сравнение определённого конфиденциального поля в двух JSON-объектах
+     * Обход всего дерева JSON-объектов для поиска и сравнения указанных конфиденциальных полей
      */
     private static boolean compareSpecificSensitiveFields(JSONObject original, JSONObject updated, String fieldName) {
-        // 提取原始对象中的指定敏感字段
+        // Извлечение указанного конфиденциального поля из исходного объекта
         Map<String, String> originalFields = new HashMap<>();
         extractSpecificSensitiveField(original, originalFields, fieldName, "");
 
-        // 提取更新对象中的指定敏感字段
+        // Извлечение указанного конфиденциального поля из обновлённого объекта
         Map<String, String> updatedFields = new HashMap<>();
         extractSpecificSensitiveField(updated, updatedFields, fieldName, "");
 
-        // 如果字段数量不同，说明有增删
+        // Если количество полей различается — были добавления или удаления
         if (originalFields.size() != updatedFields.size()) {
             return false;
         }
 
-        // 比较每个字段的值
+        // Сравнение значений каждого поля
         for (Map.Entry<String, String> entry : originalFields.entrySet()) {
             String key = entry.getKey();
             String originalValue = entry.getValue();
@@ -141,7 +141,7 @@ public class SensitiveDataUtils {
     }
 
     /**
-     * 递归提取JSON对象中指定名称的敏感字段
+     * Рекурсивное извлечение конфиденциальных полей по имени из JSON-объекта
      */
     private static void extractSpecificSensitiveField(JSONObject jsonObject, Map<String, String> fieldsMap,
             String targetFieldName, String parentPath) {
@@ -154,10 +154,10 @@ public class SensitiveDataUtils {
             Object value = jsonObject.get(key);
 
             if (value instanceof JSONObject) {
-                // 递归处理嵌套JSON对象
+                // Рекурсивная обработка вложенного JSON-объекта
                 extractSpecificSensitiveField((JSONObject) value, fieldsMap, targetFieldName, fullPath);
             } else if (value instanceof String && key.equalsIgnoreCase(targetFieldName)) {
-                // 找到目标敏感字段，保存其路径和值
+                // Найдено целевое конфиденциальное поле — сохранение его пути и значения
                 fieldsMap.put(fullPath, (String) value);
             }
         }

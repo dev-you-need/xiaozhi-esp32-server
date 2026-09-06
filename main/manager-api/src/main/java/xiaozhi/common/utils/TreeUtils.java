@@ -8,17 +8,17 @@ import java.util.Map;
 import xiaozhi.common.validator.AssertUtils;
 
 /**
- * 树形结构工具类，如：菜单、部门等
+ * Утилита древовидной структуры, например: меню, отделы и т.д.
  * Copyright (c) 人人开源 All rights reserved.
  * Website: https://www.renren.io
  */
 public class TreeUtils {
 
     /**
-     * 根据pid，构建树节点
+     * Построение узлов дерева по pid
      */
     public static <T extends TreeNode<T>> List<T> build(List<T> treeNodes, Long pid) {
-        // pid不能为空
+        // pid не может быть пустым
         AssertUtils.isNull(pid, "pid");
 
         List<T> treeList = new ArrayList<>();
@@ -32,7 +32,7 @@ public class TreeUtils {
     }
 
     /**
-     * 查找子节点
+     * Поиск дочерних узлов
      */
     private static <T extends TreeNode<T>> T findChildren(List<T> treeNodes, T rootNode) {
         for (T treeNode : treeNodes) {
@@ -44,12 +44,12 @@ public class TreeUtils {
     }
 
     /**
-     * 构建树节点
+     * Построение узлов дерева
      */
     public static <T extends TreeNode<T>> List<T> build(List<T> treeNodes) {
         List<T> result = new ArrayList<>();
 
-        // list转map
+        // Преобразование list в map
         Map<Long, T> nodeMap = new LinkedHashMap<>(treeNodes.size());
         for (T treeNode : treeNodes) {
             nodeMap.put(treeNode.getId(), treeNode);

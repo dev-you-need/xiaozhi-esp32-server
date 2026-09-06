@@ -32,11 +32,11 @@ import xiaozhi.modules.knowledge.rag.KnowledgeBaseAdapter;
 import xiaozhi.modules.knowledge.rag.RAGFlowClient;
 
 /**
- * RAGFlow知识库适配器实现
+ * RAGFlowВнедрение адаптера базы знаний
  * <p>
- * 重构说明 (Refactoring Note):
- * 本类已升级为使用 {@link RAGFlowClient} 统一处理 HTTP 通信。
- * 解决了旧代码中 Timeout 缺失、Error Handling 分散的问题。
+ * Инструкции по рефакторингу (Refactoring Note):
+ * Этот класс был обновлен для использования {@link RAGFlowClient} Унифицированная обработка HTTP Связь。
+ * Решено в старом коде Timeout Отсутствует、Error Handling Разрозненные проблемы。
  * </p>
  */
 @Slf4j
@@ -46,7 +46,7 @@ public class RAGFlowAdapter extends KnowledgeBaseAdapter {
 
     private Map<String, Object> config;
     private ObjectMapper objectMapper;
-    // Client 实例，初始化时创建
+    // Client Примеры，Создано при инициализации
     private RAGFlowClient client;
 
     public RAGFlowAdapter() {
@@ -66,7 +66,7 @@ public class RAGFlowAdapter extends KnowledgeBaseAdapter {
         String baseUrl = getConfigValue(config, "base_url", "baseUrl");
         String apiKey = getConfigValue(config, "api_key", "apiKey");
 
-        // 初始化 Client，默认超时 30s，可通过 config 扩展
+        // Инициализация Client，Тайм-аут по умолчанию 30s，Доступно через config shops|продлить
         int timeout = 30;
         Object timeoutObj = getConfigValue(config, "timeout", "timeout");
         if (timeoutObj != null) {
@@ -109,7 +109,7 @@ public class RAGFlowAdapter extends KnowledgeBaseAdapter {
     }
 
     /**
-     * 辅助方法：支持多种键名获取配置（兼容 camelCase 和 snake_case）
+     * Вспомогательные методы：Поддерживает несколько конфигураций получения имен ключей（Совместимость camelCase Сложение snake_case）
      */
     private String getConfigValue(Map<String, Object> config, String snakeKey, String camelKey) {
         if (config.containsKey(snakeKey)) {
@@ -122,15 +122,15 @@ public class RAGFlowAdapter extends KnowledgeBaseAdapter {
     }
 
     /**
-     * 辅助方法：确保 Client 已初始化
+     * Вспомогательные методы：Обеспечить Client Инициализировано
      */
     private RAGFlowClient getClient() {
         if (this.client == null) {
-            // 尝试重新初始化
+            // Попробуйте повторить инициализацию
             if (this.config != null) {
                 initialize(this.config);
             } else {
-                throw new RenException(ErrorCode.RAG_CONFIG_NOT_FOUND, "适配器未初始化"); // 应该抛出 RuntimeException
+                throw new RenException(ErrorCode.RAG_CONFIG_NOT_FOUND, "适配器未初始化"); // Должен быть брошен RuntimeException
             }
         }
         return this.client;
@@ -148,7 +148,7 @@ public class RAGFlowAdapter extends KnowledgeBaseAdapter {
         try {
             log.info("=== [RAGFlow] 获取文档列表: datasetId={} ===", datasetId);
 
-            // 使用 Jackson 将 DTO 转为 Map 作为查询参数
+            // Эксплуатация  Jackson - DTO Преобразовать в Map В качестве параметра запроса
             Map<String, Object> params = objectMapper.convertValue(req, new TypeReference<Map<String, Object>>() {
             });
 
@@ -209,7 +209,7 @@ public class RAGFlowAdapter extends KnowledgeBaseAdapter {
                 body.add("meta", objectMapper.writeValueAsString(req.getMetaFields()));
             }
             if (req.getChunkMethod() != null) {
-                // 将枚举值转为 RAGFlow 期待的字符串（如 NAIVE -> naive）
+                // Преобразовать значение перечисления в RAGFlow Ожидаемая строка（如 NAIVE -> naive）
                 body.add("chunk_method", req.getChunkMethod().name().toLowerCase());
             }
             if (req.getParserConfig() != null) {
@@ -295,7 +295,7 @@ public class RAGFlowAdapter extends KnowledgeBaseAdapter {
     @Override
     public ChunkDTO.ListVO listChunks(String datasetId, String documentId, ChunkDTO.ListReq req) {
         try {
-            // [提灯重构] 使用 objectMapper 动态转换查询参数，消除硬编码
+            // [Реконструкция фонаря] Эксплуатация  objectMapper Параметры запроса динамического преобразования，Устранить жесткое кодирование
             Map<String, Object> params = objectMapper.convertValue(req, new TypeReference<Map<String, Object>>() {
             });
 
@@ -325,18 +325,18 @@ public class RAGFlowAdapter extends KnowledgeBaseAdapter {
     @Override
     public RetrievalDTO.ResultVO retrievalTest(RetrievalDTO.TestReq req) {
         try {
-            // [Production Reinforce] 参数防御性对齐：RAGFlow Python 端对 0 或负数分页敏感
-            // 解决 ValueError('Search does not support negative slicing.')
+            // [Production Reinforce] Защитное выравнивание параметров：RAGFlow Python Торцевые пары 0 или отрицательная чувствительность пейджинга
+            // РЕШЕНИЕ ValueError('Search does not support negative slicing.')
             if (req.getPage() != null && req.getPage() < 1) {
                 req.setPage(1);
             }
             if (req.getPageSize() != null && req.getPageSize() < 1) {
-                req.setPageSize(10); // 默认 10 条
+                req.setPageSize(10); // По умолчанию 10 шт.
             }
             if (req.getTopK() != null && req.getTopK() < 1) {
-                req.setTopK(1024); // RAGFlow 内部默认 TopK
+                req.setTopK(1024); // RAGFlow Внутренний дефолт TopK
             }
-            // 相似度阈值归一化 (0.0 ~ 1.0)
+            // Нормализация порогов подобия (0.0 ~ 1.0)
             if (req.getSimilarityThreshold() != null) {
                 if (req.getSimilarityThreshold() < 0f)
                     req.setSimilarityThreshold(0.2f);
@@ -344,7 +344,7 @@ public class RAGFlowAdapter extends KnowledgeBaseAdapter {
                     req.setSimilarityThreshold(1.0f);
             }
 
-            // [提灯重构] 直接透传强类型 DTO，由 getClient 处理序列化
+            // [Реконструкция фонаря] Прямая передача сильного типа DTO，Из-за getClient Сериализация процессов
             Map<String, Object> response = getClient().post("/api/v1/retrieval", req);
 
             Object dataObj = response.get("data");
@@ -408,8 +408,8 @@ public class RAGFlowAdapter extends KnowledgeBaseAdapter {
     @Override
     public DatasetDTO.InfoVO createDataset(DatasetDTO.CreateReq req) {
         try {
-            // [Production Fix] 强化默认值处理，防止 RAGFlow API 因空字符串或缺失字段报错 (Code 101)
-            // 解决 "Field: <avatar> - Message: <Missing MIME prefix>" 等校验失败
+            // [Production Fix] Улучшенная обработка значений по умолчанию，Предотвращению RAGFlow API Ошибка из-за пустой строки или отсутствия поля (Code 101)
+            // РЕШЕНИЕ "Field: <avatar> - Message: <Missing MIME prefix>" Подождите, пока проверка не завершится неудачно
             if (StringUtils.isBlank(req.getPermission())) {
                 req.setPermission("me");
             }
@@ -417,26 +417,26 @@ public class RAGFlowAdapter extends KnowledgeBaseAdapter {
                 req.setChunkMethod("naive");
             }
 
-            // 🤖 自动补全嵌入模型：优先使用请求传参，其次使用配置中的默认模型
+            // 🤖 Автозаполнение встроенной модели：Предпочтительное использование параметров распространения запроса，Затем используйте модель по умолчанию в конфигурации
             if (StringUtils.isBlank(req.getEmbeddingModel())) {
                 String defaultModel = (String) getConfigValue(config, "embedding_model", "embeddingModel");
                 if (StringUtils.isNotBlank(defaultModel)) {
                     log.info("RAGFlow: 使用配置中的默认嵌入模型: {}", defaultModel);
                     req.setEmbeddingModel(defaultModel);
                 }
-                // 若配置中也无默认值，则留空由 RAGFlow 服务端自行兜底（或抛出业务异常）
+                // Если в конфигурации нет значения по умолчанию，затем оставьте пустым для RAGFlow Самозахват на стороне сервера（или выбрасывание ненормальностей бизнеса）
             }
 
-            // 🖼️ 自动补全头像：若为空则提供一个 1x1 透明像素，防止 RAGFlow 校验 MIME Prefix 失败
+            // 🖼️ Автозаполнение аватаров：Укажите один, если он пуст 1x1 Прозрачные пиксели，Предотвращению RAGFlow Соблюдены ли веб-стандарты MIME Prefix Неисправность
             if (StringUtils.isBlank(req.getAvatar())) {
                 req.setAvatar(
                         "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==");
             }
 
-            // 直接将强类型请求对象传给 Client，Jackson 会处理 JsonProperty 映射
+            // Передайте строго типизированный объект запроса непосредственно Client，Jackson Будет обрабатывать JsonProperty Свойство
             Map<String, Object> response = getClient().post("/api/v1/datasets", req);
 
-            // 安全地获取 data 并通过 DatasetDTO.InfoVO 进行全量映射
+            // Получите его надежно data и DatasetDTO.InfoVO Для отображения полного объема
             Object dataObj = response.get("data");
             if (dataObj != null) {
                 return objectMapper.convertValue(dataObj, DatasetDTO.InfoVO.class);
@@ -451,7 +451,7 @@ public class RAGFlowAdapter extends KnowledgeBaseAdapter {
     @Override
     public DatasetDTO.InfoVO updateDataset(String datasetId, DatasetDTO.UpdateReq req) {
         try {
-            // RAGFlow API 更新建议路径带 ID
+            // RAGFlow API Обновить предлагаемый диапазон путей ID
             Map<String, Object> response = getClient().put("/api/v1/datasets/" + datasetId, req);
 
             Object dataObj = response.get("data");
@@ -468,7 +468,7 @@ public class RAGFlowAdapter extends KnowledgeBaseAdapter {
     @Override
     public DatasetDTO.BatchOperationVO deleteDataset(DatasetDTO.BatchIdReq req) {
         try {
-            // RAGFlow 批量删除接口使用 DELETE /api/v1/datasets
+            // RAGFlow Массовое удаление использования интерфейса DELETE /api/v1/datasets
             Map<String, Object> response = getClient().delete("/api/v1/datasets", req);
 
             Object dataObj = response.get("data");
@@ -508,7 +508,7 @@ public class RAGFlowAdapter extends KnowledgeBaseAdapter {
                     return objectMapper.convertValue(list.get(0), DatasetDTO.InfoVO.class);
                 }
             }
-            // RAGFlow 端不存在该数据集
+            // RAGFlow Набор данных не существует в конце
             return null;
         } catch (Exception e) {
             log.warn("获取数据集信息失败: datasetId={}, error={}", datasetId, e.getMessage());
@@ -529,15 +529,15 @@ public class RAGFlowAdapter extends KnowledgeBaseAdapter {
     @Override
     public Object postSearchBotAsk(Map<String, Object> config, Object body,
             Consumer<String> onData) {
-        // SearchBot 实际上是 Dataset 检索的一种封装，或者是未公开的 API？
-        // 假设 RAGFlow 没有显式的 /searchbots 接口供 SDK 调用，而是 Dataset Retrieval 或者 Chat。
-        // 但根据 BotDTO，它是 /api/v1/searchbots/ask (假设)
-        // 这里的 config 可能是覆盖用的，或者我们只是用 adapter 实例已有的 client。
-        // 但 Bot 可能使用不同的 API Key？通常 Adapter 实例绑定了一个 Key。
-        // 如果 Bot 使用系统 Key，则直接用 getClient()。
+        // SearchBot Вообще-то, да. Dataset Полученный отпечаток，или не разглашается API？
+        // Предположим, что... RAGFlow Нет явных /searchbots Интерфейс для SDK Вызов，а... Dataset Retrieval                                               или Chat。
+        // Но согласно BotDTO，Это /api/v1/searchbots/ask (Предположим, что...)
+        // здесь config Вероятно, для перезаписи，Или, может быть, мы просто используем adapter Экземпляр уже существует client。
+        // Но Bot может использовать другой API Key？通常 Adapter Экземпляр связывает Key。
+        // Если Bot Использование системы Key，затем используйте непосредственно getClient()。
 
-        // 暂时假设 endpoint /api/v1/searchbots/ask 存在（或者类似的）
-        // 如果是流式:
+        // Временные допущения endpoint /api/v1/searchbots/ask быть（или что-то в этом роде.）
+        // Если он транслируется:
         try {
             getClient().postStream("/api/v1/searchbots/ask", body, onData);
             return null;
@@ -550,7 +550,7 @@ public class RAGFlowAdapter extends KnowledgeBaseAdapter {
     @Override
     public void postAgentBotCompletion(Map<String, Object> config, String agentId, Object body,
             Consumer<String> onData) {
-        // AgentBot 对应 /api/v1/agentbots/{id}/completions
+        // AgentBot Список соответствий /api/v1/agentbots/{id}/completions
         try {
             getClient().postStream("/api/v1/agentbots/" + agentId + "/completions", body, onData);
         } catch (Exception e) {
@@ -559,8 +559,8 @@ public class RAGFlowAdapter extends KnowledgeBaseAdapter {
         }
     }
 
-    // 复用原有的辅助解析方法，保持兼容
-    // [Bug Fix] 不再吞掉反序列化异常，避免上层误判"文档已删除"
+    // Повторно использовать оригинальные вспомогательные методы парсинга，Оставайтесь совместимыми
+    // [Bug Fix] Больше не нужно глотать исключения десериализации，Избегайте неправильных суждений верхнего уровня"Документ удален"
     private PageData<KnowledgeFilesDTO> parseDocumentListResponse(Object dataObj, long curPage, long pageSize) {
         if (dataObj == null) {
             return new PageData<>(new ArrayList<>(), 0);
@@ -569,14 +569,14 @@ public class RAGFlowAdapter extends KnowledgeBaseAdapter {
         Map<?, ?> dataMap = Map.class.cast(dataObj);
         List<?> documents = List.class.cast(dataMap.get("docs"));
         if (documents == null || documents.isEmpty()) {
-            // RAGFlow 明确返回了空文档列表，这是合法的"真空"
+            // RAGFlow Явно возвращен пустой список документов，Это законно"Вакуум"
             return new PageData<>(new ArrayList<>(), 0);
         }
 
         List<KnowledgeFilesDTO> list = new ArrayList<>();
         for (Object docObj : documents) {
             try {
-                // 单文档转换容错：一个文档反序列化失败不影响其他文档
+                // Отказоустойчивость преобразования одного документа：Сбой десериализации документа не влияет на другие документы
                 DocumentDTO.InfoVO info = objectMapper.convertValue(docObj, DocumentDTO.InfoVO.class);
                 list.add(mapToKnowledgeFilesDTO(info, null));
             } catch (Exception e) {
@@ -595,7 +595,7 @@ public class RAGFlowAdapter extends KnowledgeBaseAdapter {
     private KnowledgeFilesDTO parseUploadResponse(Object dataObj, String datasetId, MultipartFile file) {
         KnowledgeFilesDTO result = null;
 
-        // 尝试从响应数据中提取文档ID (documentId)
+        // Попытка извлечь документ из данных ответаID (documentId)
         if (dataObj != null) {
             try {
                 DocumentDTO.InfoVO info = null;
@@ -618,7 +618,7 @@ public class RAGFlowAdapter extends KnowledgeBaseAdapter {
 
         if (result == null) {
             log.error("未能从RAGFlow响应中提取到documentId，响应内容: {}", dataObj);
-            // 这里应该返回一个最小化的包含基础信息的 DTO 而不是 null，防止上游 NPE
+            // Это должно вернуть минимизированное DTO вместо null，Предотвращение восходящего потока NPE
             result = new KnowledgeFilesDTO();
             result.setDatasetId(datasetId);
             result.setName(file.getOriginalFilename());
@@ -630,8 +630,8 @@ public class RAGFlowAdapter extends KnowledgeBaseAdapter {
     }
 
     /**
-     * 将 RAGFlow 的强类型 InfoVO 映射到内部使用的 KnowledgeFilesDTO
-     * 确保所有可用字段（名称、大小、状态、配置等）都得到全量同步
+     * - RAGFlow Сильный тип InfoVO Сопоставлено с внутренне используемым KnowledgeFilesDTO
+     * Убедитесь, что все доступные поля（НАИМЕНОВАНИЕ、Размер、Статус、Конфигурация и т.д.）все в полной синхронизации
      */
     private KnowledgeFilesDTO mapToKnowledgeFilesDTO(DocumentDTO.InfoVO info, String datasetId) {
         KnowledgeFilesDTO dto = new KnowledgeFilesDTO();
@@ -644,7 +644,7 @@ public class RAGFlowAdapter extends KnowledgeBaseAdapter {
         dto.setName(info.getName());
         dto.setFileSize(info.getSize());
 
-        // 状态映射
+        // Сопоставление статуса
         if (info.getRun() != null) {
             dto.setRun(info.getRun().name());
         }
@@ -652,10 +652,10 @@ public class RAGFlowAdapter extends KnowledgeBaseAdapter {
         if (StringUtils.isNotBlank(info.getStatus())) {
             dto.setStatus(info.getStatus());
         } else {
-            dto.setStatus("1"); // 默认启用
+            dto.setStatus("1"); // Включено по умолчанию
         }
 
-        // 时间同步
+        // Синхронизация времени
         if (info.getCreateTime() != null) {
             dto.setCreatedAt(new Date(info.getCreateTime()));
         }
@@ -663,16 +663,16 @@ public class RAGFlowAdapter extends KnowledgeBaseAdapter {
             dto.setUpdatedAt(new Date(info.getUpdateTime()));
         }
 
-        // 核心元数据补齐 (Issue 1)
+        // Заполнение основных метаданных (Issue 1)
         dto.setProgress(info.getProgress());
         dto.setThumbnail(info.getThumbnail());
         dto.setProcessDuration(info.getProcessDuration());
         dto.setSourceType(info.getSourceType());
         dto.setChunkCount(info.getChunkCount() != null ? info.getChunkCount().intValue() : 0);
         dto.setTokenCount(info.getTokenCount());
-        dto.setError(info.getProgressMsg()); // 将进度描述映射为错误信息提示
+        dto.setError(info.getProgressMsg()); // Отображение описаний прогресса в виде сообщений об ошибках
 
-        // 扩展字段同步
+        // Расширенная полевая синхронизация
         dto.setMetaFields(info.getMetaFields());
         if (info.getChunkMethod() != null) {
             dto.setChunkMethod(info.getChunkMethod().name().toLowerCase());

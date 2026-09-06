@@ -7,7 +7,7 @@ import java.util.Map;
 import xiaozhi.common.page.PageData;
 
 /**
- * CRUD基础服务接口
+ * Интерфейс базового CRUD-сервиса
  * Copyright (c) 人人开源 All rights reserved.
  * Website: https://www.renren.io
  */

@@ -7,25 +7,25 @@ import xiaozhi.common.dao.BaseDao;
 import xiaozhi.modules.knowledge.entity.KnowledgeBaseEntity;
 
 /**
- * 知识库知识库
+ * База знаний База знаний
  */
 @Mapper
 public interface KnowledgeBaseDao extends BaseDao<KnowledgeBaseEntity> {
 
     /**
-     * 根据知识库ID删除相关的插件映射记录
+     * Удалить соответствующие записи сопоставления плагинов на основе идентификатора базы знаний
      * 
-     * @param knowledgeBaseId 知识库ID
+     * @ param knowledgeBaseId Идентификатор базы знаний
      */
     void deletePluginMappingByKnowledgeBaseId(@Param("knowledgeBaseId") String knowledgeBaseId);
 
     /**
-     * 通用维度原子更新知识库统计信息
+     * Статистика обновления базы знаний Universal Dimension Atom
      * 
-     * @param datasetId  数据集ID
-     * @param docDelta   文档数增量
-     * @param chunkDelta 分块数增量
-     * @param tokenDelta Token数增量
+     * @ param datasetId Идентификатор набора данных
+     * @ param docDelta приращение количества документов
+     * @ param chunkDelta chunk delta
+     * @ param tokenDelta Увеличение количества токенов
      */
     void updateStatsAfterChange(@Param("datasetId") String datasetId,
             @Param("docDelta") Integer docDelta,

@@ -8,13 +8,13 @@ import lombok.extern.slf4j.Slf4j;
 import xiaozhi.modules.knowledge.service.KnowledgeFilesService;
 
 /**
- * 知识库文档状态同步定时任务
+ * Задача синхронизации статуса документа в базе знаний
  * 
- * 作用：
- * 1. 自动扫描处于 "RUNNING" (解析中) 状态的文档
- * 2. 调用 RAGFlow 接口获取最新状态
- * 3. 状态翻转 (RUNNING -> SUCCESS/FAIL) 时，同步更新数据库
- * 4. [关键] 解析成功时，补偿更新知识库的统计信息 (TokenCount)
+ * Должность:
+ * 1. Автоматическое сканирование документов в состоянии __ STR0 __ (парсинг)
+ * 2. Позвоните в интерфейс RAGFlow, чтобы получить последнюю информацию о состоянии
+ * 3. Синхронное обновление базы данных при изменении статуса (запуск - > успех/сбой)
+ * 4. [Critical] Компенсация за обновление статистики базы знаний (TokenCount) при успешном анализе
  */
 @Component
 @AllArgsConstructor
@@ -24,8 +24,8 @@ public class DocumentStatusSyncTask {
     private final KnowledgeFilesService knowledgeFilesService;
 
     /**
-     * 每 30 秒执行一次同步
-     * 采用 fixedDelay，确保上一次执行完 30 秒后才开始下一次，防止积压
+     * Синхронизация каждые 30 секунд
+     * Предотвратите отставание, используя fixedDelay, чтобы гарантировать, что следующее выполнение начнется через 30 секунд после последнего выполнения
      */
     @Scheduled(fixedDelay = 30000)
     public void syncRunningDocuments() {

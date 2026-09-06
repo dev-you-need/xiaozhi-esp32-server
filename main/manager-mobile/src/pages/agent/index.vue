@@ -2,7 +2,7 @@
 {
   "layout": "default",
   "style": {
-    "navigationBarTitleText": "智能体",
+    "navigationBarTitleText": "Агент",
     "navigationStyle": "custom"
   }
 }
@@ -22,7 +22,7 @@ defineOptions({
   name: 'AgentIndex',
 })
 
-// 获取屏幕边界到安全区域距离
+// Получение расстояния от края экрана до безопасной области
 let safeAreaInsets: any
 let systemInfo: any
 
@@ -43,27 +43,27 @@ systemInfo = uni.getSystemInfoSync()
 safeAreaInsets = systemInfo.safeAreaInsets
 // #endif
 
-// 智能体ID
+// ID агента
 const currentAgentId = ref('default')
 
-// 当前 tab
+// Текущая вкладка
 const currentTab = ref('agent-config')
 
-// 刷新和加载状态
+// Состояние обновления и загрузки
 const refreshing = ref(false)
 const refresherEnabled = ref(false)
 
-// 子组件引用
+// Ссылка на дочерний компонент
 const deviceRef = ref()
 const chatRef = ref()
 const voiceprintRef = ref()
 
-// 更新刷新器状态
+// Обновление состояния обновления
 function updateRefresherEnabled(value: boolean) {
   refresherEnabled.value = value
 }
 
-// Tab 配置
+// Конфигурация вкладок
 const tabList = [
   {
     label: t('agent.roleConfig'),
@@ -91,19 +91,19 @@ const tabList = [
   },
 ]
 
-// 返回上一页
+// Вернуться на предыдущую страницу
 function goBack() {
   uni.navigateBack()
 }
 
-// 处理 tab 切换
+// Обработка переключения вкладок
 function handleTabChange(item: any) {
   console.log('Tab changed:', item)
 }
 
-// 下拉刷新
+// Обновление по свайпу вниз
 async function onRefresh() {
-  // 角色编辑页面不需要刷新
+  // Страница редактирования роли не требует обновления
   if (currentTab.value === 'agent-config') {
     return
   }
@@ -137,9 +137,9 @@ async function onRefresh() {
   }
 }
 
-// 触底加载更多
+// Загрузка дополнительных при достижении дна
 async function onLoadMore() {
-  // 只有聊天记录需要加载更多
+  // Загружать дополнительно нужно только для истории чата
   if (currentTab.value === 'chat-history' && chatRef.value?.loadMore) {
     await chatRef.value.loadMore()
   }
@@ -149,7 +149,7 @@ watch(() => currentTab.value, (newTab) => {
   updateRefresherEnabled(newTab !== 'agent-config')
 })
 
-// 接收页面参数
+// Принять параметры страницы
 onLoad((options) => {
   if (options?.agentId) {
     currentAgentId.value = options.agentId
@@ -158,27 +158,27 @@ onLoad((options) => {
 })
 
 onMounted(async () => {
-  // 页面初始化
+  // Инициализация страницы
 })
 </script>
 
 <template>
   <view class="h-screen flex flex-col bg-[#f5f7fb]">
-    <!-- 导航栏 -->
+    <!-- Панель навигации -->
     <wd-navbar :title="t('agent.pageTitle')" safe-area-inset-top>
       <template #left>
         <wd-icon name="arrow-left" size="18" @click="goBack" />
       </template>
     </wd-navbar>
 
-    <!-- 自定义 Tabs -->
+    <!-- Пользовательские вкладки -->
     <CustomTabs
       v-model="currentTab"
       :tab-list="tabList"
       @change="handleTabChange"
     />
 
-    <!-- 主内容滚动区域 -->
+    <!-- Основная прокручиваемая область контента -->
     <scroll-view
       scroll-y
       :style="{ height: `calc(100vh - ${safeAreaInsets?.top || 0}px - 180rpx)` }"
@@ -189,7 +189,7 @@ onMounted(async () => {
       @refresherrefresh="onRefresh"
       @scrolltolower="onLoadMore"
     >
-      <!-- Tab 内容 -->
+      <!-- Содержимое вкладки -->
       <view class="flex-1">
         <AgentEdit
           v-if="currentTab === 'agent-config'"

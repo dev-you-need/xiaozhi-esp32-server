@@ -2,7 +2,7 @@ import { getServiceUrl } from '../api';
 import RequestService from '../httpRequest';
 
 export default {
-    // 分页查询OTA固件信息
+    // Постраничный запрос информации об OTA прошивке
     getOtaList(params, callback) {
         RequestService.sendRequest()
             .url(`${getServiceUrl()}/otaMag`)
@@ -13,13 +13,13 @@ export default {
                 callback(res);
             })
             .networkFail((err) => {
-                console.error('获取OTA固件列表失败:', err);
+                console.error('Ошибка получения списка OTA прошивок:', err);
                 RequestService.reAjaxFun(() => {
                     this.getOtaList(params, callback);
                 });
             }).send();
     },
-    // 获取单个OTA固件信息
+    // Получение информации об отдельной OTA прошивке
     getOtaInfo(id, callback) {
         RequestService.sendRequest()
             .url(`${getServiceUrl()}/otaMag/${id}`)
@@ -29,13 +29,13 @@ export default {
                 callback(res);
             })
             .networkFail((err) => {
-                console.error('获取OTA固件信息失败:', err);
+                console.error('Ошибка получения информации об OTA прошивке:', err);
                 RequestService.reAjaxFun(() => {
                     this.getOtaInfo(id, callback);
                 });
             }).send();
     },
-    // 保存OTA固件信息
+    // Сохранение информации об OTA прошивке
     saveOta(entity, callback) {
         RequestService.sendRequest()
             .url(`${getServiceUrl()}/otaMag`)
@@ -46,13 +46,13 @@ export default {
                 callback(res);
             })
             .networkFail((err) => {
-                console.error('保存OTA固件信息失败:', err);
+                console.error('Ошибка сохранения информации об OTA прошивке:', err);
                 RequestService.reAjaxFun(() => {
                     this.saveOta(entity, callback);
                 });
             }).send();
     },
-    // 更新OTA固件信息
+    // Обновление информации об OTA прошивке
     updateOta(id, entity, callback) {
         RequestService.sendRequest()
             .url(`${getServiceUrl()}/otaMag/${id}`)
@@ -63,13 +63,13 @@ export default {
                 callback(res);
             })
             .networkFail((err) => {
-                console.error('更新OTA固件信息失败:', err);
+                console.error('Ошибка обновления информации об OTA прошивке:', err);
                 RequestService.reAjaxFun(() => {
                     this.updateOta(id, entity, callback);
                 });
             }).send();
     },
-    // 删除OTA固件
+    // Удаление OTA прошивки
     deleteOta(id, callback) {
         RequestService.sendRequest()
             .url(`${getServiceUrl()}/otaMag/${id}`)
@@ -79,13 +79,13 @@ export default {
                 callback(res);
             })
             .networkFail((err) => {
-                console.error('删除OTA固件失败:', err);
+                console.error('Ошибка удаления OTA прошивки:', err);
                 RequestService.reAjaxFun(() => {
                     this.deleteOta(id, callback);
                 });
             }).send();
     },
-    // 上传固件文件
+    // Загрузка файла прошивки
     uploadFirmware(file, callback) {
         const formData = new FormData();
         formData.append('file', file);
@@ -98,13 +98,13 @@ export default {
                 callback(res);
             })
             .networkFail((err) => {
-                console.error('上传固件文件失败:', err);
+                console.error('Ошибка загрузки файла прошивки:', err);
                 RequestService.reAjaxFun(() => {
                     this.uploadFirmware(file, callback);
                 });
             }).send();
     },
-    // 获取固件下载链接
+    // Получение ссылки на скачивание прошивки
     getDownloadUrl(id, callback) {
         RequestService.sendRequest()
             .url(`${getServiceUrl()}/otaMag/getDownloadUrl/${id}`)
@@ -114,7 +114,7 @@ export default {
                 callback(res);
             })
             .networkFail((err) => {
-                console.error('获取下载链接失败:', err);
+                console.error('Ошибка получения ссылки на скачивание:', err);
                 RequestService.reAjaxFun(() => {
                     this.getDownloadUrl(id, callback);
                 });

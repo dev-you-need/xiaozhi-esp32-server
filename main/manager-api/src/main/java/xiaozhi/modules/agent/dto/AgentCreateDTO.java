@@ -6,10 +6,12 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
+
 /**
- * 智能体创建DTO
- * 专用于新增智能体，不包含id、agentCode和sort字段，这些字段由系统自动生成/设置默认值
+ * DTO создания агента
+ * Для создания агента; не содержит id, agentCode и sort — эти поля генерируются системой
  */
+
 @Data
 @Schema(description = "智能体创建对象")
 public class AgentCreateDTO implements Serializable {

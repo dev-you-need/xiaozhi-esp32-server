@@ -2,23 +2,23 @@ import { getServiceUrl } from '../api';
 import RequestService from '../httpRequest';
 
 /**
- * 获取认证token
+ * Получение токена авторизации
  */
 function getAuthToken() {
   return localStorage.getItem('token') || '';
 }
 
 /**
- * 通用API请求包装器
- * @param {Object} config - 请求配置
- * @param {string} config.url - 请求URL
- * @param {string} config.method - 请求方法
- * @param {Object} [config.data] - 请求数据
- * @param {Object} [config.headers] - 额外请求头
- * @param {Function} config.callback - 成功回调
- * @param {Function} [config.errorCallback] - 错误回调
- * @param {string} [config.errorMessage] - 错误消息
- * @param {Function} [config.retryFunction] - 重试函数
+ * Универсальная обертка API запроса
+ * @param {Object} config - Конфигурация запроса
+ * @param {string} config.url - URL запроса
+ * @param {string} config.method - Метод запроса
+ * @param {Object} [config.data] - Данные запроса
+ * @param {Object} [config.headers] - Дополнительные заголовки
+ * @param {Function} config.callback - Обратный вызов при успехе
+ * @param {Function} [config.errorCallback] - Обратный вызов при ошибке
+ * @param {string} [config.errorMessage] - Сообщение об ошибке
+ * @param {Function} [config.retryFunction] - Функция повтора
  */
 function makeApiRequest(config) {
   const token = getAuthToken();
@@ -42,7 +42,7 @@ function makeApiRequest(config) {
       callback(res);
     })
     .fail((err) => {
-      console.error(errorMessage || '操作失败', err);
+      console.error(errorMessage || 'Операция не удалась', err);
       if (errorCallback) {
         errorCallback(err);
       }
@@ -57,14 +57,14 @@ function makeApiRequest(config) {
 }
 
 /**
- * 知识库管理相关API
+ * API управления базой знаний
  */
 export default {
   /**
-   * 获取知识库列表
-   * @param {Object} params - 查询参数
-   * @param {Function} callback - 回调函数
-   * @param {Function} errorCallback - 错误回调
+   * Получение списка баз знаний
+   * @param {Object} params - Параметры запроса
+   * @param {Function} callback - Функция обратного вызова
+   * @param {Function} errorCallback - Обратный вызов при ошибке
    */
   getKnowledgeBaseList(params, callback, errorCallback) {
     const queryParams = new URLSearchParams({
@@ -78,19 +78,19 @@ export default {
       method: 'GET',
       callback: callback,
       errorCallback: errorCallback,
-      errorMessage: '获取知识库列表失败',
+      errorMessage: 'Ошибка получения списка баз знаний',
       retryFunction: () => this.getKnowledgeBaseList(params, callback, errorCallback)
     });
   },
 
   /**
-   * 创建知识库
-   * @param {Object} data - 知识库数据
-   * @param {Function} callback - 回调函数
-   * @param {Function} errorCallback - 错误回调
+   * Создание базы знаний
+   * @param {Object} data - Данные базы знаний
+   * @param {Function} callback - Функция обратного вызова
+   * @param {Function} errorCallback - Обратный вызов при ошибке
    */
   createKnowledgeBase(data, callback, errorCallback) {
-    console.log('createKnowledgeBase called with data:', data);
+    console.log('createKnowledgeBase вызван с данными:', data);
     console.log('API URL:', `${getServiceUrl()}/datasets`);
 
     makeApiRequest({
@@ -99,33 +99,33 @@ export default {
       data: data,
       headers: { 'Content-Type': 'application/json' },
       callback: (res) => {
-        console.log('createKnowledgeBase success response:', res);
+        console.log('createKnowledgeBase успешный ответ:', res);
         callback(res);
       },
       errorCallback: (err) => {
-        console.error('创建知识库失败:', err);
+        console.error('Ошибка создания базы знаний:', err);
         if (err.response) {
-          console.error('Error response data:', err.response.data);
-          console.error('Error response status:', err.response.status);
+          console.error('Данные ответа ошибки:', err.response.data);
+          console.error('Статус ответа ошибки:', err.response.status);
         }
         if (errorCallback) {
           errorCallback(err);
         }
       },
-      errorMessage: '创建知识库失败',
+      errorMessage: 'Ошибка создания базы знаний',
       retryFunction: () => this.createKnowledgeBase(data, callback, errorCallback)
     });
   },
 
   /**
-   * 更新知识库
-   * @param {string} datasetId - 知识库ID
-   * @param {Object} data - 更新数据
-   * @param {Function} callback - 回调函数
-   * @param {Function} errorCallback - 错误回调
+   * Обновление базы знаний
+   * @param {string} datasetId - ID базы знаний
+   * @param {Object} data - Данные для обновления
+   * @param {Function} callback - Функция обратного вызова
+   * @param {Function} errorCallback - Обратный вызов при ошибке
    */
   updateKnowledgeBase(datasetId, data, callback, errorCallback) {
-    console.log('updateKnowledgeBase called with datasetId:', datasetId, 'data:', data);
+    console.log('updateKnowledgeBase вызван с datasetId:', datasetId, 'data:', data);
     console.log('API URL:', `${getServiceUrl()}/datasets/${datasetId}`);
 
     makeApiRequest({
@@ -135,19 +135,19 @@ export default {
       headers: { 'Content-Type': 'application/json' },
       callback: callback,
       errorCallback: errorCallback,
-      errorMessage: '更新知识库失败',
+      errorMessage: 'Ошибка обновления базы знаний',
       retryFunction: () => this.updateKnowledgeBase(datasetId, data, callback, errorCallback)
     });
   },
 
   /**
-   * 删除单个知识库
-   * @param {string} datasetId - 知识库ID
-   * @param {Function} callback - 回调函数
-   * @param {Function} errorCallback - 错误回调
+   * Удаление отдельной базы знаний
+   * @param {string} datasetId - ID базы знаний
+   * @param {Function} callback - Функция обратного вызова
+   * @param {Function} errorCallback - Обратный вызов при ошибке
    */
   deleteKnowledgeBase(datasetId, callback, errorCallback) {
-    console.log('deleteKnowledgeBase called with datasetId:', datasetId);
+    console.log('deleteKnowledgeBase вызван с datasetId:', datasetId);
     console.log('API URL:', `${getServiceUrl()}/datasets/${datasetId}`);
 
     makeApiRequest({
@@ -155,19 +155,19 @@ export default {
       method: 'DELETE',
       callback: callback,
       errorCallback: errorCallback,
-      errorMessage: '删除知识库失败',
+      errorMessage: 'Ошибка удаления базы знаний',
       retryFunction: () => this.deleteKnowledgeBase(datasetId, callback, errorCallback)
     });
   },
 
   /**
-   * 批量删除知识库
-   * @param {string|Array} ids - 知识库ID字符串或数组
-   * @param {Function} callback - 回调函数
-   * @param {Function} errorCallback - 错误回调
+   * Пакетное удаление баз знаний
+   * @param {string|Array} ids - Строка или массив ID баз знаний
+   * @param {Function} callback - Функция обратного вызова
+   * @param {Function} errorCallback - Обратный вызов при ошибке
    */
   deleteKnowledgeBases(ids, callback, errorCallback) {
-    // 确保ids是正确格式的字符串
+    // Гарантия правильного формата строки ids
     const idsStr = Array.isArray(ids) ? ids.join(',') : ids;
 
     makeApiRequest({
@@ -175,17 +175,17 @@ export default {
       method: 'DELETE',
       callback: callback,
       errorCallback: errorCallback,
-      errorMessage: '批量删除知识库失败',
+      errorMessage: 'Ошибка пакетного удаления баз знаний',
       retryFunction: () => this.deleteKnowledgeBases(ids, callback, errorCallback)
     });
   },
 
   /**
-   * 获取文档列表
-   * @param {string} datasetId - 知识库ID
-   * @param {Object} params - 查询参数
-   * @param {Function} callback - 回调函数
-   * @param {Function} errorCallback - 错误回调
+   * Получение списка документов
+   * @param {string} datasetId - ID базы знаний
+   * @param {Object} params - Параметры запроса
+   * @param {Function} callback - Функция обратного вызова
+   * @param {Function} errorCallback - Обратный вызов при ошибке
    */
   getDocumentList(datasetId, params, callback, errorCallback) {
     const queryParams = new URLSearchParams({
@@ -199,17 +199,17 @@ export default {
       method: 'GET',
       callback: callback,
       errorCallback: errorCallback,
-      errorMessage: '获取文档列表失败',
+      errorMessage: 'Ошибка получения списка документов',
       retryFunction: () => this.getDocumentList(datasetId, params, callback, errorCallback)
     });
   },
 
   /**
-   * 上传文档
-   * @param {string} datasetId - 知识库ID
-   * @param {Object} formData - 表单数据
-   * @param {Function} callback - 回调函数
-   * @param {Function} errorCallback - 错误回调
+   * Загрузка документа
+   * @param {string} datasetId - ID базы знаний
+   * @param {Object} formData - Данные формы
+   * @param {Function} callback - Функция обратного вызова
+   * @param {Function} errorCallback - Обратный вызов при ошибке
    */
   uploadDocument(datasetId, formData, callback, errorCallback) {
     makeApiRequest({
@@ -219,17 +219,17 @@ export default {
       headers: { 'Content-Type': 'multipart/form-data' },
       callback: callback,
       errorCallback: errorCallback,
-      errorMessage: '上传文档失败',
+      errorMessage: 'Ошибка загрузки документа',
       retryFunction: () => this.uploadDocument(datasetId, formData, callback, errorCallback)
     });
   },
 
   /**
-   * 解析文档
-   * @param {string} datasetId - 知识库ID
-   * @param {string} documentId - 文档ID
-   * @param {Function} callback - 回调函数
-   * @param {Function} errorCallback - 错误回调
+   * Парсинг документа
+   * @param {string} datasetId - ID базы знаний
+   * @param {string} documentId - ID документа
+   * @param {Function} callback - Функция обратного вызова
+   * @param {Function} errorCallback - Обратный вызов при ошибке
    */
   parseDocument(datasetId, documentId, callback, errorCallback) {
     const requestBody = {
@@ -243,17 +243,17 @@ export default {
       headers: { 'Content-Type': 'application/json' },
       callback: callback,
       errorCallback: errorCallback,
-      errorMessage: '解析文档失败',
+      errorMessage: 'Ошибка парсинга документа',
       retryFunction: () => this.parseDocument(datasetId, documentId, callback, errorCallback)
     });
   },
 
   /**
-   * 删除文档
-   * @param {string} datasetId - 知识库ID
-   * @param {string} documentId - 文档ID
-   * @param {Function} callback - 回调函数
-   * @param {Function} errorCallback - 错误回调
+   * Удаление документа
+   * @param {string} datasetId - ID базы знаний
+   * @param {string} documentId - ID документа
+   * @param {Function} callback - Функция обратного вызова
+   * @param {Function} errorCallback - Обратный вызов при ошибке
    */
   deleteDocument(datasetId, documentId, callback, errorCallback) {
     makeApiRequest({
@@ -261,18 +261,18 @@ export default {
       method: 'DELETE',
       callback: callback,
       errorCallback: errorCallback,
-      errorMessage: '删除文档失败',
+      errorMessage: 'Ошибка удаления документа',
       retryFunction: () => this.deleteDocument(datasetId, documentId, callback, errorCallback)
     });
   },
 
   /**
-   * 获取文档切片列表
-   * @param {string} datasetId - 知识库ID
-   * @param {string} documentId - 文档ID
-   * @param {Object} params - 查询参数
-   * @param {Function} callback - 回调函数
-   * @param {Function} errorCallback - 错误回调
+   * Получение списка фрагментов документа
+   * @param {string} datasetId - ID базы знаний
+   * @param {string} documentId - ID документа
+   * @param {Object} params - Параметры запроса
+   * @param {Function} callback - Функция обратного вызова
+   * @param {Function} errorCallback - Обратный вызов при ошибке
    */
   listChunks(datasetId, documentId, params, callback, errorCallback) {
     let queryParams = new URLSearchParams({
@@ -280,7 +280,7 @@ export default {
       page_size: params.page_size || 10
     }).toString();
 
-    // 添加关键词搜索参数
+    // Добавление параметров поиска по ключевым словам
     if (params.keywords) {
       queryParams += `&keywords=${encodeURIComponent(params.keywords)}`;
     }
@@ -290,17 +290,17 @@ export default {
       method: 'GET',
       callback: callback,
       errorCallback: errorCallback,
-      errorMessage: '获取切片列表失败',
+      errorMessage: 'Ошибка получения списка фрагментов',
       retryFunction: () => this.listChunks(datasetId, documentId, params, callback, errorCallback)
     });
   },
 
   /**
-   * 召回测试
-   * @param {string} datasetId - 知识库ID
-   * @param {Object} data - 召回测试参数
-   * @param {Function} callback - 回调函数
-   * @param {Function} errorCallback - 错误回调
+   * Тестовый запрос
+   * @param {string} datasetId - ID базы знаний
+   * @param {Object} data - Параметры тестового запроса
+   * @param {Function} callback - Функция обратного вызова
+   * @param {Function} errorCallback - Обратный вызов при ошибке
    */
   retrievalTest(datasetId, data, callback, errorCallback) {
     makeApiRequest({
@@ -310,7 +310,7 @@ export default {
       headers: { 'Content-Type': 'application/json' },
       callback: callback,
       errorCallback: errorCallback,
-      errorMessage: '召回测试失败',
+      errorMessage: 'Ошибка тестового запроса',
       retryFunction: () => this.retrievalTest(datasetId, data, callback, errorCallback)
     });
   }

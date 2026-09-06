@@ -12,7 +12,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 /**
- * 音色表实体类
+ * Сущность таблицы тембров
  * 
  * @author zjy
  * @since 2025-3-21

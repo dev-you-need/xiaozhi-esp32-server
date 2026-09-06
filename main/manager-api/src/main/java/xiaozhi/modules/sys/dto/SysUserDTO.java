@@ -21,7 +21,7 @@ import xiaozhi.common.validator.group.DefaultGroup;
 import xiaozhi.common.validator.group.UpdateGroup;
 
 /**
- * 用户管理
+ * Управление пользователями
  */
 @Data
 @Schema(description = "用户管理")

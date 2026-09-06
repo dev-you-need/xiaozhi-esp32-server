@@ -8,7 +8,7 @@ import aiohttp
 from tabulate import tabulate
 from core.utils.asr import create_instance as create_stt_instance
 
-# 设置全局日志级别为WARNING，抑制INFO级别日志
+# Установите глобальный уровень журнала на предупреждение для подавления журналов уровня информации
 logging.basicConfig(level=logging.WARNING)
 
 description = "语音识别模型性能测试"
@@ -19,7 +19,7 @@ class ASRPerformanceTester:
         self.test_wav_list = self._load_test_wav_files()
         self.results = {"stt": {}}
         
-        # 调试日志
+        # Журнал отладки
         print(f"[DEBUG] 加载的ASR配置: {self.config.get('ASR', {})}")
         print(f"[DEBUG] 音频文件数量: {len(self.test_wav_list)}")
 
@@ -37,7 +37,7 @@ class ASRPerformanceTester:
                         with open(file_path, "r", encoding="utf-8") as f:
                             import yaml
                             file_config = yaml.safe_load(f)
-                            # 兼容大小写的 ASR/asr 配置
+                            # Совместимые с регистром конфигурации ASR/ASR
                             asr_config = file_config.get("ASR") or file_config.get("asr")
                             if asr_config:
                                 config["ASR"].update(asr_config)
@@ -74,8 +74,8 @@ class ASRPerformanceTester:
             
             duration = time.time() - start_time
             
-            # 检测0.000s的异常时间
-            if abs(duration) < 0.001:  # 小于1毫秒视为异常
+            # Обнаружение аномального времени 0,000 с
+            if abs(duration) < 0.001:  # Менее 1 миллисекунды считается ненормальным
                 print(f"{stt_name} 检测到异常时间: {duration:.6f}s (视为错误)")
                 return None
                 
@@ -90,7 +90,7 @@ class ASRPerformanceTester:
     async def _test_stt_with_timeout(self, stt_name: str, config: Dict) -> Dict:
         """异步测试单个STT性能，带超时控制"""
         try:
-            # 检查配置有效性
+            # Проверить правильность конфигурации
             token_fields = ["access_token", "api_key", "token"]
             if any(
                 field in config
@@ -111,10 +111,10 @@ class ASRPerformanceTester:
 
             print(f" 测试 STT: {stt_name}")
 
-            # 使用线程池和超时控制
+            # Использование пулов потоков и элементов управления таймаутом
             loop = asyncio.get_event_loop()
             
-            # 测试第一个音频文件作为连通性检查
+            # Протестируйте первый аудиофайл в качестве проверки подключения
             try:
                 with concurrent.futures.ThreadPoolExecutor() as executor:
                     future = executor.submit(
@@ -158,7 +158,7 @@ class ASRPerformanceTester:
                     "error_type": "网络错误"
                 }
 
-                       # 全量测试，带超时控制
+                       # Полный тест с контролем тайм-аута
             total_time = 0
             valid_tests = 0
             test_count = len(self.test_wav_list)
@@ -195,8 +195,8 @@ class ASRPerformanceTester:
                         }
                     print(f" {stt_name} [{i}/{test_count}] 异常: {str(e)}")
                     continue
-            # 检查有效测试数量
-            if valid_tests < test_count * 0.3:  # 至少30%成功率
+            # Проверить количество допустимых тестов
+            if valid_tests < test_count * 0.3:  # Показатель успешности не менее 30%
                 print(f" {stt_name} 成功测试过少({valid_tests}/{test_count})，可能网络不稳定")
                 return {
                     "name": stt_name,
@@ -251,18 +251,18 @@ class ASRPerformanceTester:
         headers = ["模型名称", "平均耗时(s)", "成功率", "状态"]
         table_data = []
 
-        # 收集所有数据并分类
+        # Сбор и классификация всех данных
         valid_results = []
         error_results = []
 
         for name, data in self.results["stt"].items():
             if data["errors"] == 0:
-                # 正常结果
+                # Нормальные результаты
                 avg_time = f"{data['avg_time']:.3f}"
                 success_rate = data.get("success_rate", "N/A")
                 status = "✅ 正常"
                 
-                # 保存用于排序的值
+                # Сохранить значения для сортировки
                 sort_key = data["avg_time"]
                 
                 valid_results.append({
@@ -273,20 +273,20 @@ class ASRPerformanceTester:
                     "sort_key": sort_key,
                 })
             else:
-                # 错误结果
+                # Результаты ошибки
                 avg_time = "-"
                 success_rate = "0/N"
                 
-                # 获取具体错误类型
+                # Получить конкретные типы ошибок
                 error_type = data.get("error_type", "网络错误")
                 status = f"❌ {error_type}"
                 
                 error_results.append([name, avg_time, success_rate, status])
 
-        # 按响应时间升序排序（从快到慢）
+        # Сортировать по возрастанию времени отклика (от быстрого к медленному)
         valid_results.sort(key=lambda x: x["sort_key"])
 
-        # 将排序后的有效结果转换为表格数据
+        # Преобразовать отсортированные действительные результаты в данные таблицы
         for result in valid_results:
             table_data.append([
                 result["name"],
@@ -295,7 +295,7 @@ class ASRPerformanceTester:
                 result["status"],
             ])
 
-        # 将错误结果添加到表格数据末尾
+        # Добавление результатов ошибки в конец данных таблицы
         table_data.extend(error_results)
 
         print(tabulate(table_data, headers=headers, tablefmt="grid"))
@@ -315,7 +315,7 @@ class ASRPerformanceTester:
 
         all_tasks = []
         for stt_name, config in self.config["ASR"].items():
-            # 检查配置有效性
+            # Проверить правильность конфигурации
             token_fields = ["access_token", "api_key", "token"]
             if any(
                 field in config
@@ -336,12 +336,12 @@ class ASRPerformanceTester:
         print("\n开始并发测试所有ASR模块...")
         all_results = await asyncio.gather(*all_tasks, return_exceptions=True)
 
-        # 处理结果
+        # Результаты урегулирования
         for result in all_results:
             if isinstance(result, dict) and result.get("type") == "stt":
                 self.results["stt"][result["name"]] = result
 
-        # 打印结果
+        # Распечатать результаты
         self._print_results()
 
 

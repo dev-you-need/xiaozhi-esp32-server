@@ -46,12 +46,12 @@ public class KnowledgeBaseController {
             @RequestParam(required = false) String name,
             @RequestParam(required = false, defaultValue = "1") Integer page,
             @RequestParam(required = false, defaultValue = "10") Integer page_size) {
-        // 获取当前登录用户ID
+        //Получить текущий идентификатор пользователя, вошедшего в систему
         Long currentUserId = SecurityUser.getUserId();
 
         KnowledgeBaseDTO knowledgeBaseDTO = new KnowledgeBaseDTO();
         knowledgeBaseDTO.setName(name);
-        knowledgeBaseDTO.setCreator(currentUserId); // 设置创建者ID，用于权限过滤
+        knowledgeBaseDTO.setCreator(currentUserId); //Установите идентификатор креатора для фильтрации разрешений
 
         PageData<KnowledgeBaseDTO> pageData = knowledgeBaseService.getPageList(knowledgeBaseDTO, page, page_size);
         return new Result<PageData<KnowledgeBaseDTO>>().ok(pageData);
@@ -61,12 +61,12 @@ public class KnowledgeBaseController {
     @Operation(summary = "根据知识库ID获取知识库详情")
     @RequiresPermissions("sys:role:normal")
     public Result<KnowledgeBaseDTO> getByDatasetId(@PathVariable("dataset_id") String datasetId) {
-        // 获取当前登录用户ID
+        //Получить текущий идентификатор пользователя, вошедшего в систему
         Long currentUserId = SecurityUser.getUserId();
 
         KnowledgeBaseDTO knowledgeBaseDTO = knowledgeBaseService.getByDatasetId(datasetId);
 
-        // 检查权限：用户只能查看自己创建的知识库
+        //Проверка разрешений: пользователи могут просматривать только базы знаний, которые они создали
         if (knowledgeBaseDTO.getCreator() == null || !knowledgeBaseDTO.getCreator().equals(currentUserId)) {
             throw new RenException(ErrorCode.NO_PERMISSION);
         }
@@ -87,18 +87,18 @@ public class KnowledgeBaseController {
     @RequiresPermissions("sys:role:normal")
     public Result<KnowledgeBaseDTO> update(@PathVariable("dataset_id") String datasetId,
             @RequestBody @Validated KnowledgeBaseDTO knowledgeBaseDTO) {
-        // 获取当前登录用户ID
+        //Получить текущий идентификатор пользователя, вошедшего в систему
         Long currentUserId = SecurityUser.getUserId();
 
-        // 先获取现有知识库信息以检查权限
+        //Сначала получите информацию о существующей базе знаний, чтобы проверить разрешения
         KnowledgeBaseDTO existingKnowledgeBase = knowledgeBaseService.getByDatasetId(datasetId);
 
-        // 检查权限：用户只能更新自己创建的知识库
+        //Проверка разрешений: пользователи могут обновлять только базы знаний, которые они создали сами
         if (existingKnowledgeBase.getCreator() == null || !existingKnowledgeBase.getCreator().equals(currentUserId)) {
             throw new RenException(ErrorCode.NO_PERMISSION);
         }
 
-        // [FIX] 注入 ID，防止 Service 层找不到记录
+        //[FIX] Введите идентификатор, чтобы сервисный уровень не находил записи
         knowledgeBaseDTO.setId(existingKnowledgeBase.getId());
         knowledgeBaseDTO.setDatasetId(datasetId);
         KnowledgeBaseDTO resp = knowledgeBaseService.update(knowledgeBaseDTO);
@@ -110,18 +110,18 @@ public class KnowledgeBaseController {
     @Parameter(name = "dataset_id", description = "知识库ID", required = true)
     @RequiresPermissions("sys:role:normal")
     public Result<Void> delete(@PathVariable("dataset_id") String datasetId) {
-        // 获取当前登录用户ID
+        //Получить текущий идентификатор пользователя, вошедшего в систему
         Long currentUserId = SecurityUser.getUserId();
 
-        // 先获取现有知识库信息以检查权限
+        //Сначала получите информацию о существующей базе знаний, чтобы проверить разрешения
         KnowledgeBaseDTO existingKnowledgeBase = knowledgeBaseService.getByDatasetId(datasetId);
 
-        // 检查权限：用户只能删除自己创建的知识库
+        //Проверка разрешений: пользователи могут удалять только базы знаний, которые они создали
         if (existingKnowledgeBase.getCreator() == null || !existingKnowledgeBase.getCreator().equals(currentUserId)) {
             throw new RenException(ErrorCode.NO_PERMISSION);
         }
 
-        // [Architecture Fix] 通过编排层级联删除，防止孤儿数据并解决循环依赖
+        //[Исправление архитектуры] Предотвращение потерянных данных и устранение циклических зависимостей путем оркестрации каскадных удалений
         knowledgeManagerService.deleteDatasetWithFiles(datasetId);
         return new Result<>();
     }
@@ -135,18 +135,18 @@ public class KnowledgeBaseController {
             throw new RenException(ErrorCode.PARAMS_GET_ERROR);
         }
 
-        // 获取当前登录用户ID
+        //Получить текущий идентификатор пользователя, вошедшего в систему
         Long currentUserId = SecurityUser.getUserId();
         List<String> idList = Arrays.asList(ids.split(","));
         List<KnowledgeBaseDTO> knowledgeBaseDTOs = Optional.ofNullable(knowledgeBaseService.getByDatasetIdList(idList))
                 .orElseGet(ArrayList::new);
         if (CollUtil.isNotEmpty(knowledgeBaseDTOs)) {
             knowledgeBaseDTOs.forEach(item -> {
-                // 检查权限：用户只能删除自己创建的知识库
+                //Проверка разрешений: пользователи могут удалять только базы знаний, которые они создали
                 if (item.getCreator() == null || !item.getCreator().equals(currentUserId)) {
                     throw new RenException(ErrorCode.NO_PERMISSION);
                 }
-                // [Architecture Fix] 通过编排层级联删除
+                //[Исправление архитектуры] Удалить по каскаду уровней оркестровки
                 knowledgeManagerService.deleteDatasetWithFiles(item.getDatasetId());
             });
         }

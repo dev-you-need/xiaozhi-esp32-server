@@ -4,28 +4,38 @@ import java.time.LocalDateTime;
 
 import lombok.Data;
 
+
 /**
- * 智能体会话列表DTO
+ * DTO списка сессий агента
  */
+
 @Data
 public class AgentChatSessionDTO {
-    /**
-     * 会话ID
+    
+/**
+     * ID сессии
      */
+
     private String sessionId;
 
-    /**
-     * 会话时间
+    
+/**
+     * Время сессии
      */
+
     private LocalDateTime createdAt;
 
-    /**
-     * 聊天条数
+    
+/**
+     * Количество сообщений
      */
+
     private Integer chatCount;
 
-    /**
-     * 会话标题
+    
+/**
+     * Заголовок сессии
      */
+
     private String title;
 }

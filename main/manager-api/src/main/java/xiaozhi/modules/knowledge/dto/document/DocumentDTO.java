@@ -11,14 +11,14 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.validation.constraints.*;
 
 /**
- * 文档管理聚合 DTO
+ * Агрегирование управления документами DTO
  */
 @Schema(description = "文档管理聚合 DTO")
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class DocumentDTO {
 
     /**
-     * 上传文档请求参数
+     * Загрузить параметры запроса документа
      */
     @Data
     @Builder
@@ -59,7 +59,7 @@ public class DocumentDTO {
     }
 
     /**
-     * 更新文档请求参数
+     * Обновить параметры запроса документа
      */
     @Data
     @Builder
@@ -86,7 +86,7 @@ public class DocumentDTO {
     }
 
     /**
-     * 获取文档列表请求参数
+     * Получение параметров запроса списка документов
      */
     @Data
     @Builder
@@ -135,7 +135,7 @@ public class DocumentDTO {
     }
 
     /**
-     * 批量文档操作请求参数 (用于删除、解析等)
+     * Параметры запроса на действие пакетного документа (Для удаления、Анализ и т.д.)
      */
     @Data
     @Builder
@@ -147,14 +147,14 @@ public class DocumentDTO {
         private static final long serialVersionUID = 1L;
 
         @Schema(description = "文档 ID 列表", requiredMode = Schema.RequiredMode.REQUIRED)
-        @JsonProperty("ids") // 为了兼容性，也可以考虑支持 document_ids，但这里统一叫 ids
+        @JsonProperty("ids") // Для совместимости，Поддержка также может быть рассмотрена document_ids，Но вот единый призыв ids
         @JsonAlias("document_ids")
         @NotEmpty(message = "文档ID列表不能为空")
         private List<String> ids;
     }
 
     /**
-     * 知识库文档信息 VO
+     * Информация о документации базы знаний VO
      */
     @Data
     @Builder
@@ -260,7 +260,7 @@ public class DocumentDTO {
         private String updateDate;
 
         /**
-         * 解析方法枚举 (ChunkMethod)
+         * Перечисление метода синтаксического анализа (ChunkMethod)
          */
         public enum ChunkMethod {
             @Schema(description = "通用模式: 适用于大多数纯文本或混合文档")
@@ -302,7 +302,7 @@ public class DocumentDTO {
         }
 
         /**
-         * 运行状态枚举 (RunStatus)
+         * Перечисление статуса запуска (RunStatus)
          */
         public enum RunStatus {
             @Schema(description = "未开始: 等待解析队列")
@@ -323,7 +323,7 @@ public class DocumentDTO {
         }
 
         /**
-         * 布局识别模型枚举
+         * Перечисление модели идентификации макета
          */
         public enum LayoutRecognize {
             @Schema(description = "深度文档理解模型: 适合复杂排版")

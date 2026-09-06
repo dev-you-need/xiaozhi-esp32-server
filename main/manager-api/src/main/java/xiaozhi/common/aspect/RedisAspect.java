@@ -11,7 +11,7 @@ import xiaozhi.common.exception.ErrorCode;
 import xiaozhi.common.exception.RenException;
 
 /**
- * Redis切面处理类
+ * Класс обработки Redis-аспекта
  * Copyright (c) 人人开源 All rights reserved.
  * Website: https://www.renren.io
  */
@@ -20,7 +20,7 @@ import xiaozhi.common.exception.RenException;
 @Component
 public class RedisAspect {
     /**
-     * 是否开启redis缓存 true开启 false关闭
+     * Включён ли кэш Redis: true — включён, false — выключен
      */
     @Value("${renren.redis.open}")
     private boolean open;

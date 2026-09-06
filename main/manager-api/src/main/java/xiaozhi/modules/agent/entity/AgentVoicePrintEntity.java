@@ -10,55 +10,75 @@ import com.baomidou.mybatisplus.annotation.TableName;
 
 import lombok.Data;
 
+
 /**
- * 智能体声纹表
+ * Таблица голосовых отпечатков агента
  *
  * @author zjy
  */
+
 @TableName(value = "ai_agent_voice_print")
 @Data
 public class AgentVoicePrintEntity {
-    /**
-     * 主键id
+    
+/**
+     * Первичный ключid
      */
+
     @TableId(type = IdType.ASSIGN_UUID)
     private String id;
-    /**
-     * 关联的智能体id
+    
+/**
+     * ID связанного агента
      */
+
     private String agentId;
-    /**
-     * 关联的音频id
+    
+/**
+     * ID связанного аудио
      */
+
     private String audioId;
-    /**
-     * 声纹来源的人姓名
+    
+/**
+     * Имя владельца голосового отпечатка
      */
+
     private String sourceName;
-    /**
-     * 描述声纹来源的人
+    
+/**
+     * Описание владельца голосового отпечатка
      */
+
     private String introduce;
 
-    /**
-     * 创建者
+    
+/**
+     * Создатель
      */
+
     @TableField(fill = FieldFill.INSERT)
     private Long creator;
-    /**
-     * 创建时间
+    
+/**
+     * Время создания
      */
+
     @TableField(fill = FieldFill.INSERT)
     private Date createDate;
 
-    /**
-     * 更新者
+    
+/**
+     * Обновивший
      */
+
     @TableField(fill = FieldFill.INSERT_UPDATE)
     private Long updater;
-    /**
-     * 更新时间
+    
+/**
+     * Время обновления
      */
+
     @TableField(fill = FieldFill.INSERT_UPDATE)
     private Date updateDate;
 }

@@ -14,7 +14,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 
 /**
- * 资源处理工具
+ * Утилита обработки ресурсов
  */
 @AllArgsConstructor
 @Slf4j
@@ -23,9 +23,9 @@ public class ResourcesUtils {
     private ResourceLoader resourceLoader;
 
     /**
-     * 读取资源，返回字符串
-     * @param fileName 资源路径：resources下开始
-     * @return 字符串
+     * Чтение ресурса, возврат строки
+     * @param fileName путь к ресурсу: начиная от resources
+     * @return строка
      */
     public String loadString(String fileName)  {
         Resource resource = resourceLoader.getResource("classpath:" + fileName);

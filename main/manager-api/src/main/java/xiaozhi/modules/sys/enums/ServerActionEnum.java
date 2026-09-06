@@ -4,8 +4,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 /**
- * 服务端动作枚举
- */
+ * Перечисление действий на стороне сервера */
 public enum ServerActionEnum {
     RESTART("restart"),
     UPDATE_CONFIG("update_config");

@@ -1,11 +1,11 @@
-// 枚举定义
+// Определения перечислений
 
 export enum TestEnum {
   A = '1',
   B = '2',
 }
 
-// uni.uploadFile文件上传参数
+// Параметры загрузки файла uni.uploadFile
 export interface IUniUploadFileOptions {
   file?: File
   files?: UniApp.UploadFileOptionFiles[]

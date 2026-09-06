@@ -7,7 +7,7 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 /**
- * 短信验证码请求DTO
+ * SMS-запрос кода подтверждения DTO
  */
 @Data
 @Schema(description = "短信验证码请求")

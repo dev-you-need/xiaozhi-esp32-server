@@ -13,7 +13,7 @@ import java.util.List;
 @Schema(description = "设备固件信息上报求请求体")
 public class DeviceReportReqDTO implements Serializable {
     private static final long serialVersionUID = 1L;
-    // region 实体属性
+    // region Атрибуты сущности
     @Schema(description = "板子固件版本号")
     private Integer version;
 

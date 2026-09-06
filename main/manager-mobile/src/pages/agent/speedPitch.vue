@@ -2,7 +2,7 @@
 {
   "layout": "default",
   "style": {
-    "navigationBarTitleText": "语音设置",
+    "navigationBarTitleText": "Настройки голоса",
     "navigationStyle": "custom"
   }
 }
@@ -33,7 +33,7 @@ function handleConfirm() {
   goBack()
 }
 
-// 返回上一页并更新配置
+// Вернуться на предыдущую страницу и обновить конфигурацию
 function goBack() {
   uni.navigateBack()
 }
@@ -49,7 +49,7 @@ onMounted(() => {
 
 <template>
   <view class="h-screen flex flex-col bg-[#f5f7fb]">
-    <!-- 头部导航 -->
+    <!-- Верхняя навигация -->
     <wd-navbar
       :title="t('agent.languageConfig')"
       safe-area-inset-top
@@ -63,7 +63,7 @@ onMounted(() => {
     </wd-navbar>
     <view class="flex flex-1 flex-col overflow-hidden">
       <view class="flex flex-1 flex-col gap-[50rpx] overflow-y-auto px-[40rpx] py-[50rpx]">
-        <!-- 音量调节 -->
+        <!-- Регулировка громкости -->
         <view class="flex flex-col gap-[20rpx]">
           <text class="text-[30rpx] text-[#232338] font-semibold">
             {{ t('agent.ttsVolume') }}
@@ -87,7 +87,7 @@ onMounted(() => {
           </text>
         </view>
 
-        <!-- 语速调节 -->
+        <!-- Регулировка скорости речи -->
         <view class="flex flex-col gap-[20rpx]">
           <text class="text-[30rpx] text-[#232338] font-semibold">
             {{ t('agent.ttsRate') }}
@@ -111,7 +111,7 @@ onMounted(() => {
           </text>
         </view>
 
-        <!-- 音调调节 -->
+        <!-- Регулировка высоты тона -->
         <view class="flex flex-col gap-[20rpx]">
           <text class="text-[30rpx] text-[#232338] font-semibold">
             {{ t('agent.ttsPitch') }}
@@ -146,7 +146,7 @@ onMounted(() => {
 </template>
 
 <style scoped lang="scss">
-/* 自定义滑块样式 */
+/* Пользовательские стили слайдера */
 :deep(.wd-slider) {
   --wd-slider-bar-background: #e6ebff;
   --wd-slider-bar-active-background: #336cff;

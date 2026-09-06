@@ -21,9 +21,9 @@
             </div>
             <div class="divider"></div>
 
-            <!-- 功能分组容器 - 左右布局 -->
+            <!-- Контейнер группировки функций - макет слева и справа -->
             <div class="feature-groups-container">
-              <!-- 功能管理分组 -->
+              <!-- Группа управления функциями -->
               <div v-if="featureManagementFeatures.length > 0" class="feature-group">
                 <div class="group-title">
                   <img src="@/assets/setting/menu.png" alt="" width="28" height="28">
@@ -60,7 +60,7 @@
                 </div>
               </div>
 
-              <!-- 语音管理分组 -->
+              <!-- Группа управления голосом -->
               <div v-if="voiceManagementFeatures.length > 0" class="feature-group">
                 <div class="group-title">
                   <img src="@/assets/setting/agent.png" alt="" width="28" height="28">
@@ -140,8 +140,8 @@ export default {
       pendingChanges: false,
       featureManagementFeatures: [],
       voiceManagementFeatures: [],
-      isSaving: false, // 添加保存状态锁定
-      // 功能模块图标映射
+      isSaving: false, // Добавление блокировки состояния сохранения
+      // Сопоставление иконок модулей функций
       featureIcons: {
         'voiceprintRecognition': voiceprintIcon,
         'voiceClone': voiceCloneIcon,
@@ -156,19 +156,19 @@ export default {
     }
   },
   computed: {
-    // 所有功能列表
+    // Список всех функций
     filteredFeatures() {
       return [...this.featureManagementFeatures, ...this.voiceManagementFeatures]
     },
     
-    // 判断是否所有功能都已选中
+    // Проверка, выбраны ли все функции
     isAllSelected() {
       const allFeatures = [...this.featureManagementFeatures, ...this.voiceManagementFeatures]
       return allFeatures.length > 0 && allFeatures.every(feature => feature.enabled)
     }
   },
   async created() {
-    // 等待功能配置管理器初始化完成
+    // Ожидание завершения инициализации менеджера конфигурации функций
     try {
       await featureManager.waitForInitialization()
       await this.loadFeatures()
@@ -185,7 +185,7 @@ export default {
   },
   
   methods: {
-    // 根据ID列表获取功能
+    // 根据IDФункция получения списка
     async getFeaturesByIds(featureIds) {
       try {
         const featureConfig = await featureManager.getAllFeatures()
@@ -201,8 +201,8 @@ export default {
         
         return result
       } catch (error) {
-        console.error('获取功能配置失败:', error)
-        // 如果获取失败，返回默认配置
+        console.error('Ошибка получения конфигурации функций:', error)
+        // Если не удалось получить，返回默认配置
         return featureIds.map(id => ({
           id: id,
           name: this.$t(`feature.${id}.name`),
@@ -212,7 +212,7 @@ export default {
       }
     },
     
-    // 加载功能配置
+    // Загрузка конфигурации функций
     async loadFeatures() {
       // 保存当前用户的选择状态
       const currentFeatureStates = {}
@@ -221,7 +221,7 @@ export default {
         currentFeatureStates[feature.id] = feature.enabled
       })
       
-      // 重新加载配置
+      // Повторная загрузка конфигурации
       this.featureManagementFeatures = await this.getFeaturesByIds(['voiceprintRecognition', 'voiceClone', 'knowledgeBase', 'mcpAccessPoint', 'addressBook'])
       this.voiceManagementFeatures = await this.getFeaturesByIds(['vad', 'asr'])
       
@@ -233,9 +233,9 @@ export default {
         }
       })
     },
-    // 切换功能状态
+    // Переключение состояния функции
     async toggleFeature(feature) {
-      // 如果正在保存，阻止操作
+      // Если идёт сохранение，阻止操作
       if (this.isSaving) {
         return
       }
@@ -259,7 +259,7 @@ export default {
       this.isSaving = true
       
       try {
-        // 获取当前所有功能的状态并保存
+        // Получение и сохранение состояния всех функций
         const featureUpdates = {}
         const allFeatures = [...this.featureManagementFeatures, ...this.voiceManagementFeatures]
         allFeatures.forEach(feature => {
@@ -287,7 +287,7 @@ export default {
         this.isSaving = false
       }
     },
-    // 设置配置变化监听器
+    // Установка наблюдателя изменений конфигурации
     setupConfigChangeListener() {
       this.configChangeHandler = () => {
         this.loadFeatures()
@@ -302,7 +302,7 @@ export default {
       }
     },
     
-    // 重置配置
+    // Сброс конфигурации
     async handleReset() {
       try {
         await this.$confirm(
@@ -336,9 +336,9 @@ export default {
     handleSearch() {
       // 搜索功能待实现
     },
-    // 全选/取消全选
+    // 全选/Снятие выделения со всех
     toggleSelectAll() {
-      // 如果正在保存，阻止操作
+      // Если идёт сохранение，阻止操作
       if (this.isSaving) {
         return
       }

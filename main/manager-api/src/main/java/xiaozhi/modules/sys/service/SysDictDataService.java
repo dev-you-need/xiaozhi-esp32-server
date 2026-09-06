@@ -11,59 +11,59 @@ import xiaozhi.modules.sys.vo.SysDictDataItem;
 import xiaozhi.modules.sys.vo.SysDictDataVO;
 
 /**
- * 数据字典
+ * Словарь данных
  */
 public interface SysDictDataService extends BaseService<SysDictDataEntity> {
 
     /**
-     * 分页查询数据字典信息
+     * Постраничный запрос информации словаря данных
      *
-     * @param params 查询参数，包含分页信息和查询条件
-     * @return 返回数据字典的分页查询结果
+     * @param params Параметры запроса, включая информацию о постраничности и условия запроса
+     * @return Возвращает результат постраничного запроса словаря данных
      */
     PageData<SysDictDataVO> page(Map<String, Object> params);
 
     /**
-     * 根据ID获取数据字典实体
+     * Получить сущность словаря данных по ID
      *
-     * @param id 数据字典实体的唯一标识
-     * @return 返回数据字典实体的详细信息
+     * @param id Уникальный идентификатор сущности словаря данных
+     * @return Возвращает подробную информацию о сущности словаря данных
      */
     SysDictDataVO get(Long id);
 
     /**
-     * 保存新的数据字典项
+     * Сохранить новый элемент словаря данных
      *
-     * @param dto 数据字典项的保存数据传输对象
+     * @param dto Объект передачи данных для сохранения элемента словаря данных
      */
     void save(SysDictDataDTO dto);
 
     /**
-     * 更新数据字典项
+     * Обновить элемент словаря данных
      *
-     * @param dto 数据字典项的更新数据传输对象
+     * @param dto Объект передачи данных для обновления элемента словаря данных
      */
     void update(SysDictDataDTO dto);
 
     /**
-     * 删除数据字典项
+     * Удалить элемент словаря данных
      *
-     * @param ids 要删除的数据字典项的ID数组
+     * @param ids Массив ID элементов словаря данных для удаления
      */
     void delete(Long[] ids);
 
     /**
-     * 根据字典类型ID删除对应的字典数据
+     * Удалить данные словаря по ID типа словаря
      *
-     * @param dictTypeId 字典类型ID
+     * @param dictTypeId ID типа словаря
      */
     void deleteByTypeId(Long dictTypeId);
 
     /**
-     * 根据字典类型获取字典数据列表
+     * Получить список данных словаря по типу словаря
      *
-     * @param dictType 字典类型
-     * @return 返回字典数据列表
+     * @param dictType Тип словаря
+     * @return Возвращает список данных словаря
      */
     List<SysDictDataItem> getDictDataByType(String dictType);
 

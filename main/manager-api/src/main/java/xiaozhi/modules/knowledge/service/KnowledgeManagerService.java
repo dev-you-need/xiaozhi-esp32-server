@@ -3,22 +3,22 @@ package xiaozhi.modules.knowledge.service;
 import java.util.List;
 
 /**
- * 知识库模块领域编排服务
- * 用于处理跨 KnowledgeBase 和 KnowledgeFiles 的复杂业务流程，彻底解决 Service 间的循环依赖问题。
+ * Сервис оркестрации домена модуля базы знаний
+ * Используется для обработки сложных бизнес-процессов между KnowledgeBase и KnowledgeFiles, полностью решая проблему циклических зависимостей между сервисами.
  */
 public interface KnowledgeManagerService {
 
     /**
-     * 级联删除知识库及其下属所有文档 (包括本地 DB 和 RAGFlow 远程数据)
+     * Каскадное удаление базы знаний и всех ее документов (включая локальную БД и удаленные данные RAGFlow)
      * 
-     * @param datasetId 知识库 ID
+     * @param datasetId ID базы знаний
      */
     void deleteDatasetWithFiles(String datasetId);
 
     /**
-     * 批量级联删除知识库
+     * Пакетное каскадное удаление базы знаний
      * 
-     * @param datasetIds 知识库 ID 列表
+     * @param datasetIds список ID базы знаний
      */
     void batchDeleteDatasetsWithFiles(List<String> datasetIds);
 }

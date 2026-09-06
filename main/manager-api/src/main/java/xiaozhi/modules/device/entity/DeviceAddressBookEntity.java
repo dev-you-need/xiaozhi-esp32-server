@@ -15,35 +15,35 @@ import lombok.EqualsAndHashCode;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @TableName("ai_device_address_book")
-@Schema(description = "设备通讯录")
+@Schema(description = "Адресная книга устройства")
 public class DeviceAddressBookEntity {
 
     @TableId(type = IdType.INPUT)
-    @Schema(description = "本设备MAC地址")
+    @Schema(description = "MAC-адрес этого устройства")
     private String macAddress;
 
-    @Schema(description = "对方设备MAC地址")
+    @Schema(description = "MAC-адрес другого устройства")
     private String targetMac;
 
-    @Schema(description = "我对对方的称呼")
+    @Schema(description = "Как я называю другого")
     private String alias;
 
-    @Schema(description = "是否有权限呼叫")
+    @Schema(description = "Есть ли разрешение на вызов")
     private Boolean hasPermission;
 
     @TableField(fill = FieldFill.INSERT)
-    @Schema(description = "创建人")
+    @Schema(description = "Создатель")
     private Long creator;
 
     @TableField(fill = FieldFill.INSERT)
-    @Schema(description = "创建时间")
+    @Schema(description = "Время создания")
     private Date createDate;
 
     @TableField(fill = FieldFill.INSERT_UPDATE)
-    @Schema(description = "更新人")
+    @Schema(description = "Обновляющий")
     private Long updater;
 
     @TableField(fill = FieldFill.INSERT_UPDATE)
-    @Schema(description = "更新时间")
+    @Schema(description = "Время обновления")
     private Date updateDate;
 }

@@ -7,11 +7,11 @@ from typing import Dict
 import yaml
 from tabulate import tabulate
 
-# 确保从 core.utils.tts 导入 create_tts_instance
+# Обязательно импортируйте create_tts_instance из core.utils.tts
 from core.utils.tts import create_instance as create_tts_instance
 from config.settings import load_config
 
-# 设置全局日志级别为 WARNING
+# Установить глобальный уровень журнала на предупреждение
 logging.basicConfig(level=logging.WARNING)
 
 description = "非流式语音合成性能测试"
@@ -45,16 +45,16 @@ class TTSPerformanceTester:
             module_type = config.get("type", tts_name)
             tts = create_tts_instance(module_type, config, delete_audio_file=True)
 
-            # 设置 mock conn 对象，避免 TTS 实现访问 self.conn.sample_rate 时为 None
+            # Установите объект mock conn, чтобы избежать None, когда TTS реализует доступ к self.conn.sample_rate
             class MockConn:
                 sample_rate = 16000
                 audio_format = "pcm"
-                stop_event = threading.Event()  # 需要是真正的 Event 对象
+                stop_event = threading.Event()  # Нужно быть реальным объектом события
                 client_abort = False
                 headers = {}
             tts.conn = MockConn()
 
-            # 设置 mock opus_encoder，避免某些 TTS 访问 self.opus_encoder 时为 None
+            # Установите макет opus_encoder, чтобы избежать None, когда некоторые TTS обращаются к self.opus_encoder
             class MockOpusEncoder:
                 pass
             if not hasattr(tts, 'opus_encoder') or tts.opus_encoder is None:
@@ -62,7 +62,7 @@ class TTSPerformanceTester:
 
             print(f"测试 TTS: {tts_name}")
 
-            # 连接测试
+            # Проверка соединения
             tmp_file = tts.generate_filename()
             await tts.text_to_speak("连接测试", tmp_file)
 
@@ -105,18 +105,18 @@ class TTSPerformanceTester:
         headers = ["TTS模块", "平均耗时(秒)", "测试句子数", "状态"]
         table_data = []
 
-        # 收集所有数据并分类
+        # Сбор и классификация всех данных
         valid_results = []
         error_results = []
 
         for name, data in self.results.items():
             if data["errors"] == 0:
-                # 正常结果
+                # Нормальные результаты
                 avg_time = f"{data['avg_time']:.3f}"
                 test_count = len(self.test_sentences[:3])
                 status = "✅ 正常"
                 
-                # 保存用于排序的值
+                # Сохранить значения для сортировки
                 valid_results.append({
                     "name": name,
                     "avg_time": avg_time,
@@ -125,20 +125,20 @@ class TTSPerformanceTester:
                     "sort_key": data['avg_time']
                 })
             else:
-                # 错误结果
+                # Результаты ошибки
                 avg_time = "-"
                 test_count = "0/3"
                 
-                # 默认错误类型为网络错误
+                # Тип ошибки по умолчанию - ошибка сети
                 error_type = "网络错误"
                 status = f"❌ {error_type}"
                 
                 error_results.append([name, avg_time, test_count, status])
 
-        # 按平均耗时升序排序
+        # Сортировать по среднему времени, затраченному по возрастанию
         valid_results.sort(key=lambda x: x["sort_key"])
 
-        # 将排序后的有效结果转换为表格数据
+        # Преобразовать отсортированные действительные результаты в данные таблицы
         for result in valid_results:
             table_data.append([
                 result["name"],
@@ -147,7 +147,7 @@ class TTSPerformanceTester:
                 result["status"]
             ])
 
-        # 将错误结果添加到表格数据末尾
+        # Добавление результатов ошибки в конец данных таблицы
         table_data.extend(error_results)
 
         print("\nTTS性能测试结果:")
@@ -172,23 +172,23 @@ class TTSPerformanceTester:
             print("配置文件中未找到TTS配置")
             return
 
-        # 遍历所有TTS配置
+        # Обход всех конфигураций TTS
         tasks = []
         for tts_name, config in self.config.get("TTS", {}).items():
             tasks.append(self._test_tts(tts_name, config))
 
-        # 并发执行测试
+        # Выполните тест одновременно
         results = await asyncio.gather(*tasks)
 
-        # 保存所有结果，包括错误
+        # Сохранить все результаты, включая ошибки
         for result in results:
             self.results[result["name"]] = result
 
-        # 打印结果
+        # Распечатать результаты
         self._print_results()
 
 
-# 为了performance_tester.py的调用需求
+# Для требований к вызовам performance_tester.py
 async def main():
     config = await load_config()
     tester = TTSPerformanceTester(config)

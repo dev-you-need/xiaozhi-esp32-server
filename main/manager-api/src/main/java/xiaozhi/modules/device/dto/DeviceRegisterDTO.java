@@ -7,7 +7,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * 设备注册头信息
+ * Информация заголовка регистрации устройства
  * 
  * @author zjy
  * @since 2025-3-28

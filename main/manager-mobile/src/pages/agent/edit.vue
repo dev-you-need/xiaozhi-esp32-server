@@ -98,7 +98,7 @@ interface VoiceOption {
 
 // 音色选项数据
 const voiceOptions = ref<VoiceOption[]>([])
-// 保存完整的音色信息
+// Сохранение полной информации о голосе
 const voiceDetails = ref<Record<string, TtsVoice>>({})
 
 // 上报模式选项数据
@@ -148,7 +148,7 @@ interface SnapshotRestoreContext {
   actionSequence: number
 }
 
-// 音频播放相关
+// Настройки воспроизведения аудио
 const audioRef = ref<UniApp.InnerAudioContext | null>(null)
 const playingVoiceId = ref<string>('')
 const voicePreviewRequestGate = createVoicePreviewRequestGate()
@@ -252,7 +252,7 @@ const tabList = [
     activeIcon: '/static/tabbar/robot_activate.png',
   },
   {
-    label: '设备管理',
+    label: 'Управление устройствами',
     value: 'category',
     icon: '/static/tabbar/device.png',
     activeIcon: '/static/tabbar/device_activate.png',
@@ -324,7 +324,7 @@ function handleRegulate() {
   })
 }
 
-// 加载智能体详情
+// Загрузка подробностей агента
 async function loadAgentDetail(targetAgentId = agentId.value) {
   if (!targetAgentId)
     return false
@@ -343,7 +343,7 @@ async function loadAgentDetail(targetAgentId = agentId.value) {
   }
   catch (error) {
     if (isActiveAgentDetailRequest(targetAgentId, requestId)) {
-      console.error('加载智能体详情失败:', error)
+      console.error('Ошибка загрузки подробностей агента:', error)
       toast.error(t('agent.loadFail'))
     }
     return false
@@ -416,7 +416,7 @@ function invalidateTtsMetadataRequest() {
   ttsOptionsModelId.value = ''
 }
 
-// 获取音色显示名称
+// Получение отображаемого имени голоса
 function getVoiceDisplayName(ttsVoiceId: string) {
   if (!ttsVoiceId)
     return '请选择'
@@ -433,11 +433,11 @@ function getVoiceDisplayName(ttsVoiceId: string) {
     return voice.name
   }
 
-  // 如果没找到，尝试兼容性映射
+  // Если не найдено，Попытка совместимого отображения
   if (voiceOptions.value.length > 0) {
-    console.log('直接匹配失败，尝试兼容性映射')
+    console.log('直接匹配失败，Попытка совместимого отображения')
 
-    // 创建索引映射：voice1 → 第1个音色，voice2 → 第2个音色
+    // Создание отображения индексов：voice1 → 第1个音色，voice2 → 第2个音色
     const indexMap = {
       voice1: 0,
       voice2: 1,
@@ -458,7 +458,7 @@ function getVoiceDisplayName(ttsVoiceId: string) {
   return ttsVoiceId
 }
 
-// 更新显示名称
+// Обновление отображаемого имени
 function updateDisplayNames() {
   if (!formData.value)
     return
@@ -480,25 +480,25 @@ function updateDisplayNames() {
   console.log('最终音色显示名称:', displayNames.value.voiceprint)
 }
 
-// 加载角色模板
+// Загрузка шаблона роли
 async function loadRoleTemplates() {
   try {
     const templates = await getRoleTemplates()
     roleTemplates.value = templates
   }
   catch (error) {
-    console.error('加载角色模板失败:', error)
+    console.error('Ошибка загрузки шаблона роли:', error)
   }
 }
 
-// 加载模型选项
+// Загрузка параметров моделей
 async function loadModelOptions() {
   const modelTypes = ['VAD', 'ASR', 'LLM', 'VLLM', 'Intent', 'Memory', 'TTS']
 
   try {
     await Promise.all(
       modelTypes?.map(async (type) => {
-        console.log(`加载模型类型: ${type}`)
+        console.log(`加载Тип модели: ${type}`)
         const options = await getModelOptions(type)
         modelOptions.value[type] = options
         console.log(`${type} 选项:`, options)
@@ -507,11 +507,11 @@ async function loadModelOptions() {
     console.log('所有模型选项加载完成:', modelOptions.value)
   }
   catch (error) {
-    console.error('加载模型选项失败:', error)
+    console.error('Ошибка загрузки параметров моделей:', error)
   }
 }
 
-// 根据语言筛选音色
+// Фильтрация голосов по языку
 interface VoiceSelectionOptions {
   autoSelectVoice?: boolean
   preferredLanguage?: string | null
@@ -580,7 +580,7 @@ function filterVoicesByLanguage(options: VoiceSelectionOptions = {}) {
 
   const allVoices = Object.values(voiceDetails.value)
 
-  // 根据选中的语言筛选音色
+  // Фильтрация голосов по выбранному языку
   const filteredVoices = filterTtsVoicesByLanguage(allVoices, selectedTtsLanguage.value)
 
   voiceOptions.value = filteredVoices.map(voice => ({
@@ -592,7 +592,7 @@ function filterVoicesByLanguage(options: VoiceSelectionOptions = {}) {
     train_status: voice.trainStatus,
   }))
 
-  // 检查当前选中的音色是否支持当前语言，如果不支持则选择第一个
+  // Проверка поддержки текущего языка выбранным голосом; если не поддерживается, выбрать первый
   const currentVoiceSupportsLanguage = formData.value.ttsVoiceId
     && filteredVoices.some(voice => voice.id === formData.value.ttsVoiceId)
 
@@ -636,7 +636,7 @@ async function fetchAllLanguag(ttsModelId: string, options: VoiceSelectionOption
     if (!hasUsableTtsVoiceMetadata(res)) {
       throw new Error('No TTS voice metadata is available')
     }
-    // 保存完整的音色信息
+    // Сохранение полной информации о голосе
     voiceDetails.value = res.reduce<Record<string, TtsVoice>>((acc, voice) => {
       acc[voice.id] = voice
       return acc
@@ -662,7 +662,7 @@ async function fetchAllLanguag(ttsModelId: string, options: VoiceSelectionOption
     // exposes no language dimension.
     selectedTtsLanguage.value = ''
     displayNames.value.language = ''
-    // 优先使用调用方指定的语言或音色默认语言，再回退到智能体当前配置
+    // Приоритетное использование языка, указанного вызывающим, или языка по умолчанию голоса, затем возврат к текущей конфигурации агента
     if (requestedLanguage && languageOptions.value.some(option => option.value === requestedLanguage)) {
       selectedTtsLanguage.value = requestedLanguage
       displayNames.value.language = requestedLanguage
@@ -684,7 +684,7 @@ async function fetchAllLanguag(ttsModelId: string, options: VoiceSelectionOption
       displayNames.value.language = languageOptions.value[0].value
     }
 
-    // 根据选中的语言筛选音色
+    // Фильтрация голосов по выбранному языку
     filterVoicesByLanguage(options)
     ttsOptionsModelId.value = ttsModelId
     return 'loaded'
@@ -709,13 +709,13 @@ async function fetchAllLanguag(ttsModelId: string, options: VoiceSelectionOption
 //     return
 
 //   try {
-//     console.log(`加载音色选项: ${ttsModelId}`)
+//     console.log(`Загрузка параметров голоса: ${ttsModelId}`)
 //     const voices = await getTTSVoices(ttsModelId)
 //     voiceOptions.value = voices
 //     console.log('音色选项:', voices)
 //   }
 //   catch (error) {
-//     console.error('加载音色选项失败:', error)
+//     console.error('Ошибка загрузки параметров голоса:', error)
 //     voiceOptions.value = []
 //   }
 // }
@@ -811,12 +811,12 @@ async function onPickerConfirm(type: string, value: any, name: string) {
       break
     case 'intent':
       formData.value.intentModelId = value
-      displayNames.value.intent = name // 确保显示名称正确更新
+      displayNames.value.intent = name // Обеспечение корректного обновления отображаемого имени
       break
     case 'memory':
       formData.value.memModelId = value
       formData.value.chatHistoryConf = value === 'Memory_nomem' ? 0 : 2
-      displayNames.value.memory = name // 确保显示名称正确更新
+      displayNames.value.memory = name // Обеспечение корректного обновления отображаемого имени
       displayNames.value.report = reportOptions[1].name
       isVisibleReport.value = value !== 'Memory_nomem'
       if (value === 'Memory_nomem' || value === 'Memory_mem_report_only') {
@@ -856,7 +856,7 @@ async function onPickerConfirm(type: string, value: any, name: string) {
         formData.value.ttsLanguage = selectedTtsLanguage.value
         ttsLanguageTouched.value = true
       }
-      displayNames.value.voiceprint = name // 确保显示名称正确更新
+      displayNames.value.voiceprint = name // Обеспечение корректного обновления отображаемого имени
       break
     case 'report':
       formData.value.chatHistoryConf = value
@@ -869,7 +869,7 @@ async function onPickerConfirm(type: string, value: any, name: string) {
 // 选择器取消
 function onPickerCancel(type: string) {
   pickerShow.value[type] = false
-  // 关闭时停止播放
+  // 关闭时Остановка воспроизведения
   if (type === 'voiceprint') {
     stopAudio()
   }
@@ -883,7 +883,7 @@ async function playAudio(voice: VoiceOption, event: Event) {
     return
   }
 
-  // 如果正在播放同一个音频，则停止
+  // Если воспроизводится то же аудио，则停止
   if (playingVoiceId.value === voice.value) {
     stopAudio()
     return
@@ -911,12 +911,12 @@ async function playAudio(voice: VoiceOption, event: Event) {
       return
     }
 
-    // 创建新的音频实例
+    // Создание нового экземпляра аудио
     const audio = uni.createInnerAudioContext()
     audioRef.value = audio
     audio.src = audioUrl
 
-    // 监听播放结束
+    // Отслеживание окончания воспроизведения
     audio.onEnded(() => {
       if (
         voicePreviewRequestGate.isCurrent(requestId)
@@ -927,7 +927,7 @@ async function playAudio(voice: VoiceOption, event: Event) {
       }
     })
 
-    // 监听播放错误
+    // Отслеживание ошибок воспроизведения
     audio.onError(() => {
       if (
         voicePreviewRequestGate.isCurrent(requestId)
@@ -946,13 +946,13 @@ async function playAudio(voice: VoiceOption, event: Event) {
     if (!voicePreviewRequestGate.isCurrent(requestId) || playingVoiceId.value !== voice.value) {
       return
     }
-    console.error('获取克隆音色试听地址失败:', error)
+    console.error('Ошибка получения адреса прослушивания клонированного голоса:', error)
     toast.error(t('voiceprint.getAudioFailed'))
     playingVoiceId.value = ''
   }
 }
 
-// 停止音频
+// Остановка аудио
 function stopAudio() {
   voicePreviewRequestGate.invalidate()
   if (audioRef.value) {
@@ -963,7 +963,7 @@ function stopAudio() {
   playingVoiceId.value = ''
 }
 
-// 获取模型显示名称
+// Получение отображаемого имени модели
 function getModelDisplayName(modelType: string, modelId: string) {
   if (!modelId)
     return '请选择'
@@ -1020,7 +1020,7 @@ async function saveAgent() {
     saving.value = true
     const tagNames = dynamicTags.value.map(tag => tag.tagName)
     const tagsChanged = !isSameStringList(tagNames, originalTagNames.value)
-    // 构建保存数据，包含上下文配置和语音设置
+    // Формирование данных для сохранения，Включает конфигурацию контекста и настройки голоса
     const saveData: Record<string, any> = {
       ...formData.value,
       contextProviders: providerStore.providers,
@@ -1080,7 +1080,7 @@ function loadPluginFunctions() {
     }) || []
 
     allFunctions.value = processedFunctions
-    // 同时更新到store
+    // Одновременное обновлениеstore
     pluginStore.setAllFunctions(processedFunctions)
   })
 }
@@ -1244,14 +1244,14 @@ watch(agentId, (currentAgentId, previousAgentId) => {
 onMounted(async () => {
   loadAgentTags()
 
-  // 先加载模型选项和角色模板
+  // 先Загрузка параметров моделей和角色模板
   await Promise.all([
     loadRoleTemplates(),
     loadModelOptions(),
     loadPluginFunctions(),
   ])
 
-  // 然后加载智能体详情，这样可以正确映射显示名称
+  // 然后Загрузка подробностей агента，这样可以正确映射显示名称
   if (agentId.value && !snapshotReloadBlocked.value) {
     await loadAgentDetail()
   }
@@ -1377,14 +1377,14 @@ onMounted(async () => {
       </view>
     </view>
 
-    <!-- 模型配置标题 -->
+    <!-- Конфигурация модели标题 -->
     <view class="pb-[20rpx]">
       <text class="text-[32rpx] text-[#232338] font-bold">
         {{ t('agent.modelConfig') }}
       </text>
     </view>
 
-    <!-- 模型配置卡片 -->
+    <!-- Конфигурация модели卡片 -->
     <view class="mb-[24rpx] border border-[#eeeeee] rounded-[20rpx] bg-[#fbfbfb] p-[24rpx]" style="box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.04);">
       <view class="flex flex-col gap-[16rpx]">
         <view class="flex cursor-pointer items-center justify-between border border-[#eeeeee] rounded-[12rpx] bg-[#f5f7fb] p-[20rpx] transition-all duration-300 active:bg-[#eef3ff]" @click="openPicker('vad')">

@@ -12,7 +12,7 @@ import xiaozhi.common.user.UserDetail;
 import xiaozhi.modules.security.user.SecurityUser;
 
 /**
- * 公共字段，自动填充值
+ * Общие поля, автозаполнение
  * Copyright (c) 人人开源 All rights reserved.
  * Website: https://www.renren.io
  */
@@ -30,9 +30,9 @@ public class FieldMetaObjectHandler implements MetaObjectHandler {
         UserDetail user = SecurityUser.getUser();
         Date date = new Date();
 
-        // 创建者
+        // Создатель
         strictInsertFill(metaObject, CREATOR, Long.class, user.getId());
-        // 创建时间 - 支持createDate和createdAt两种字段名
+        // Время создания — поддерживаются имена полей createDate и createdAt
         if (metaObject.hasSetter(CREATE_DATE)) {
             strictInsertFill(metaObject, CREATE_DATE, Date.class, date);
         }
@@ -40,9 +40,9 @@ public class FieldMetaObjectHandler implements MetaObjectHandler {
             strictInsertFill(metaObject, "createdAt", Date.class, date);
         }
 
-        // 更新者
+        // Обновивший
         strictInsertFill(metaObject, UPDATER, Long.class, user.getId());
-        // 更新时间 - 支持updateDate和updatedAt两种字段名
+        // Время обновления — поддерживаются имена полей updateDate и updatedAt
         if (metaObject.hasSetter(UPDATE_DATE)) {
             strictInsertFill(metaObject, UPDATE_DATE, Date.class, date);
         }
@@ -50,7 +50,7 @@ public class FieldMetaObjectHandler implements MetaObjectHandler {
             strictInsertFill(metaObject, "updatedAt", Date.class, date);
         }
 
-        // 数据标识
+        // Идентификатор данных
         strictInsertFill(metaObject, DATA_OPERATION, String.class, Constant.DataOperation.INSERT.getValue());
     }
 
@@ -58,9 +58,9 @@ public class FieldMetaObjectHandler implements MetaObjectHandler {
     public void updateFill(MetaObject metaObject) {
         Date date = new Date();
 
-        // 更新者
+        // Обновивший
         strictUpdateFill(metaObject, UPDATER, Long.class, SecurityUser.getUserId());
-        // 更新时间 - 支持updateDate和updatedAt两种字段名
+        // Время обновления — поддерживаются имена полей updateDate и updatedAt
         if (metaObject.hasSetter(UPDATE_DATE)) {
             strictUpdateFill(metaObject, UPDATE_DATE, Date.class, date);
         }
@@ -68,7 +68,7 @@ public class FieldMetaObjectHandler implements MetaObjectHandler {
             strictUpdateFill(metaObject, "updatedAt", Date.class, date);
         }
 
-        // 数据标识
+        // Идентификатор данных
         strictInsertFill(metaObject, DATA_OPERATION, String.class, Constant.DataOperation.UPDATE.getValue());
     }
 }

@@ -10,7 +10,7 @@ if TYPE_CHECKING:
 TAG = __name__
 logger = setup_logging()
 
-# 定义基础的函数描述模板
+# Определите шаблон описания базовой функции
 SEARCH_FROM_RAGFLOW_FUNCTION_DESC = {
     "type": "function",
     "function": {
@@ -29,9 +29,9 @@ SEARCH_FROM_RAGFLOW_FUNCTION_DESC = {
     "search_from_ragflow", SEARCH_FROM_RAGFLOW_FUNCTION_DESC, ToolType.SYSTEM_CTL
 )
 async def search_from_ragflow(conn: "ConnectionHandler", question=None):
-    # 确保字符串参数正确处理编码
+    # Убедитесь, что кодирование строковых параметров выполняется правильно
     if question and isinstance(question, str):
-        # 确保问题参数是UTF-8编码的字符串
+        # Убедитесь, что параметры вопроса имеют кодировку UTF-8
         pass
     else:
         question = str(question) if question is not None else ""
@@ -44,20 +44,20 @@ async def search_from_ragflow(conn: "ConnectionHandler", question=None):
     url = base_url + "/api/v1/retrieval"
     headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
 
-    # 确保payload中的字符串都是UTF-8编码
+    # Убедитесь, что строки в полезной нагрузке закодированы UTF-8
     payload = {"question": question, "dataset_ids": dataset_ids}
 
     try:
-        # 使用ensure_ascii=False确保JSON序列化时正确处理中文
+        # Используйте ensure_ascii = False, чтобы убедиться, что китайский язык обрабатывается правильно при сериализации JSON
         async with httpx.AsyncClient(timeout=httpx.Timeout(5.0, connect=3.0), verify=False) as client:
             response = await client.post(url, json=payload, headers=headers)
 
-        # 显式设置响应的编码为utf-8
+        # Явно задайте кодировку ответа на utf-8
         response.encoding = "utf-8"
 
         response.raise_for_status()
 
-        # 先获取文本内容，然后手动处理JSON解码
+        # Сначала получите текстовое содержимое, а затем вручную обработайте декодирование JSON
         response_text = response.text
 
         result = json.loads(response_text)
@@ -67,12 +67,12 @@ async def search_from_ragflow(conn: "ConnectionHandler", question=None):
             error_message = result.get("error", {}).get("message", "")
             error_code = result.get("code", "")
 
-            # 安全地记录错误信息
+            # Безопасно регистрировать сообщения об ошибках
             logger.bind(tag=TAG).error(
                 f"RAGFlow API调用失败，响应码：{error_code}，错误详情：{error_detail}，完整响应：{result}"
             )
 
-            # 构建详细的错误响应
+            # Создайте подробные ответы об ошибках
             error_response = f"RAG接口返回异常（错误码：{error_code}）"
 
             if error_message:
@@ -87,7 +87,7 @@ async def search_from_ragflow(conn: "ConnectionHandler", question=None):
         for chunk in chunks:
             content = chunk.get("content", "")
             if content:
-                # 安全地处理内容字符串
+                # Безопасно обрабатывайте строки контента
                 if isinstance(content, str):
                     contents.append(content)
                 elif isinstance(content, bytes):
@@ -96,7 +96,7 @@ async def search_from_ragflow(conn: "ConnectionHandler", question=None):
                     contents.append(str(content))
 
         if contents:
-            # 组织知识库内容为引用模式
+            # Организовать содержание базы знаний в справочном режиме
             context_text = f"# 关于问题【{question}】查到知识库如下\n"
             context_text += "```\n\n\n".join(contents[:5])
             context_text += "\n```"
@@ -131,12 +131,12 @@ async def search_from_ragflow(conn: "ConnectionHandler", question=None):
         return ActionResponse(Action.RESPONSE, None, error_response)
 
     except Exception as e:
-        # 其他异常
+        # Другие исключения
         error_type = type(e).__name__
         logger.bind(tag=TAG).error(
             f"RAGflow处理异常，异常类型：{error_type}，详情：{str(e)}"
         )
 
-        # 提供详细的错误信息
+        # Предоставьте подробную информацию об ошибке
         error_response = f"RAG接口处理异常（{error_type}）：{str(e)}"
         return ActionResponse(Action.RESPONSE, None, error_response)

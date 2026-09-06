@@ -7,8 +7,7 @@ import java.io.Serializable;
 import java.util.Date;
 
 /**
- * 字典类型VO
- */
+ * Тип словаря VO */
 @Data
 @Schema(description = "字典类型VO")
 public class SysDictTypeVO implements Serializable {

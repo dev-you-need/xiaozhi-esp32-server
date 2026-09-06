@@ -29,7 +29,7 @@ import xiaozhi.modules.sys.vo.SysDictDataItem;
 import xiaozhi.modules.sys.vo.SysDictDataVO;
 
 /**
- * 字典数据管理
+ * Управление данными словаря
  *
  * @author czc
  * @since 2025-04-30
@@ -50,7 +50,7 @@ public class SysDictDataController {
             @Parameter(name = Constant.LIMIT, description = "每页显示记录数", required = true) })
     public Result<PageData<SysDictDataVO>> page(@Parameter(hidden = true) @RequestParam Map<String, Object> params) {
         ValidatorUtils.validateEntity(params);
-        // 强制校验dictTypeId是否存在
+        // Принудительная проверка существования dictTypeId
         if (!params.containsKey("dictTypeId") || StringUtils.isEmpty(String.valueOf(params.get("dictTypeId")))) {
             return new Result<PageData<SysDictDataVO>>().error("dictTypeId不能为空");
         }

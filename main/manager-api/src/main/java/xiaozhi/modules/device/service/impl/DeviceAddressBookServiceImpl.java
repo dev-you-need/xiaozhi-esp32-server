@@ -62,7 +62,7 @@ public class DeviceAddressBookServiceImpl implements DeviceAddressBookService {
             return postToMqtt("/api/call/accept", Map.of("mac", callerMac), "接听");
         }
 
-        // 主动呼叫模式
+        //Режим активного вызова
         Map<String, String> callerBook = allBooks.get(callerMac.toLowerCase());
         if (callerBook == null) {
             return errorResult("未找到备注为'" + nickname + "'的设备");
@@ -79,7 +79,7 @@ public class DeviceAddressBookServiceImpl implements DeviceAddressBookService {
             return errorResult("呼叫失败，您没有权限呼叫该设备");
         }
 
-        // 获取目标设备如何称呼主叫方
+        //Получение информации о том, как целевое устройство вызывает вызывающего абонента
         Map<String, String> targetBook = allBooks.get(targetMac.toLowerCase());
         String callerNickname = null;
         if (targetBook != null) {
@@ -109,20 +109,20 @@ public class DeviceAddressBookServiceImpl implements DeviceAddressBookService {
             String alias = entity.getAlias();
             Boolean hasPermission = entity.getHasPermission();
 
-            // 构建正向映射: A对B的映射 nickname -> macB|permission
+            //построение прямого сопоставления: прозвище сопоставления A с B - > macB | permission
             if (alias != null && !alias.isEmpty()) {
                 result.computeIfAbsent(macA, k -> new HashMap<>());
                 String permStr = (hasPermission != null && hasPermission) ? "1" : "0";
                 result.get(macA).put(alias, macB + "|" + permStr);
             }
 
-            // 构建反向记录用于查找B对A的称呼
+            //построим обратную запись, чтобы найти имя от B до A
             if (alias != null && !alias.isEmpty()) {
                 reverseMap.put(macB + ":" + macA, alias);
             }
         }
 
-        // 构建反向映射: B对A的映射 macA -> nickname
+        //построение обратного сопоставления: B to A mapping macA - > nickname
         for (DeviceAddressBookEntity entity : allRecords) {
             String macA = entity.getMacAddress().toLowerCase();
             String macB = entity.getTargetMac().toLowerCase();
@@ -159,11 +159,11 @@ public class DeviceAddressBookServiceImpl implements DeviceAddressBookService {
             DeviceAddressBookEntity entity = new DeviceAddressBookEntity();
             entity.setMacAddress(macAddress);
             entity.setTargetMac(targetMac);
-            // 如果 alias 为空，就默认使用设备名称
+            //Если псевдоним пуст, по умолчанию используется имя устройства
             if (StringUtils.isBlank(alias)) {
                 alias = deviceService.getDeviceByMacAddress(targetMac).getAlias();
             }
-            // 检查重名
+            //проверка на наличие дубликатов имен
             alias = generateUniqueAlias(macAddress, targetMac, alias);
             entity.setAlias(alias);
             entity.setHasPermission(hasPermission);

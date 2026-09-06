@@ -11,36 +11,29 @@ import lombok.EqualsAndHashCode;
 import xiaozhi.common.entity.BaseEntity;
 
 /**
- * 字典类型
- */
+ * Тип словаря */
 @Data
 @EqualsAndHashCode(callSuper = false)
 @TableName("sys_dict_type")
 public class SysDictTypeEntity extends BaseEntity {
     /**
-     * 字典类型编码
-     */
+     * Кодировка типа словаря     */
     private String dictType;
     /**
-     * 字典名称
-     */
+     * Название словаря     */
     private String dictName;
     /**
-     * 备注
-     */
+     * Примечание     */
     private String remark;
     /**
-     * 排序
-     */
+     * Сортировка     */
     private Integer sort;
     /**
-     * 更新者
-     */
+     * Обновлено     */
     @TableField(fill = FieldFill.INSERT_UPDATE)
     private Long updater;
     /**
-     * 更新时间
-     */
+     * Время обновления     */
     @TableField(fill = FieldFill.INSERT_UPDATE)
     private Date updateDate;
 }

@@ -45,7 +45,7 @@ class AuthManager:
         ts = int(time.time())
         content = f"{client_id}|{username}|{ts}"
         signature = self._sign(content)
-        # token仅包含签名与时间戳，不包含明文信息
+        # маркер содержит только подписи и временные метки, а не текстовую информацию
         token = f"{signature}.{ts}"
         return token
 

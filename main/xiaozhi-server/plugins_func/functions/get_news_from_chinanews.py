@@ -50,10 +50,10 @@ async def fetch_news_from_rss(rss_url):
         async with httpx.AsyncClient(timeout=httpx.Timeout(5.0, connect=3.0)) as client:
             response = await client.get(rss_url)
 
-        # 解析XML
+        # Синтаксический анализ XML
         root = ET.fromstring(response.content)
 
-        # 查找所有item元素（新闻条目）
+        # Найти все элементы (новости)
         news_items = []
         for item in root.findall(".//item"):
             title = (
@@ -94,7 +94,7 @@ async def fetch_news_detail(url):
 
         soup = BeautifulSoup(response.content, "html.parser")
 
-        # 尝试提取正文内容 (这里的选择器需要根据实际网站结构调整)
+        # Попробуйте извлечь содержимое тела (селектор здесь необходимо настроить в соответствии с фактической структурой сайта)
         content_div = soup.select_one(
             ".content_desc, .content, article, .article-content"
         )
@@ -105,12 +105,12 @@ async def fetch_news_detail(url):
             )
             return content
         else:
-            # 如果找不到特定的内容区域，尝试获取所有段落
+            # Если вы не можете найти определенную область контента, попробуйте получить все абзацы
             paragraphs = soup.find_all("p")
             content = "\n".join(
                 [p.get_text().strip() for p in paragraphs if p.get_text().strip()]
             )
-            return content[:2000]  # 限制长度
+            return content[:2000]  # Предельная длина
     except Exception as e:
         logger.bind(tag=TAG).error(f"获取新闻详情失败: {e}")
         return "无法获取详细内容"
@@ -121,25 +121,25 @@ def map_category(category_text):
     if not category_text:
         return None
 
-    # 类别映射字典，目前支持社会、国际、财经新闻，如需更多类型，参见配置文件
+    # Словарь сопоставления категорий, в настоящее время поддерживает социальные, международные, финансовые новости, см. Профиль для других типов
     category_map = {
-        # 社会新闻
+        # Социальные новости
         "社会": "society_rss_url",
         "社会新闻": "society_rss_url",
-        # 国际新闻
+        # Международные новости
         "国际": "world_rss_url",
         "国际新闻": "world_rss_url",
-        # 财经新闻
+        # Финансовые новости
         "财经": "finance_rss_url",
         "财经新闻": "finance_rss_url",
         "金融": "finance_rss_url",
         "经济": "finance_rss_url",
     }
 
-    # 转换为小写并去除空格
+    # Преобразовать в нижний регистр и удалить пробелы
     normalized_category = category_text.lower().strip()
 
-    # 返回映射结果，如果没有匹配项则返回原始输入
+    # Возвращает результат сопоставления или исходный вход, если нет совпадения
     return category_map.get(normalized_category, category_text)
 
 
@@ -156,7 +156,7 @@ async def get_news_from_chinanews(
 ):
     """获取新闻并随机选择一条进行播报，或获取上一条新闻的详细内容"""
     try:
-        # 如果detail为True，获取上一条新闻的详细内容
+        # Если детали соответствуют действительности, узнайте подробности предыдущих новостей
         if detail:
             if (
                 not hasattr(conn, "last_news_link")
@@ -179,7 +179,7 @@ async def get_news_from_chinanews(
 
             logger.bind(tag=TAG).debug(f"获取新闻详情: {title}, URL={link}")
 
-            # 获取新闻详情
+            # Получить информацию о новостях
             detail_content = await fetch_news_detail(link)
 
             if not detail_content or detail_content == "无法获取详细内容":
@@ -189,7 +189,7 @@ async def get_news_from_chinanews(
                     None,
                 )
 
-            # 构建详情报告
+            # Построить подробный отчет
             detail_report = (
                 f"根据下列数据，用{lang}回应用户的新闻详情查询请求：\n\n"
                 f"新闻标题: {title}\n"
@@ -200,17 +200,17 @@ async def get_news_from_chinanews(
 
             return ActionResponse(Action.REQLLM, detail_report, None)
 
-        # 否则，获取新闻列表并随机选择一条
-        # 从配置中获取RSS URL
+        # В противном случае получите список новостей и случайным образом выберите один из них
+        # Получить URL-адрес RSS из конфигурации
         rss_config = conn.config.get("plugins", {}).get("get_news_from_chinanews", {})
         default_rss_url = rss_config.get(
             "default_rss_url", "https://www.chinanews.com.cn/rss/society.xml"
         )
 
-        # 将用户输入的类别映射到配置中的类别键
+        # Сопоставьте введенные пользователем категории с ключами категорий в конфигурациях
         mapped_category = map_category(category)
 
-        # 如果提供了类别，尝试从配置中获取对应的URL
+        # Если указана категория, попробуйте получить соответствующий URL-адрес из конфигурации
         rss_url = default_rss_url
         if mapped_category and mapped_category in rss_config:
             rss_url = rss_config[mapped_category]
@@ -219,7 +219,7 @@ async def get_news_from_chinanews(
             f"获取新闻: 原始类别={category}, 映射类别={mapped_category}, URL={rss_url}"
         )
 
-        # 获取新闻列表
+        # Получить список новостей
         news_items = await fetch_news_from_rss(rss_url)
 
         if not news_items:
@@ -227,10 +227,10 @@ async def get_news_from_chinanews(
                 Action.REQLLM, "抱歉，未能获取到新闻信息，请稍后再试。", None
             )
 
-        # 随机选择一条新闻
+        # Случайно выберите новость
         selected_news = random.choice(news_items)
 
-        # 保存当前新闻链接到连接对象，以便后续查询详情
+        # Сохранить текущую новостную ссылку на подключенный объект для последующих запросов
         if not hasattr(conn, "last_news_link"):
             conn.last_news_link = {}
         conn.last_news_link = {
@@ -238,7 +238,7 @@ async def get_news_from_chinanews(
             "title": selected_news.get("title", "未知标题"),
         }
 
-        # 构建新闻报告
+        # Создание новостного репортажа
         news_report = (
             f"根据下列数据，用{lang}回应用户的新闻查询请求：\n\n"
             f"新闻标题: {selected_news['title']}\n"

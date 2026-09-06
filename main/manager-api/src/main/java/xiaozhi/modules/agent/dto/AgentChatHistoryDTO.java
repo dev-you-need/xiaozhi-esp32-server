@@ -5,9 +5,11 @@ import java.util.Date;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
+
 /**
- * 智能体聊天记录DTO
+ * DTO записи чата агента
  */
+
 @Data
 @Schema(description = "智能体聊天记录")
 public class AgentChatHistoryDTO {

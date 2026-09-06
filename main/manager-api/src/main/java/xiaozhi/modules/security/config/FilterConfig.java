@@ -6,9 +6,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.filter.DelegatingFilterProxy;
 
 /**
- * Filter配置
- * Copyright (c) 人人开源 All rights reserved.
- * Website: https://www.renren.io
+ * Конфигурация фильтра * (c) Open Source for All rights reserved. * Website: https://www.renren.io
  */
 @Configuration
 public class FilterConfig {
@@ -17,7 +15,7 @@ public class FilterConfig {
     public FilterRegistrationBean<DelegatingFilterProxy> shiroFilterRegistration() {
         FilterRegistrationBean<DelegatingFilterProxy> registration = new FilterRegistrationBean<>();
         registration.setFilter(new DelegatingFilterProxy("shiroFilter"));
-        // 该值缺省为false，表示生命周期由SpringApplicationContext管理，设置为true则表示由ServletContainer管理
+        //Значение по умолчанию false, указывающее, что жизненным циклом управляет SpringApplicationContext, значение true указывает, что он управляется ServletContainer
         registration.addInitParameter("targetFilterLifecycle", "true");
         registration.setEnabled(true);
         registration.setOrder(Integer.MAX_VALUE - 1);

@@ -23,11 +23,11 @@ public class KnowledgeManagerServiceImpl implements KnowledgeManagerService {
     public void deleteDatasetWithFiles(String datasetId) {
         log.info("=== 级联删除开始: datasetId={} ===", datasetId);
 
-        // 1. 先调用文件服务，清理该数据集下的所有文档记录 (含 RAGFlow 端)
+        //1. Сначала позвоните в файловую службу, чтобы очистить все записи документов в этом наборе данных (включая сторону RAGFlow)
         log.info("Step 1: 清理关联文档...");
         knowledgeFilesService.deleteDocumentsByDatasetId(datasetId);
 
-        // 2. 再调用知识库服务，彻底注销数据集 (含 RAGFlow 端)
+        //2. Затем позвоните в службу базы знаний, чтобы полностью отменить набор данных (включая сторону RAGFlow)
         log.info("Step 2: 删除数据集主体...");
         knowledgeBaseService.deleteByDatasetId(datasetId);
 

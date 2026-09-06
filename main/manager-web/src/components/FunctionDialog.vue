@@ -59,7 +59,7 @@
         </div>
       </div>
 
-      <!-- 右侧：参数配置 -->
+      <!-- 右侧：Конфигурация параметров -->
       <div class="params-column">
         <h4 v-if="currentFunction" class="column-title">
           {{ $t('functionDialog.paramConfig') }} - {{ currentFunction.name }}
@@ -199,7 +199,7 @@ export default {
       currentFunction: null,
       modifiedFunctions: {},
       tempFunctions: {},
-      // 添加一个标志位来跟踪是否已经保存
+      // Добавление флага для отслеживания сохранения
       hasSaved: false,
       loading: false,
 
@@ -217,7 +217,7 @@ export default {
   computed: {
     selectedList() {
       const list = this.allFunctions.filter(f => this.selectedNames.includes(f.name));
-      // 如果通讯录功能未启用，过滤掉设备呼叫设备插件
+      // Если функция контактов не включена，过滤掉设备呼叫设备插件
       if (!this.featureStatus.addressBook) {
         return list.filter(f => f.providerCode !== 'call_device');
       }
@@ -225,7 +225,7 @@ export default {
     },
     unselected() {
       const list = this.allFunctions.filter(f => !this.selectedNames.includes(f.name));
-      // 如果通讯录功能未启用，过滤掉设备呼叫设备插件
+      // Если функция контактов не включена，过滤掉设备呼叫设备插件
       if (!this.featureStatus.addressBook) {
         return list.filter(f => f.providerCode !== 'call_device');
       }
@@ -253,13 +253,13 @@ export default {
     async value(v) {
       this.dialogVisible = v;
       if (v) {
-        // 加载功能状态（需要在初始化选中态之前）
+        // 加载功能状态（需要在Инициализация состояния выбора之前）
         await this.loadFeatureStatus();
 
-        // 对话框打开时，初始化选中态
+        // При открытии диалога，Инициализация состояния выбора
         this.selectedNames = this.functions.map(f => f.name);
 
-        // 如果通讯录功能未启用，从已选列表中移除设备呼叫设备插件
+        // Если функция контактов не включена, удалить плагин вызова устройства из списка выбранных
         if (!this.featureStatus.addressBook) {
           this.selectedNames = this.selectedNames.filter(name => {
             const func = this.allFunctions.find(f => f.name === name);
@@ -317,8 +317,8 @@ export default {
           this.$message.error(this.$t('functionDialog.copyFailed'));
         }
       } catch (err) {
-        this.$message.error('复制失败，请手动复制');
-        console.error('复制失败:', err);
+        this.$message.error('Ошибка копирования，请手动复制');
+        console.error('Ошибка копирования:', err);
       } finally {
         document.body.removeChild(textarea);
       }
@@ -346,7 +346,7 @@ export default {
       Api.agent.getAgentMcpToolsList(this.agentId, (res) => {
         if (res.data.code === 0) {
           this.mcpTools = res.data.data || [];
-          // 根据工具列表更新状态
+          // Обновление состояния на основе списка инструментов
           this.mcpStatus = this.mcpTools.length > 0 ? "connected" : "disconnected";
         } else {
           this.mcpTools = [];
@@ -445,14 +445,14 @@ export default {
         }
       });
 
-      // 如果通讯录功能未启用，自动取消已选的设备呼叫设备插件
+      // Если функция контактов не включена, автоматически отменить выбранный плагин вызова устройства
       if (!this.featureStatus.addressBook) {
         selected = selected.filter(f => f.providerCode !== 'call_device');
       }
 
       this.$emit('update-functions', selected);
       this.dialogVisible = false;
-      // 通知父组件对话框已关闭且已保存
+      // Уведомление родительского компонента о закрытии и сохранении диалога
       this.$emit('dialog-closed', true);
     },
     fieldRemark(field) {

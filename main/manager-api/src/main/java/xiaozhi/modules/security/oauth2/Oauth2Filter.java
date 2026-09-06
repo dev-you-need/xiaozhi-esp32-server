@@ -22,9 +22,9 @@ import xiaozhi.common.utils.MessageUtils;
 import xiaozhi.common.utils.Result;
 
 /**
- * oauth2过滤器
- * Copyright (c) 人人开源 All rights reserved.
- * Website: https://www.renren.io
+ * oauth2 фильтр
+ * Авторское право (c) Open Source for All. Все права защищены.
+ * Веб-сайт: https://www.renren.io
  */
 public class Oauth2Filter extends AuthenticatingFilter {
 
@@ -32,7 +32,7 @@ public class Oauth2Filter extends AuthenticatingFilter {
 
     @Override
     protected AuthenticationToken createToken(ServletRequest request, ServletResponse response) throws Exception {
-        // 获取请求token
+        //get request token
         String token = getRequestToken((HttpServletRequest) request);
 
         if (StringUtils.isBlank(token)) {
@@ -54,7 +54,7 @@ public class Oauth2Filter extends AuthenticatingFilter {
 
     @Override
     protected boolean onAccessDenied(ServletRequest request, ServletResponse response) throws Exception {
-        // 获取请求token，如果token不存在，直接返回401
+        //получаем токен запроса, если токен не существует, напрямую возвращаем 401
         String token = getRequestToken((HttpServletRequest) request);
 
         if (StringUtils.isBlank(token)) {
@@ -83,7 +83,7 @@ public class Oauth2Filter extends AuthenticatingFilter {
         httpResponse.setHeader("Access-Control-Allow-Credentials", "true");
         httpResponse.setHeader("Access-Control-Allow-Origin", HttpContextUtils.getOrigin());
         try {
-            // 使用国际化消息替代直接使用异常消息
+            //Используйте интернационализированные сообщения вместо сообщений об исключениях прямого использования
             Result<Void> r = new Result<Void>().error(ErrorCode.UNAUTHORIZED);
 
             String json = JsonUtils.toJsonString(r);
@@ -95,11 +95,11 @@ public class Oauth2Filter extends AuthenticatingFilter {
     }
 
     /**
-     * 获取请求的token
+     * Получите запрошенный токен
      */
     private String getRequestToken(HttpServletRequest httpRequest) {
         String token = null;
-        // 从header中获取token
+        //get token from header
         String authorization = httpRequest.getHeader(Constant.AUTHORIZATION);
         if (StringUtils.isNotBlank(authorization) && authorization.startsWith("Bearer ")) {
             token = authorization.replace("Bearer ", "");

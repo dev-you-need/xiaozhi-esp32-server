@@ -81,13 +81,13 @@ def get_music_files(music_dir, music_ext):
     music_files = []
     music_file_names = []
     for file in music_dir.rglob("*"):
-        # 判断是否是文件
+        # Определите, является ли это документом
         if file.is_file():
-            # 获取文件扩展名
+            # Получить расширение файла
             ext = file.suffix.lower()
-            # 判断扩展名是否在列表中
+            # Определите, есть ли расширение в списке
             if ext in music_ext:
-                # 添加相对路径
+                # Добавить относительный путь
                 music_files.append(str(file.relative_to(music_dir)))
                 music_file_names.append(
                     os.path.splitext(str(file.relative_to(music_dir)))[0]
@@ -102,7 +102,7 @@ def initialize_music_handler(conn: "ConnectionHandler"):
         if "play_music" in plugins_config:
             MUSIC_CACHE["music_config"] = plugins_config["play_music"]
             MUSIC_CACHE["music_dir"] = os.path.abspath(
-                MUSIC_CACHE["music_config"].get("music_dir", "./music")  # 默认路径修改
+                MUSIC_CACHE["music_config"].get("music_dir", "./music")  # Изменение пути по умолчанию
             )
             MUSIC_CACHE["music_ext"] = MUSIC_CACHE["music_config"].get(
                 "music_ext", (".mp3", ".wav", ".p3")
@@ -114,7 +114,7 @@ def initialize_music_handler(conn: "ConnectionHandler"):
             MUSIC_CACHE["music_dir"] = os.path.abspath("./music")
             MUSIC_CACHE["music_ext"] = (".mp3", ".wav", ".p3")
             MUSIC_CACHE["refresh_time"] = 60
-        # 获取音乐文件列表
+        # Получить список музыкальных файлов
         MUSIC_CACHE["music_files"], MUSIC_CACHE["music_file_names"] = get_music_files(
             MUSIC_CACHE["music_dir"], MUSIC_CACHE["music_ext"]
         )
@@ -130,10 +130,10 @@ async def handle_music_command(conn: "ConnectionHandler", text):
     clean_text = re.sub(r"[^\w\s]", "", text).strip()
     conn.logger.bind(tag=TAG).debug(f"检查是否是音乐命令: {clean_text}")
 
-    # 尝试匹配具体歌名
+    # Попробуйте сопоставить определенные названия песен
     if os.path.exists(MUSIC_CACHE["music_dir"]):
         if time.time() - MUSIC_CACHE["scan_time"] > MUSIC_CACHE["refresh_time"]:
-            # 刷新音乐文件列表
+            # Обновить список музыкальных файлов
             MUSIC_CACHE["music_files"], MUSIC_CACHE["music_file_names"] = (
                 get_music_files(MUSIC_CACHE["music_dir"], MUSIC_CACHE["music_ext"])
             )
@@ -146,14 +146,14 @@ async def handle_music_command(conn: "ConnectionHandler", text):
                 conn.logger.bind(tag=TAG).info(f"找到最匹配的歌曲: {best_match}")
                 await play_local_music(conn, specific_file=best_match)
                 return True
-    # 检查是否是通用播放音乐命令
+    # Проверьте, является ли это общей командой воспроизведения музыки
     await play_local_music(conn)
     return True
 
 
 def _get_random_play_prompt(song_name):
     """生成随机播放引导语"""
-    # 移除文件扩展名
+    # Удалить расширение файла
     clean_name = os.path.splitext(song_name)[0]
     prompts = [
         f"正在为您播放，《{clean_name}》",
@@ -164,7 +164,7 @@ def _get_random_play_prompt(song_name):
         f"接下来请欣赏，《{clean_name}》",
         f"此刻为您献上，《{clean_name}》",
     ]
-    # 直接使用random.choice，不设置seed
+    # Используйте random.choice напрямую без семян
     return random.choice(prompts)
 
 
@@ -178,7 +178,7 @@ async def play_local_music(conn: "ConnectionHandler", specific_file=None):
             )
             return
 
-        # 确保路径正确性
+        # Убедитесь, что путь правильный
         if specific_file:
             selected_music = specific_file
             music_path = os.path.join(MUSIC_CACHE["music_dir"], specific_file)

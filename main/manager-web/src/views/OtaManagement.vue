@@ -67,7 +67,7 @@
             </div>
         </div>
 
-        <!-- 新增/编辑固件对话框 -->
+        <!-- Диалог добавления/редактирования прошивки -->
         <firmware-dialog :title="dialogTitle" :visible.sync="dialogVisible" :form="firmwareForm"
             :firmware-types="firmwareTypes" @submit="handleSubmit" @cancel="dialogVisible = false" />
         <el-footer>
@@ -98,7 +98,7 @@ export default {
             pageSizeOptions: [10, 20, 50, 100],
             total: 0,
             dialogVisible: false,
-            dialogTitle: "新增固件",
+            dialogTitle: "Добавить прошивку",
             isAllSelected: false,
             firmwareForm: {
                 id: null,
@@ -327,7 +327,7 @@ export default {
                 const res = await Api.dict.getDictDataByType('FIRMWARE_TYPE')
                 this.firmwareTypes = res.data
             } catch (error) {
-                console.error('获取固件类型失败:', error)
+                console.error('Ошибка получения типа прошивки:', error)
                 this.$message.error(error.message || this.$t('otaManagement.getFirmwareTypesFailed'))
             }
         },

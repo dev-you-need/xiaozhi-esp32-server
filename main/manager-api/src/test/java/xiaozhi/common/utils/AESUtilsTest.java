@@ -14,15 +14,15 @@ public class AESUtilsTest {
         System.out.println("原始文本: " + plainText);
         System.out.println("密钥: " + key);
 
-        // 加密
+        // Шифрование
         String encrypted = AESUtils.encrypt(key, plainText);
         System.out.println("加密结果: " + encrypted);
 
-        // 解密
+        // Расшифровка
         String decrypted = AESUtils.decrypt(key, encrypted);
         System.out.println("解密结果: " + decrypted);
 
-        // 验证
+        // Проверка
         assertEquals(plainText, decrypted, "加解密结果应该一致");
         System.out.println("加解密一致性: " + plainText.equals(decrypted));
     }
@@ -30,11 +30,11 @@ public class AESUtilsTest {
     @Test
     public void testDifferentKeyLengths() {
         String[] keys = {
-                "1234567890123456", // 16位
-                "123456789012345678901234", // 24位
-                "12345678901234567890123456789012", // 32位
-                "short", // 短密钥
-                "verylongkeythatwillbetruncatedto32bytes" // 长密钥
+                "1234567890123456", // 16 бит
+                "123456789012345678901234", // 24 бита
+                "12345678901234567890123456789012", // 32 бита
+                "short", // короткий ключ
+                "verylongkeythatwillbetruncatedto32bytes" // длинный ключ
         };
 
         String plainText = "测试文本";
@@ -69,16 +69,16 @@ public class AESUtilsTest {
 
     @Test
     public void testCrossLanguageCompatibility() {
-        // 这些是Python版本生成的加密结果，用于测试跨语言兼容性
+        // Это зашифрованные результаты, сгенерированные версией Python, для тестирования совместимости между языками
         String key = "xiaozhi1234567890";
         String plainText = "Hello, 小智!";
 
-        // Python版本生成的加密结果（需要运行Python测试后获取）
-        // String pythonEncrypted = "从Python测试中获取的加密结果";
+        // Зашифрованный результат, сгенерированный версией Python (необходимо получить после запуска теста Python)
+        // String pythonEncrypted = "Зашифрованный результат, полученный из теста Python";
         // String decrypted = AESUtils.decrypt(key, pythonEncrypted);
-        // assertEquals(plainText, decrypted, "Java应该能解密Python加密的结果");
+        // assertEquals(plainText, decrypted, "Java должна расшифровать результат шифрования Python");
 
-        // 生成Java加密结果供Python测试
+        // Генерация результата шифрования Java для тестирования Python
         String javaEncrypted = AESUtils.encrypt(key, plainText);
         System.out.println("Java加密结果供Python测试: " + javaEncrypted);
     }

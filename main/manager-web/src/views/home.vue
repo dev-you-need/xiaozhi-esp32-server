@@ -1,10 +1,10 @@
 <template>
   <div class="welcome">
-    <!-- 公共头部 -->
+    <!-- Общественный руководитель -->
     <HeaderBar :devices="devices" />
     <el-main style="padding: 20px;display: flex;flex-direction: column;">
       <div>
-        <!-- 首页内容 -->
+        <!-- Содержимое главной страницы -->
         <div class="add-device">
           <div class="add-device-bg">
             <div class="hellow-text" style="padding-top: 30px;">
@@ -32,7 +32,7 @@
                   >
                     <i slot="suffix" class="el-icon-search search-icon" @click="handleSearch"></i>
                   </el-input>
-                  <!-- 搜索历史下拉框 -->
+                  <!-- Раскрывающийся список истории поиска -->
                   <div v-if="showHistory && searchHistory.length > 0" class="search-history-dropdown">
                     <div class="search-history-header">
                       <span>{{ $t("header.searchHistory") }}</span>
@@ -161,7 +161,7 @@ export default {
       showChatHistory: false,
       currentAgentId: '',
       currentAgentName: '',
-      // 功能状态
+      // Статус функции
       featureStatus: {
         voiceprintRecognition: false,
         voiceClone: false,
@@ -190,12 +190,12 @@ export default {
   async mounted() {
     this.fetchAgentList();
     await this.loadFeatureStatus();
-    // 从localStorage加载搜索历史
+    // 从localStorageЗагрузка истории поиска
     this.loadSearchHistory();
   },
 
   methods: {
-    // 加载功能状态
+    // Статус функции загрузки
     async loadFeatureStatus() {
       await featureManager.waitForInitialization();
       const config = featureManager.getConfig();
@@ -210,7 +210,7 @@ export default {
       this.addDeviceDialogVisible = true
     },
     goToRoleConfig() {
-      // 点击配置角色后跳转到角色配置页
+      // Нажатие на конфигурацию роли для перехода на страницу конфигурации ролей
       this.$router.push('/role-config')
     },
     handleWisdomBodyAdded(res) {
@@ -222,15 +222,15 @@ export default {
     },
     handleSearchReset() {
       this.isSearching = false;
-      // 直接将原始设备列表赋值给显示设备列表，避免重新加载数据
+      // Назначение исходного списка устройств непосредственно в список устройств отображения，Избегайте перезагрузки данных
       this.devices = [...this.originalDevices];
     },
 
-    // 搜索更新智能体列表
+    // Поиск и обновление списка агентов
     handleSearchResult(filteredList) {
-      this.devices = filteredList; // 更新设备列表
+      this.devices = filteredList; // Обновление списка устройств
     },
-    // 获取智能体列表
+    // Получить список агентов
     fetchAgentList() {
       this.isLoading = true;
       Api.agent.getAgentList(({ data }) => {
@@ -240,10 +240,10 @@ export default {
             agentId: item.id
           }));
 
-          // 动态设置骨架屏数量（可选）
+          // Динамическая установка количества скелетонов экрана（(необязательно)）
           this.skeletonCount = Math.min(
-            Math.max(this.originalDevices.length, 3), // 最少3个
-            10 // 最多10个
+            Math.max(this.originalDevices.length, 3), // (перевод с листа)3个
+            10 // не более10个
           );
 
           this.handleSearchReset();
@@ -254,7 +254,7 @@ export default {
         this.isLoading = false;
       });
     },
-    // 删除智能体
+    // Удалить агента
     handleDeleteAgent(device) {
       const targetAgent = typeof device === 'object'
         ? device
@@ -302,7 +302,7 @@ export default {
             showClose: true
           });
           this.deleteAgentDialogVisible = false;
-          this.fetchAgentList(); // 刷新列表
+          this.fetchAgentList(); // Обновление списка
         } else {
           this.$message.error({
             message: res.data.msg || this.$t('home.deleteFailed'),
@@ -316,27 +316,27 @@ export default {
       this.currentAgentName = agentName;
       this.showChatHistory = true;
     },
-    // 处理搜索
+    // Обработка поиска
     handleSearch() {
       const searchValue = this.search.trim();
 
-      // 如果搜索内容为空，触发重置事件
+      // Если содержимое поиска пусто，Вызов события сброса
       if (!searchValue) {
         this.handleSearchReset();
         return;
       }
 
-      // 保存搜索历史
+      // Сохранить историю поиска
       this.saveSearchHistory(searchValue);
 
-      // 搜索完成后让输入框失去焦点，从而触发blur事件隐藏搜索历史
+      // Потеря фокуса полем ввода после завершения поиска，таким образом, срабатываетblurНеисправностьСкрытие истории поиска
       if (this.$refs.searchInput) {
         this.$refs.searchInput.blur();
       }
 
       this.isSearching = true;
       this.isLoading = true;
-      // 检测MAC地址格式：包含4个冒号
+      // проверкаMACФормат адреса：Включительно4толстая кишка
       const isMac = /^([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}$/.test(searchValue)
       const searchType = isMac ? 'mac' : 'name';
       Api.agent.searchAgent(searchValue, searchType, ({ data }) => {
@@ -348,26 +348,26 @@ export default {
         }
         this.isLoading = false;
       }, (error) => {
-        console.error('搜索智能体失败:', error);
+        console.error('Ошибка поиска агента:', error);
         this.isLoading = false;
         this.$message.error(this.$t('message.searchFailed'));
       });
     },
 
-    // 显示搜索历史
+    // Отображение истории поиска
     showSearchHistory() {
       this.showHistory = true;
     },
 
-    // 隐藏搜索历史
+    // Скрытие истории поиска
     hideSearchHistory() {
-      // 延迟隐藏，以便点击事件能够执行
+      // Скрытие задержки，чтобы события кликов могли быть выполнены
       setTimeout(() => {
         this.showHistory = false;
       }, 200);
     },
 
-    // 加载搜索历史
+    // Загрузка истории поиска
     loadSearchHistory() {
       try {
         const history = localStorage.getItem(this.SEARCH_HISTORY_KEY);
@@ -375,56 +375,56 @@ export default {
           this.searchHistory = JSON.parse(history);
         }
       } catch (error) {
-        console.error("加载搜索历史失败:", error);
+        console.error("Ошибка загрузки истории поиска:", error);
         this.searchHistory = [];
       }
     },
 
-    // 保存搜索历史
+    // Сохранить историю поиска
     saveSearchHistory(keyword) {
       if (!keyword || this.searchHistory.includes(keyword)) {
         return;
       }
 
-      // 添加到历史记录开头
+      // Добавление в начало истории
       this.searchHistory.unshift(keyword);
 
-      // 限制历史记录数量
+      // Ограничить количество истории
       if (this.searchHistory.length > this.MAX_HISTORY_COUNT) {
         this.searchHistory = this.searchHistory.slice(0, this.MAX_HISTORY_COUNT);
       }
 
-      // 保存到localStorage
+      // Сохранить в БДlocalStorage
       try {
         localStorage.setItem(this.SEARCH_HISTORY_KEY, JSON.stringify(this.searchHistory));
       } catch (error) {
-        console.error("保存搜索历史失败:", error);
+        console.error("Не удалось сохранить историю поиска:", error);
       }
     },
 
-    // 选择搜索历史项
+    // Выберите элемент истории поиска
     selectSearchHistory(keyword) {
       this.search = keyword;
       this.handleSearch();
     },
 
-    // 移除单个搜索历史项
+    // Удалить один элемент истории поиска
     removeSearchHistory(index) {
       this.searchHistory.splice(index, 1);
       try {
         localStorage.setItem(this.SEARCH_HISTORY_KEY, JSON.stringify(this.searchHistory));
       } catch (error) {
-        console.error("更新搜索历史失败:", error);
+        console.error("Не удалось обновить историю поиска:", error);
       }
     },
 
-    // 清空所有搜索历史
+    // Полная очистка истории поиска
     clearSearchHistory() {
       this.searchHistory = [];
       try {
         localStorage.removeItem(this.SEARCH_HISTORY_KEY);
       } catch (error) {
-        console.error("清空搜索历史失败:", error);
+        console.error("Ошибка очистки истории поиска:", error);
       }
     },
   }
@@ -440,13 +440,13 @@ export default {
   flex-direction: column;
   background: #eff4ff;
   background-size: cover;
-  /* 确保背景图像覆盖整个元素 */
+  /* Обеспечение покрытия фоновым изображением всего элемента */
   background-position: center;
-  /* 从顶部中心对齐 */
+  /* Выровнять сверху по центру */
   -webkit-background-size: cover;
-  /* 兼容老版本WebKit浏览器 */
+  /* Совместимость со старыми версиямиWebKitБраузер */
   -o-background-size: cover;
-  /* 兼容老版本Opera浏览器 */
+  /* Совместимость со старыми версиямиOperaБраузер */
 }
 
 .add-device {
@@ -465,15 +465,15 @@ export default {
   text-align: left;
   background-image: url("@/assets/home/main-top-bg.png");
   background-size: cover;
-  /* 确保背景图像覆盖整个元素 */
+  /* Обеспечение покрытия фоновым изображением всего элемента */
   background-position: center;
-  /* 从顶部中心对齐 */
+  /* Выровнять сверху по центру */
   -webkit-background-size: cover;
-  /* 兼容老版本WebKit浏览器 */
+  /* Совместимость со старыми версиямиWebKitБраузер */
   -o-background-size: cover;
   box-sizing: border-box;
 
-  /* 兼容老版本Opera浏览器 */
+  /* Совместимость со старыми версиямиOperaБраузер */
   .hellow-text {
     margin-left: 75px;
     color: #3d4566;
@@ -659,10 +659,10 @@ export default {
   padding: 30px 0;
 }
 
-/* 在 DeviceItem.vue 的样式中 */
+/* 在 DeviceItem.vue в стиле */
 .device-item {
   margin: 0 !important;
-  /* 避免冲突 */
+  /* Избежание конфликтов */
   width: auto !important;
 }
 
@@ -673,10 +673,10 @@ export default {
   padding-top: 30px;
   color: #979db1;
   text-align: center;
-  /* 居中显示 */
+  /* По центру */
 }
 
-/* 骨架屏动画 */
+/* Анимация экрана скелета */
 @keyframes shimmer {
   100% {
     transform: translateX(100%);

@@ -22,19 +22,19 @@ const currentSegmented = ref(t('agent.tools.notSelected'))
 const notSelectedList = ref<any[]>([])
 const selectedList = ref<any[]>([])
 
-// 使用计算属性从store获取数据
+// 使用Вычисляемые свойства从store获取数据
 const allFunctions = computed(() => pluginStore.allFunctions)
 const functions = computed(() => pluginStore.currentFunctions)
 const agentId = computed(() => pluginStore.currentAgentId)
 const mcpAddress = ref('')
 const mcpTools = ref<string[]>([])
 
-// 初始化时从本地存储加载MCP地址
+// Загрузка из локального хранилища при инициализацииMCP地址
 if (uni.getStorageSync(`cachedMcpAddress_${agentId.value}`)) {
   mcpAddress.value = uni.getStorageSync(`cachedMcpAddress_${agentId.value}`)
 }
 
-// 参数编辑相关
+// Настройки редактирования параметров
 const showParamDialog = ref(false)
 const currentFunction = ref<any>(null)
 const tempParams = ref<Record<string, any>>({})
@@ -100,9 +100,9 @@ async function mergeFunctions() {
   }
 }
 
-// 添加插件到已选
+// Добавление плагина в выбранные
 function selectFunction(func: any) {
-  // 添加到已选列表
+  // Добавление в список выбранных
   selectedList.value = [...selectedList.value, {
     id: func.id,
     name: func.name,
@@ -121,7 +121,7 @@ function removeFunction(func: any) {
   // 从已选列表中移除
   selectedList.value = selectedList.value.filter(item => item.id !== func.id)
 
-  // 添加回未选列表
+  // Возврат в список невыбранных
   const originalFunc = allFunctions.value.find(f => f.id === func.id)
   if (originalFunc) {
     notSelectedList.value.push(originalFunc)
@@ -135,7 +135,7 @@ function editFunction(func: any) {
   // 直接使用当前函数的参数
   tempParams.value = normalizeFunctionParams(func.params)
 
-  // 初始化文本缓存
+  // Инициализация текстового кэша
   if (func.fieldsMeta) {
     func.fieldsMeta.forEach((field: any) => {
       if (field.type === 'array') {
@@ -159,11 +159,11 @@ function editFunction(func: any) {
   showParamDialog.value = true
 }
 
-// 处理参数变化 - 实时保存
+// Обработка изменений параметров - Сохранение в реальном времени
 function handleParamChange(key: string, value: any, field: any) {
   tempParams.value[key] = value
 
-  // 实时更新到 selectedList
+  // Обновление в реальном времени selectedList
   if (currentFunction.value) {
     const index = selectedList.value.findIndex(
       f => f.id === currentFunction.value.id,
@@ -174,14 +174,14 @@ function handleParamChange(key: string, value: any, field: any) {
   }
 }
 
-// 处理数组类型参数变化 - 实时保存
+// Обработка изменений параметров типа массив - Сохранение в реальном времени
 function handleArrayChange(key: string, value: string, field: any) {
   arrayTextCache.value[key] = value
   // 转换为数组存储
   const arrayValue = value.split('\n').filter(Boolean)
   tempParams.value[key] = arrayValue
 
-  // 实时更新到 selectedList
+  // Обновление в реальном времени selectedList
   if (currentFunction.value) {
     const index = selectedList.value.findIndex(
       f => f.id === currentFunction.value.id,
@@ -192,14 +192,14 @@ function handleArrayChange(key: string, value: string, field: any) {
   }
 }
 
-// 处理JSON类型参数变化 - 实时保存
+// 处理JSON类型参数变化 - Сохранение в реальном времени
 function handleJsonChange(key: string, value: string, field: any) {
   jsonTextCache.value[key] = value
   try {
     const jsonValue = JSON.parse(value)
     tempParams.value[key] = jsonValue
 
-    // 实时更新到 selectedList
+    // Обновление в реальном времени selectedList
     if (currentFunction.value) {
       const index = selectedList.value.findIndex(
         f => f.id === currentFunction.value.id,
@@ -214,7 +214,7 @@ function handleJsonChange(key: string, value: string, field: any) {
   }
 }
 
-// 关闭参数编辑弹窗
+// 关闭Диалог редактирования параметров
 function closeParamEdit() {
   showParamDialog.value = false
   tempParams.value = {}
@@ -263,7 +263,7 @@ function getFieldRemark(field: any) {
   return description
 }
 
-// 监听已选列表变化，实时更新插件配置，避免用户不点击返回按钮导致配置丢失
+// Отслеживание изменений списка выбранных, обновление конфигурации плагинов в реальном времени, избежание потери конфигурации из-за нажатия кнопки возврата
 watch(() => selectedList.value, (newSelectedList) => {
   const finalFunctions = newSelectedList.map(f => ({
     pluginId: f.id,
@@ -273,7 +273,7 @@ watch(() => selectedList.value, (newSelectedList) => {
 })
 
 onMounted(async () => {
-  // 直接从store获取数据并合并
+  // 直接从storeПолучение данных и объединение
   await mergeFunctions()
 })
 </script>
@@ -457,7 +457,7 @@ onMounted(async () => {
       </view>
     </scroll-view>
 
-    <!-- 参数编辑弹窗 -->
+    <!-- Диалог редактирования параметров -->
     <wd-action-sheet
       v-model="showParamDialog"
       :title="`${t('agent.tools.parameterConfig')} - ${currentFunction?.name || ''}`"
@@ -483,7 +483,7 @@ onMounted(async () => {
             </text>
           </view>
 
-          <!-- 参数表单 - 卡片式布局 -->
+          <!-- Форма параметров - 卡片式布局 -->
           <view v-else class="flex flex-col gap-[24rpx]">
             <view
               v-for="field in currentFunction.fieldsMeta"
@@ -515,7 +515,7 @@ onMounted(async () => {
                   "
                 >
 
-                <!-- 数组类型 -->
+                <!-- Тип массива -->
                 <view v-else-if="field.type === 'array'">
                   <text class="mb-[16rpx] block text-[24rpx] text-[#65686f]">
                     {{ t('agent.tools.eachLineOneItem') }}

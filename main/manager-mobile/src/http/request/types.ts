@@ -1,4 +1,4 @@
-// 通用响应格式
+// Универсальный формат ответа
 export interface IResponse<T = any> {
   code: number | string
   data: T
@@ -6,14 +6,14 @@ export interface IResponse<T = any> {
   status: string | number
 }
 
-// 分页请求参数
+// Параметры постраничного запроса
 export interface PageParams {
   page: number
   pageSize: number
   [key: string]: any
 }
 
-// 分页响应数据
+// Данные постраничного ответа
 export interface PageResult<T> {
   list: T[]
   total: number

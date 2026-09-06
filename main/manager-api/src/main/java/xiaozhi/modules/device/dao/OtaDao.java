@@ -7,7 +7,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import xiaozhi.modules.device.entity.OtaEntity;
 
 /**
- * OTA固件管理
+ * Управление прошивкой OTA
  */
 @Mapper
 public interface OtaDao extends BaseMapper<OtaEntity> {

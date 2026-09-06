@@ -7,10 +7,12 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import xiaozhi.modules.agent.dto.AgentTagDTO;
 
+
 /**
- * 智能体数据传输对象
- * 用于在服务层和控制器层之间传递智能体相关的数据
+ * Объект передачи данных агента
+ * Для передачи данных агента между сервисным и контроллерным слоями
  */
+
 @Data
 @Schema(description = "智能体对象")
 public class AgentDTO {

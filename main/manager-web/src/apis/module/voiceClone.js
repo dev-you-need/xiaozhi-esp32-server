@@ -2,7 +2,7 @@ import { getServiceUrl } from '../api';
 import RequestService from '../httpRequest';
 
 export default {
-    // 分页查询音色资源
+    // Постраничный запрос списка ресурсов голоса
     getVoiceCloneList(params, callback) {
         RequestService.sendRequest()
             .url(`${getServiceUrl()}/voiceClone`)
@@ -13,14 +13,14 @@ export default {
                 callback(res);
             })
             .networkFail((err) => {
-                console.error('获取音色列表失败:', err);
+                console.error('Ошибка получения списка голосов:', err);
                 RequestService.reAjaxFun(() => {
                     this.getVoiceCloneList(params, callback);
                 });
             }).send();
     },
 
-    // 上传音频文件
+    // Загрузка аудио файла
     uploadVoice(formData, callback) {
         RequestService.sendRequest()
             .url(`${getServiceUrl()}/voiceClone/upload`)
@@ -31,14 +31,14 @@ export default {
                 callback(res);
             })
             .networkFail((err) => {
-                console.error('上传音频失败:', err);
+                console.error('Ошибка загрузки аудио:', err);
                 RequestService.reAjaxFun(() => {
                     this.uploadVoice(formData, callback);
                 });
             }).send();
     },
 
-    // 更新音色名称
+    // Обновление названия голоса
     updateName(params, callback) {
         RequestService.sendRequest()
             .url(`${getServiceUrl()}/voiceClone/updateName`)
@@ -49,14 +49,14 @@ export default {
                 callback(res);
             })
             .networkFail((err) => {
-                console.error('更新名称失败:', err);
+                console.error('Ошибка обновления названия:', err);
                 RequestService.reAjaxFun(() => {
                     this.updateName(params, callback);
                 });
             }).send();
     },
 
-    // 获取音频下载ID
+    // Получение ID для скачивания аудио
     getAudioId(id, callback) {
         RequestService.sendRequest()
             .url(`${getServiceUrl()}/voiceClone/audio/${id}`)
@@ -66,19 +66,19 @@ export default {
                 callback(res);
             })
             .networkFail((err) => {
-                console.error('获取音频ID失败:', err);
+                console.error('Ошибка получения ID аудио:', err);
                 RequestService.reAjaxFun(() => {
                     this.getAudioId(id, callback);
                 });
             }).send();
     },
 
-    // 获取音频播放URL
+    // Получение URL воспроизведения аудио
     getPlayVoiceUrl(uuid) {
         return `${getServiceUrl()}/voiceClone/play/${uuid}`;
     },
 
-    // 复刻音频
+    // Клонирование аудио
     cloneAudio(params, callback, errorCallback) {
         RequestService.sendRequest()
             .url(`${getServiceUrl()}/voiceClone/cloneAudio`)
@@ -89,7 +89,7 @@ export default {
                 callback(res);
             })
             .fail((res) => {
-                // 业务失败回调
+                // Обратный вызов при ошибке бизнеса
                 RequestService.clearRequestTime();
                 if (errorCallback) {
                     errorCallback(res);
@@ -98,7 +98,7 @@ export default {
                 }
             })
             .networkFail((err) => {
-                console.error('上传失败:', err);
+                console.error('Ошибка загрузки:', err);
                 RequestService.reAjaxFun(() => {
                     this.cloneAudio(params, callback, errorCallback);
                 });

@@ -52,7 +52,7 @@ public class OTAController {
             clientId = deviceId;
         }
         boolean macAddressValid = isMacAddressValid(deviceId);
-        // 设备Id和Mac地址应是一致的, 并且必须需要application字段
+        // ОборудованиеIdСложениеMacАдрес должен быть согласованным, и должны требоватьapplication, чтобы вставить нужное поле, и задайте параметры в диалоговом окне
         if (!macAddressValid) {
             return createResponse(DeviceReportRespDTO.createError("Invalid device ID"));
         }
@@ -106,7 +106,7 @@ public class OTAController {
     }
 
     /**
-     * 简单判断mac地址是否有效（非严格）
+     * Простое суждениеmacДействителен ли адрес（Нестрогие）
      * 
      * @param macAddress
      * @return
@@ -115,7 +115,7 @@ public class OTAController {
         if (StringUtils.isBlank(macAddress)) {
             return false;
         }
-        // MAC地址通常为12位十六进制数字，可以包含冒号或连字符分隔符
+        // MACАдрес, как правило,12Шестнадцатеричная цифра，Может содержать разделитель двоеточия или дефиса
         String macPattern = "^([0-9A-Za-z]{2}[:-]){5}([0-9A-Za-z]{2})$";
         return macAddress.matches(macPattern);
     }

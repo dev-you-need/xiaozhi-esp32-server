@@ -13,7 +13,7 @@
 <script lang="ts" setup>
 import type { Agent } from '@/api/agent/types'
 import { computed, onMounted, ref } from 'vue'
-// 在组件挂载后设置导航栏标题
+// Установка заголовка панели навигации после монтирования компонента
 import { useMessage } from 'wot-design-uni/components/wd-message-box'
 import useZPaging from 'z-paging/components/z-paging/js/hooks/useZPaging.js'
 import { createAgent, deleteAgent, getAgentList } from '@/api/agent/agent'
@@ -24,12 +24,12 @@ defineOptions({
   name: 'Home',
 })
 
-// 获取屏幕边界到安全区域距离
+// Получение расстояния от края экрана до безопасной области
 let safeAreaInsets: any
 let systemInfo: any
 
 // #ifdef MP-WEIXIN
-// 微信小程序使用新的API
+// WeChat Mini Program использует новый API
 systemInfo = uni.getWindowInfo()
 safeAreaInsets = systemInfo.safeArea
   ? {
@@ -42,7 +42,7 @@ safeAreaInsets = systemInfo.safeArea
 // #endif
 
 // #ifndef MP-WEIXIN
-// 其他平台继续使用uni API
+// Другие платформы продолжают использовать uni API
 systemInfo = uni.getSystemInfoSync()
 safeAreaInsets = systemInfo.safeAreaInsets
 // #endif
@@ -69,15 +69,15 @@ async function queryList(pageNo: number, pageSize: number) {
 
     const response = await getAgentList()
 
-    // 更新本地列表
+    // Обновление локального списка
     agentList.value = response
 
     // 直接返回全部数据，不需要分页处理
     pagingRef.value.complete(response)
   }
   catch (error) {
-    console.error('获取智能体列表失败:', error)
-    // 告知z-paging数据加载失败
+    console.error('Ошибка получения списка агентов:', error)
+    // 告知z-pagingОшибка загрузки данных
     pagingRef.value.complete(false)
   }
 }
@@ -86,12 +86,12 @@ async function queryList(pageNo: number, pageSize: number) {
 async function handleCreateAgent(agentName: string) {
   try {
     await createAgent({ agentName: agentName.trim() })
-    // 创建成功后刷新列表
+    // Обновление списка после успешного создания
     pagingRef.value.reload()
     toast.success(`${t('home.agentName')}"${agentName}"${t('message.saveSuccess')}`)
   }
   catch (error: any) {
-    console.error('创建智能体失败:', error)
+    console.error('Ошибка создания агента:', error)
     const errorMessage = error?.message || t('message.saveFail')
     toast.error(errorMessage)
   }
@@ -129,7 +129,7 @@ async function handleDeleteAgent() {
   try {
     deleteAgentLoading.value = true
     await deleteAgent(deleteTargetAgent.value.id)
-    // 删除成功后刷新列表
+    // Обновление списка после успешного удаления
     pagingRef.value.reload()
     toast.success(t('home.deleteAgentSuccess'))
     deleteDialogVisible.value = false
@@ -137,7 +137,7 @@ async function handleDeleteAgent() {
     deleteConfirmText.value = ''
   }
   catch (error: any) {
-    console.error('删除智能体失败:', error)
+    console.error('Ошибка удаления агента:', error)
     const errorMessage = error?.message || t('message.deleteFail')
     toast.error(errorMessage)
   }
@@ -197,9 +197,9 @@ function formatTime(timeStr: string) {
   return `${Math.floor(diff / 86400000)}${t('home.daysAgo')}`
 }
 
-// 页面显示时刷新列表
+// 页面显示时Обновление списка
 onShow(() => {
-  console.log('首页 onShow，刷新智能体列表')
+  console.log('首页 onShow，Обновление списка агентов')
   if (pagingRef.value) {
     pagingRef.value.refresh()
   }
@@ -223,7 +223,7 @@ onMounted(() => {
       height: '56px',
     }" @query="queryList"
   >
-    <!-- 固定在顶部的横幅区域 -->
+    <!-- Область баннера, закреплённая вверху -->
     <template #top>
       <view class="banner-section" :style="{ paddingTop: `${safeAreaInsets?.top + 100}rpx` }">
         <view class="banner-content">
@@ -238,7 +238,7 @@ onMounted(() => {
             </text>
           </view>
           <view class="wave-decoration">
-            <!-- 添加波浪装饰 -->
+            <!-- Добавление волнового декора -->
             <view class="wave" />
             <view class="wave wave-2" />
           </view>
@@ -319,7 +319,7 @@ onMounted(() => {
       </view>
     </template>
 
-    <!-- FAB 新增按钮 -->
+    <!-- FAB Кнопка добавления -->
     <wd-fab type="primary" icon="add" :draggable="true" :expandable="false" @click="openCreateDialog" />
 
     <!-- MessageBox 组件 -->
@@ -500,7 +500,7 @@ onMounted(() => {
   }
 }
 
-// 内容区域开始标识，创建白色背景过渡
+// 内容区域开始标识，Создание перехода белого фона
 .content-section-header {
   background: #ffffff;
   border-radius: 32rpx 32rpx 0 0;

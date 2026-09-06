@@ -18,7 +18,7 @@ import xiaozhi.common.validator.group.DefaultGroup;
 import xiaozhi.common.validator.group.UpdateGroup;
 
 /**
- * 字典数据
+ * Данные словаря
  */
 @Data
 @Schema(description = "字典数据")

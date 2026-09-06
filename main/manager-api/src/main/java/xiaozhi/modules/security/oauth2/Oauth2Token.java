@@ -3,9 +3,9 @@ package xiaozhi.modules.security.oauth2;
 import org.apache.shiro.authc.AuthenticationToken;
 
 /**
- * token
- * Copyright (c) 人人开源 All rights reserved.
- * Website: https://www.renren.io
+ * токен
+ * Авторское право (c) Open Source for All. Все права защищены.
+ * Веб-сайт: https://www.renren.io
  */
 public class Oauth2Token implements AuthenticationToken {
     private String token;

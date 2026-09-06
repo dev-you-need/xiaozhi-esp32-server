@@ -20,7 +20,7 @@ def check_config_file():
             "找不到data/.config.yaml文件，请按教程确认该配置文件是否存在"
         )
 
-    # 检查是否从API读取配置
+    # Проверьте, читается ли конфигурация из API
     config = asyncio.run(load_config())
     if config.get("read_config_from_api", False):
         print("从API读取配置")

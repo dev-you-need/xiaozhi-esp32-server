@@ -1,4 +1,4 @@
-// 主应用入口
+// Основная точка входа приложения
 import { checkOpusLoaded, initOpusEncoder } from './core/audio/opus-codec.js?v=0205';
 import { getAudioPlayer } from './core/audio/player.js?v=0205';
 import { checkMicrophoneAvailability, isHttpNonLocalhost } from './core/audio/recorder.js?v=0205';
@@ -7,7 +7,7 @@ import { startWakewordBridgeListener } from './core/network/wakeword-bridge.js?v
 import { uiController } from './ui/controller.js?v=0205';
 import { log } from './utils/logger.js?v=0205';
 
-// 辅助函数：将Base64数据转换为Blob
+// Вспомогательная функция: преобразование Base64 данных в Blob
 function dataURItoBlob(dataURI) {
     const byteString = atob(dataURI.split(',')[1]);
     const mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
@@ -19,7 +19,7 @@ function dataURItoBlob(dataURI) {
     return new Blob([ab], { type: mimeString });
 }
 
-// 应用类
+// Класс приложения
 class App {
     constructor() {
         this.uiController = null;
@@ -29,64 +29,64 @@ class App {
         this.currentFacingMode = 'user';
     }
 
-    // 初始化应用
+    // Инициализация приложения
     async init() {
-        log('正在初始化应用...', 'info');
-        // 初始化UI控制器
+        log('Инициализация приложения...', 'info');
+        // Инициализация контроллера интерфейса
         this.uiController = uiController;
         this.uiController.init();
-        // 检查Opus库
+        // Проверка библиотеки Opus
         checkOpusLoaded();
-        // 初始化Opus编码器
+        // Инициализация кодера Opus
         initOpusEncoder();
-        // 初始化音频播放器
+        // Инициализация аудиоплеера
         this.audioPlayer = getAudioPlayer();
         await this.audioPlayer.start();
-        // 初始化MCP工具
+        // Инициализация инструментов MCP
         initMcpTools();
-        // 初始化本地唤醒事件监听
+        // Инициализация локального прослушивания событий активации
         startWakewordBridgeListener();
-        // 检查麦克风可用性
+        // Проверка доступности микрофона
         await this.checkMicrophoneAvailability();
-        // 检查摄像头可用性
+        // Проверка доступности камеры
         this.checkCameraAvailability();
-        // 初始化Live2D
+        // Инициализация Live2D
         await this.initLive2D();
-        // 初始化摄像头
+        // Инициализация камеры
         this.initCamera();
-        // 关闭加载loading
+        // Закрытие индикатора загрузки
         this.setModelLoadingStatus(false);
-        log('应用初始化完成', 'success');
+        log('Инициализация приложения завершена', 'success');
     }
 
-    // 初始化Live2D
+    // Инициализация Live2D
     async initLive2D() {
         try {
-            // 检查Live2DManager是否已加载
+            // Проверка загрузки Live2DManager
             if (typeof window.Live2DManager === 'undefined') {
-                throw new Error('Live2DManager未加载，请检查脚本引入顺序');
+                throw new Error('Live2DManager не загружен, проверьте порядок подключения скриптов');
             }
             this.live2dManager = new window.Live2DManager();
             await this.live2dManager.initializeLive2D();
-            // 更新UI状态
+            // Обновление состояния интерфейса
             const live2dStatus = document.getElementById('live2dStatus');
             if (live2dStatus) {
-                live2dStatus.textContent = '● 已加载';
+                live2dStatus.textContent = '● Загружено';
                 live2dStatus.className = 'status loaded';
             }
-            log('Live2D初始化完成', 'success');
+            log('Инициализация Live2D завершена', 'success');
         } catch (error) {
-            log(`Live2D初始化失败: ${error.message}`, 'error');
-            // 更新UI状态
+            log(`Ошибка инициализации Live2D: ${error.message}`, 'error');
+            // Обновление состояния интерфейса
             const live2dStatus = document.getElementById('live2dStatus');
             if (live2dStatus) {
-                live2dStatus.textContent = '● 加载失败';
+                live2dStatus.textContent = '● Ошибка загрузки';
                 live2dStatus.className = 'status error';
             }
         }
     }
 
-    // 设置model加载状态
+    // Установка статуса загрузки модели
     setModelLoadingStatus(isLoading) {
         const modelLoading = document.getElementById('modelLoading');
         if (modelLoading) {
@@ -95,24 +95,24 @@ class App {
     }
 
     /**
-     * 检查麦克风可用性
-     * 在应用初始化时调用，检查麦克风是否可用并更新UI状态
+     * Проверка доступности микрофона
+     * Вызывается при инициализации приложения для проверки доступности микрофона и обновления состояния интерфейса
      */
     async checkMicrophoneAvailability() {
         try {
             const isAvailable = await checkMicrophoneAvailability();
             const isHttp = isHttpNonLocalhost();
-            // 保存可用性状态到全局变量
+            // Сохранение состояния доступности в глобальной переменной
             window.microphoneAvailable = isAvailable;
             window.isHttpNonLocalhost = isHttp;
-            // 更新UI
+            // Обновление интерфейса
             if (this.uiController) {
                 this.uiController.updateMicrophoneAvailability(isAvailable, isHttp);
             }
-            log(`麦克风可用性检查完成: ${isAvailable ? '可用' : '不可用'}`, isAvailable ? 'success' : 'warning');
+            log(`Проверка доступности микрофона завершена: ${isAvailable ? 'Доступен' : 'Недоступен'}`, isAvailable ? 'success' : 'warning');
         } catch (error) {
-            log(`检查麦克风可用性失败: ${error.message}`, 'error');
-            // 默认设置为不可用
+            log(`Ошибка проверки доступности микрофона: ${error.message}`, 'error');
+            // Установка значения по умолчанию как недоступен
             window.microphoneAvailable = false;
             window.isHttpNonLocalhost = isHttpNonLocalhost();
             if (this.uiController) {
@@ -121,13 +121,13 @@ class App {
         }
     }
 
-    // 检查摄像头可用性
+    // Проверка доступности камеры
     checkCameraAvailability() {
         window.cameraAvailable = true;
-        log('摄像头可用性检查完成: 默认已绑定验证码', 'success');
+        log('Проверка доступности камеры завершена: по умолчанию привязан код подтверждения', 'success');
     }
 
-    // 初始化摄像头
+    // Инициализация камеры
     async initCamera() {
         const cameraContainer = document.getElementById('cameraContainer');
         const cameraVideo = document.getElementById('cameraVideo');
@@ -136,7 +136,7 @@ class App {
         const dialBtn = document.getElementById('dialBtn');
 
         if (!cameraContainer || !cameraVideo) {
-            log('摄像头元素未找到，跳过初始化', 'warning');
+            log('Элементы камеры не найдены, пропуск инициализации', 'warning');
             return Promise.resolve(false);
         }
 
@@ -190,10 +190,10 @@ class App {
             window.startCamera = async () => {
                 try {
                     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-                        log('浏览器不支持摄像头API', 'warning');
+                        log('Браузер не поддерживает API камеры', 'warning');
                         return false;
                     }
-                    log('正在请求摄像头权限...', 'info');
+                    log('Запрос разрешения на использование камеры...', 'info');
                     this.cameraStream = await navigator.mediaDevices.getUserMedia({
                         video: { width: 180, height: 240, facingMode: this.currentFacingMode },
                         audio: false
@@ -206,23 +206,23 @@ class App {
                     }
                     cameraContainer.classList.add('active');
 
-                    // 切换时挂断情况
+                    // Случай завершения при переключении
                     const hasActive = dialBtn.classList.contains('dial-active');
                     if (!hasActive) {
                         cameraContainer.classList.remove('active');
                         cameraSwitch.classList.remove('active');
                         window.stopCamera();
                     }
-                    log('摄像头已启动', 'success');
+                    log('Камера запущена', 'success');
                     return true;
                 } catch (error) {
-                    log(`启动摄像头失败: ${error.name} - ${error.message}`, 'error');
+                    log(`Ошибка запуска камеры: ${error.name} - ${error.message}`, 'error');
                     if (error.name === 'NotAllowedError') {
-                        log('摄像头权限被拒绝，请检查浏览器设置', 'warning');
+                        log('Доступ к камере отклонен, проверьте настройки браузера', 'warning');
                     } else if (error.name === 'NotFoundError') {
-                        log('未找到摄像头设备', 'warning');
+                        log('Камера не найдена', 'warning');
                     } else if (error.name === 'NotReadableError') {
-                        log('摄像头已被其他程序占用', 'warning');
+                        log('Камера занята другой программой', 'warning');
                     }
                     return false;
                 }
@@ -233,7 +233,7 @@ class App {
                     this.cameraStream.getTracks().forEach(track => track.stop());
                     this.cameraStream = null;
                     cameraVideo.srcObject = null;
-                    log('摄像头已关闭', 'info');
+                    log('Камера отключена', 'info');
                 }
             };
 
@@ -263,16 +263,16 @@ class App {
                 }
             };
 
-            window.takePhoto = (question = '描述一下看到的物品') => {
+            window.takePhoto = (question = 'Опишите увиденные предметы') => {
                 return new Promise(async (resolve) => {
                     const canvas = document.createElement('canvas');
                     const video = cameraVideo;
 
                     if (!video || video.readyState !== video.HAVE_ENOUGH_DATA) {
-                        log('无法拍照：摄像头未就绪', 'warning');
+                        log('Не удалось сделать снимок: камера не готова', 'warning');
                         resolve({
                             success: false,
-                            error: '摄像头未就绪，请确保已连接且摄像头已启动'
+                            error: 'Камера не готова, убедитесь, что она подключена и запущена'
                         });
                         return;
                     }
@@ -283,7 +283,7 @@ class App {
                     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
                     const photoData = canvas.toDataURL('image/jpeg', 0.8);
-                    log(`拍照成功，图像数据长度: ${photoData.length}`, 'success');
+                    log(`Снимок сделан успешно, длина данных изображения: ${photoData.length}`, 'success');
 
                     try {
                         const xz_tester_vision = localStorage.getItem('xz_tester_vision');
@@ -293,15 +293,15 @@ class App {
                             try {
                                 visionInfo = JSON.parse(xz_tester_vision);
                             } catch (err) {
-                                throw new Error(`视觉配置解析失败`);
+                                throw new Error(`Ошибка разбора конфигурации визуального анализа`);
                             }
 
                             const { url, token } = visionInfo || {};
                             if (!url || !token) {
-                                throw new Error('视觉分析失败：配置缺少接口地址(url)或令牌(token)');
+                                throw new Error('Ошибка визуального анализа: в конфигурации отсутствует адрес интерфейса (url) или токен (token)');
                             }
 
-                            log(`正在发送图片到视觉分析接口: ${url}`, 'info');
+                            log(`Отправка изображения в интерфейс визуального анализа: ${url}`, 'info');
 
                             const deviceId = document.getElementById('deviceMac')?.value || '';
                             const clientId = document.getElementById('clientId')?.value || 'web_test_client';
@@ -321,11 +321,11 @@ class App {
                             });
 
                             if (!response.ok) {
-                                throw new Error(`HTTP error! status: ${response.status}`);
+                                throw new Error(`HTTP ошибка! Статус: ${response.status}`);
                             }
 
                             const analysisResult = await response.json();
-                            log(`视觉分析完成: ${JSON.stringify(analysisResult).substring(0, 200)}...`, 'success');
+                            log(`Визуальный анализ завершен: ${JSON.stringify(analysisResult).substring(0, 200)}...`, 'success');
 
                             resolve({
                                 success: true,
@@ -336,10 +336,10 @@ class App {
                                 vision_analysis: analysisResult
                             });
                         } else {
-                            log('未配置视觉分析服务', 'warning');
+                            log('Служба визуального анализа не настроена', 'warning');
                         }
                     } catch (error) {
-                        log(`视觉分析失败: ${error.message}`, 'error');
+                        log(`Ошибка визуального анализа: ${error.message}`, 'error');
                         resolve({
                             success: true,
                             message: question,
@@ -349,25 +349,25 @@ class App {
                             vision_analysis: {
                                 success: false,
                                 error: error.message,
-                                fallback: '无法连接到视觉分析服务'
+                                fallback: 'Не удалось подключиться к службе визуального анализа'
                             }
                         });
                     }
                 });
             };
 
-            log('摄像头初始化完成', 'success');
+            log('Инициализация камеры завершена', 'success');
             resolve(true);
         });
     }
 }
 
-// 创建并启动应用
+// Создание и запуск приложения
 const app = new App();
-// 将应用实例暴露到全局，供其他模块访问
+// Экспорт экземпляра приложения в глобальную область для доступа из других модулей
 window.chatApp = app;
 document.addEventListener('DOMContentLoaded', () => {
-    // 初始化应用
+    // Инициализация приложения
     app.init();
 });
 export default app;

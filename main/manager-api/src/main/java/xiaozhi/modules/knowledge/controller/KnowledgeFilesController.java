@@ -37,18 +37,18 @@ public class KnowledgeFilesController {
     private final KnowledgeBaseService knowledgeBaseService;
 
     /**
-     * 验证当前用户是否有权限操作指定知识库
+     * Убедитесь, что текущий пользователь имеет разрешение действовать на основе указанной базы знаний
      * 
-     * @param datasetId 知识库ID
+     * @ param datasetId Идентификатор базы знаний
      */
     private void validateKnowledgeBasePermission(String datasetId) {
-        // 获取当前登录用户ID
+        //Получить текущий идентификатор пользователя, вошедшего в систему
         Long currentUserId = SecurityUser.getUserId();
 
-        // 获取知识库信息
+        //Получить информацию о базе знаний
         KnowledgeBaseDTO knowledgeBase = knowledgeBaseService.getByDatasetId(datasetId);
 
-        // 检查权限：用户只能操作自己创建的知识库
+        //Проверка разрешений: пользователи могут работать только с базой знаний, которую они создали
         if (knowledgeBase.getCreator() == null || !knowledgeBase.getCreator().equals(currentUserId)) {
             throw new RenException(ErrorCode.NO_PERMISSION);
         }
@@ -63,10 +63,10 @@ public class KnowledgeFilesController {
             @RequestParam(required = false) String status,
             @RequestParam(required = false, defaultValue = "1") Integer page,
             @RequestParam(required = false, defaultValue = "10") Integer page_size) {
-        // 验证知识库权限
+        //Проверка разрешений базы знаний
         validateKnowledgeBasePermission(datasetId);
 
-        // 组装参数
+        //Параметры сборки
         KnowledgeFilesDTO knowledgeFilesDTO = new KnowledgeFilesDTO();
         knowledgeFilesDTO.setDatasetId(datasetId);
         knowledgeFilesDTO.setName(name);
@@ -83,9 +83,9 @@ public class KnowledgeFilesController {
             @PathVariable("status") String status,
             @RequestParam(required = false, defaultValue = "1") Integer page,
             @RequestParam(required = false, defaultValue = "10") Integer page_size) {
-        // 验证知识库权限
+        //Проверка разрешений базы знаний
         validateKnowledgeBasePermission(datasetId);
-        // 组装参数
+        //Параметры сборки
         KnowledgeFilesDTO knowledgeFilesDTO = new KnowledgeFilesDTO();
         knowledgeFilesDTO.setDatasetId(datasetId);
         knowledgeFilesDTO.setStatus(status);
@@ -104,7 +104,7 @@ public class KnowledgeFilesController {
             @RequestParam(required = false) String metaFields,
             @RequestParam(required = false) String parserConfig) {
 
-        // 验证知识库权限
+        //Проверка разрешений базы знаний
         validateKnowledgeBasePermission(datasetId);
 
         KnowledgeFilesDTO resp = knowledgeFilesService.uploadDocument(datasetId, file, name,
@@ -119,7 +119,7 @@ public class KnowledgeFilesController {
     @RequiresPermissions("sys:role:normal")
     public Result<Void> delete(@PathVariable("dataset_id") String datasetId,
             @RequestBody DocumentDTO.BatchIdReq req) {
-        // 验证知识库权限
+        //Проверка разрешений базы знаний
         validateKnowledgeBasePermission(datasetId);
 
         knowledgeFilesService.deleteDocuments(datasetId, req);
@@ -131,7 +131,7 @@ public class KnowledgeFilesController {
     @RequiresPermissions("sys:role:normal")
     public Result<Void> deleteSingle(@PathVariable("dataset_id") String datasetId,
             @PathVariable("document_id") String documentId) {
-        // 验证知识库权限
+        //Проверка разрешений базы знаний
         validateKnowledgeBasePermission(datasetId);
 
         DocumentDTO.BatchIdReq req = new DocumentDTO.BatchIdReq();
@@ -145,7 +145,7 @@ public class KnowledgeFilesController {
     @RequiresPermissions("sys:role:normal")
     public Result<Void> parseDocuments(@PathVariable("dataset_id") String datasetId,
             @RequestBody Map<String, List<String>> requestBody) {
-        // 验证知识库权限
+        //Проверка разрешений базы знаний
         validateKnowledgeBasePermission(datasetId);
 
         List<String> documentIds = requestBody.get("document_ids");
@@ -172,10 +172,10 @@ public class KnowledgeFilesController {
             @RequestParam(required = false) String keywords,
             @RequestParam(required = false) String id) {
 
-        // 验证权限 (内部已包含知识库存在性校验与归属权校验)
+        //Разрешения на проверку (проверка наличия базы знаний и проверка атрибуции включены внутрь)
         validateKnowledgeBasePermission(datasetId);
 
-        // 构建请求对象
+        //Строим объект запроса
         ChunkDTO.ListReq req = ChunkDTO.ListReq.builder()
                 .page(page)
                 .pageSize(pageSize)
@@ -183,7 +183,7 @@ public class KnowledgeFilesController {
                 .id(id)
                 .build();
 
-        // 调用服务层获取强类型切片列表
+        //Вызов сервисного уровня для получения списка сильно типизированных срезов
         ChunkDTO.ListVO result = knowledgeFilesService.listChunks(datasetId, documentId, req);
         return new Result<ChunkDTO.ListVO>().ok(result);
     }
@@ -195,15 +195,15 @@ public class KnowledgeFilesController {
             @PathVariable("dataset_id") String datasetId,
             @RequestBody RetrievalDTO.TestReq req) {
 
-        // 验证知识库权限
+        //Проверка разрешений базы знаний
         validateKnowledgeBasePermission(datasetId);
 
-        // 业务下沉逻辑：如果未指定知识库ID，则设为当前路径中的 datasetId
+        //Логика падения бизнеса: установите значение datasetId в текущем пути, если идентификатор базы знаний не указан
         if (req.getDatasetIds() == null || req.getDatasetIds().isEmpty()) {
             req.setDatasetIds(java.util.Arrays.asList(datasetId));
         }
 
-        // [Reinforce] 强管控分页参数，防止 RAGFlow 端出现 Negative Slicing 报错
+        //[Усиление] Строгий контроль параметров пейджинга для предотвращения ошибок негативного среза на стороне RAGFlow
         if (req.getPage() == null || req.getPage() < 1) {
             req.setPage(1);
         }
@@ -211,13 +211,13 @@ public class KnowledgeFilesController {
             req.setPageSize(100);
         }
 
-        // 调用检索服务，返回强类型聚合对象
+        //Вызов службы извлечения для возврата строго типизированного агрегированного объекта
         RetrievalDTO.ResultVO result = knowledgeFilesService.retrievalTest(req);
         return new Result<RetrievalDTO.ResultVO>().ok(result);
     }
 
     /**
-     * 解析JSON字符串为Map对象
+     * Синтаксический анализ строки JSON в качестве объекта Map
      */
     private Map<String, Object> parseJsonMap(String jsonString) {
         try {

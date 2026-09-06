@@ -7,9 +7,9 @@ import xiaozhi.common.exception.ErrorCode;
 import xiaozhi.common.exception.RenException;
 
 /**
- * 生成token
- * Copyright (c) 人人开源 All rights reserved.
- * Website: https://www.renren.io
+ * Сгенерировать токен
+ * Авторское право (c) Open Source for All. Все права защищены.
+ * Веб-сайт: https://www.renren.io
  */
 public class TokenGenerator {
 

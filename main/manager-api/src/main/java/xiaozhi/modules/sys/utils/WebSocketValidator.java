@@ -15,16 +15,13 @@ import org.springframework.web.socket.client.standard.StandardWebSocketClient;
 public class WebSocketValidator {
     private static final Logger logger = LoggerFactory.getLogger(WebSocketValidator.class);
 
-    // WebSocket URL正则表达式
+    //Регулярное выражение URL-адреса WebSocket
     private static final Pattern WS_URL_PATTERN = Pattern
             .compile("^wss?://[\\w.-]+(?:\\.[\\w.-]+)*(?::\\d+)?(?:/[\\w.-]*)*$");
 
     /**
-     * 验证WebSocket地址格式
-     * 
-     * @param url WebSocket地址
-     * @return 是否有效
-     */
+     * Проверка формата адреса WebSocket     * 
+     * @ param url WebSocket адрес     * Действителен ли @ return     */
     public static boolean validateUrlFormat(String url) {
         if (StringUtils.isBlank(url)) {
             return false;
@@ -33,11 +30,8 @@ public class WebSocketValidator {
     }
 
     /**
-     * 测试WebSocket连接
-     * 
-     * @param url WebSocket地址
-     * @return 是否可连接
-     */
+     * Протестировать подключение WebSocket     * 
+     * @ param url WebSocket адрес     * @ return можно подключить     */
     public static boolean testConnection(String url) {
         if (!validateUrlFormat(url)) {
             return false;
@@ -50,7 +44,7 @@ public class WebSocketValidator {
 
             client.execute(new WebSocketTestHandler(future), headers, URI.create(url));
 
-            // 等待最多5秒获取连接结果
+            //Подождите до 5 секунд для получения результатов подключения
             return future.get(5, TimeUnit.SECONDS);
         } catch (Exception e) {
             logger.error("WebSocket连接测试失败: {}", url, e);

@@ -3,17 +3,17 @@ package xiaozhi.common.constant;
 import lombok.Getter;
 
 /**
- * 常量
+ * Константы
  * Copyright (c) 人人开源 All rights reserved.
  * Website: https://www.renren.io
  */
 public interface Constant {
     /**
-     * 成功
+     * Успех
      */
     int SUCCESS = 1;
     /**
-     * 失败
+     * Ошибка
      */
     int FAIL = 0;
     /**
@@ -21,177 +21,177 @@ public interface Constant {
      */
     String OK = "OK";
     /**
-     * 用户标识
+     * Идентификатор пользователя
      */
     String USER_KEY = "userId";
     /**
-     * 菜单根节点标识
+     * Идентификатор корневого узла меню
      */
     Long MENU_ROOT = 0L;
     /**
-     * 部门根节点标识
+     * Идентификатор корневого узла отдела
      */
     Long DEPT_ROOT = 0L;
     /**
-     * 数据字典根节点标识
+     * Идентификатор корневого узла словаря данных
      */
     Long DICT_ROOT = 0L;
     /**
-     * 升序
+     * По возрастанию
      */
     String ASC = "asc";
     /**
-     * 降序
+     * По убыванию
      */
     String DESC = "desc";
     /**
-     * 创建时间字段名
+     * Имя поля даты создания
      */
     String CREATE_DATE = "create_date";
 
     /**
-     * 创建时间字段名
+     * Имя поля даты создания
      */
     String ID = "id";
 
     /**
-     * 数据权限过滤
+     * Фильтрация прав доступа к данным
      */
     String SQL_FILTER = "sqlFilter";
 
     /**
-     * 当前页码
+     * Текущий номер страницы
      */
     String PAGE = "page";
     /**
-     * 每页显示记录数
+     * Количество записей на странице
      */
     String LIMIT = "limit";
     /**
-     * 排序字段
+     * Поле сортировки
      */
     String ORDER_FIELD = "orderField";
     /**
-     * 排序方式
+     * Способ сортировки
      */
     String ORDER = "order";
 
     /**
-     * 请求头授权标识
+     * Идентификатор авторизации в заголовке запроса
      */
     String AUTHORIZATION = "Authorization";
 
     /**
-     * 服务器密钥
+     * Серверный ключ
      */
     String SERVER_SECRET = "server.secret";
 
     /**
-     * SM2公钥
+     * Публичный ключ SM2
      */
     String SM2_PUBLIC_KEY = "server.public_key";
 
     /**
-     * SM2私钥
+     * Приватный ключ SM2
      */
     String SM2_PRIVATE_KEY = "server.private_key";
 
     /**
-     * websocket地址
+     * Адрес WebSocket
      */
     String SERVER_WEBSOCKET = "server.websocket";
 
     /**
-     * mqtt gateway 配置
+     * Конфигурация MQTT-шлюза
      */
     String SERVER_MQTT_GATEWAY = "server.mqtt_gateway";
 
     /**
-     * ota地址
+     * Адрес OTA
      */
     String SERVER_OTA = "server.ota";
 
     /**
-     * 是否允许用户注册
+     * Разрешена ли регистрация пользователей
      */
     String SERVER_ALLOW_USER_REGISTER = "server.allow_user_register";
 
     /**
-     * 下发六位验证码时显示的控制面板地址
+     * Адрес панели управления для отображения шестизначного кода подтверждения
      */
     String SERVER_FRONTED_URL = "server.fronted_url";
 
     /**
-     * 路径分割符
+     * Разделитель пути
      */
     String FILE_EXTENSION_SEG = ".";
 
     /**
-     * mcp接入点路径
+     * Путь MCP-точки доступа
      */
     String SERVER_MCP_ENDPOINT = "server.mcp_endpoint";
 
     /**
-     * mcp接入点路径
+     * Путь MCP-точки доступа
      */
     String SERVER_VOICE_PRINT = "server.voice_print";
 
     /**
-     * mqtt密钥
+     * Ключ MQTT
      */
     String SERVER_MQTT_SECRET = "server.mqtt_signature_key";
 
     /**
-     * WebSocket认证开关
+     * Переключатель аутентификации WebSocket
      */
     String SERVER_AUTH_ENABLED = "server.auth.enabled";
 
     /**
-     * 系统功能菜单配置
+     * Конфигурация системного меню
      */
     String SYSTEM_WEB_MENU = "system-web.menu";
 
     /**
-     * 无记忆
+     * Без памяти
      */
     String MEMORY_NO_MEM = "Memory_nomem";
 
     /**
-     * 仅上报聊天记录（不总结记忆）
+     * Только отправка истории чата (без суммаризации памяти)
      */
     String MEMORY_MEM_REPORT_ONLY = "Memory_mem_report_only";
 
     /**
-     * Mem0AI记忆
+     * Память Mem0AI
      */
     String MEMORY_MEM0AI = "Memory_mem0ai";
 
     /**
-     * PowerMem记忆
+     * Память PowerMem
      */
     String MEMORY_POWERMEM = "Memory_powermem";
 
     /**
-     * 火山引擎双声道语音克隆
+     * Двухканальное клонирование голоса Volcengine
      */
     String VOICE_CLONE_HUOSHAN_DOUBLE_STREAM = "huoshan_double_stream";
 
     /**
-     * RAG配置类型
+     * Тип конфигурации RAG
      */
     String RAG_CONFIG_TYPE = "RAG";
 
     enum SysBaseParam {
         /**
-         * ICP备案号
+         * Номер ICP
          */
         BEIAN_ICP_NUM("server.beian_icp_num"),
         /**
-         * GA备案号
+         * Номер GA
          */
         BEIAN_GA_NUM("server.beian_ga_num"),
         /**
-         * 系统名称
+         * Имя системы
          */
         SERVER_NAME("server.name");
 
@@ -207,23 +207,23 @@ public interface Constant {
     }
 
     /**
-     * 训练状态
+     * Статус обучения
      */
     enum TrainStatus {
         /**
-         * 未训练
+         * Не обучено
          */
         NOT_TRAINED(0),
         /**
-         * 训练中
+         * Обучение
          */
         TRAINING(1),
         /**
-         * 已训练
+         * Обучено
          */
         TRAINED(2),
         /**
-         * 训练失败
+         * Ошибка обучения
          */
         TRAIN_FAILED(3);
 
@@ -239,31 +239,31 @@ public interface Constant {
     }
 
     /**
-     * 系统短信
+     * Системные SMS
      */
     enum SysMSMParam {
         /**
-         * 阿里云授权keyID
+         * ID ключа авторизации Aliyun
          */
         ALIYUN_SMS_ACCESS_KEY_ID("aliyun.sms.access_key_id"),
         /**
-         * 阿里云授权密钥
+         * Ключ авторизации Aliyun
          */
         ALIYUN_SMS_ACCESS_KEY_SECRET("aliyun.sms.access_key_secret"),
         /**
-         * 阿里云短信签名
+         * Подпись SMS Aliyun
          */
         ALIYUN_SMS_SIGN_NAME("aliyun.sms.sign_name"),
         /**
-         * 阿里云短信模板
+         * Шаблон SMS Aliyun
          */
         ALIYUN_SMS_SMS_CODE_TEMPLATE_CODE("aliyun.sms.sms_code_template_code"),
         /**
-         * 单号码最大短信发送条数
+         * Максимальное количество SMS на номер
          */
         SERVER_SMS_MAX_SEND_COUNT("server.sms_max_send_count"),
         /**
-         * 是否开启手机注册
+         * Включена ли регистрация по телефону
          */
         SERVER_ENABLE_MOBILE_REGISTER("server.enable_mobile_register");
 
@@ -279,19 +279,19 @@ public interface Constant {
     }
 
     /**
-     * 数据状态
+     * Состояние данных
      */
     enum DataOperation {
         /**
-         * 插入
+         * Вставка
          */
         INSERT("I"),
         /**
-         * 已修改
+         * Изменено
          */
         UPDATE("U"),
         /**
-         * 已删除
+         * Удалено
          */
         DELETE("D");
 
@@ -322,21 +322,21 @@ public interface Constant {
     }
 
     /**
-     * 版本号
+     * Версия
      */
     public static final String VERSION = "0.9.6";
 
     /**
-     * 无效固件URL
+     * Недействительный URL прошивки
      */
     String INVALID_FIRMWARE_URL = "http://xiaozhi.server.com:8002/xiaozhi/otaMag/download/NOT_ACTIVATED_FIRMWARE_THIS_IS_A_INVALID_URL";
 
     /**
-     * 字典类型
+     * Тип словаря
      */
     enum DictType {
         /**
-         * 手机区号
+         * Код региона телефона
          */
         MOBILE_AREA("MOBILE_AREA");
 

@@ -1,7 +1,7 @@
 package xiaozhi.common.validator.group;
 
 /**
- * 默认 Group
+ * Группа по умолчанию
  */
 public interface DefaultGroup {
 

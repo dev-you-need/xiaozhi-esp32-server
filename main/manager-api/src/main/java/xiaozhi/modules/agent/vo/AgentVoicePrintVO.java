@@ -4,30 +4,42 @@ import lombok.Data;
 
 import java.util.Date;
 
+
 /**
- * 展示智能体声纹列表VO
+ * VO отображения списка голосовых отпечатков агента
  */
+
 @Data
 public class AgentVoicePrintVO {
 
-    /**
-     * 主键id
+    
+/**
+     * Первичный ключid
      */
+
     private String id;
-    /**
-     * 音频文件id
+    
+/**
+     * ID аудиофайла
      */
+
     private String audioId;
-    /**
-     * 声纹来源的人姓名
+    
+/**
+     * Имя владельца голосового отпечатка
      */
+
     private String sourceName;
-    /**
-     * 描述声纹来源的人
+    
+/**
+     * Описание владельца голосового отпечатка
      */
+
     private String introduce;
-    /**
-     * 创建时间
+    
+/**
+     * Время создания
      */
+
     private Date createDate;
 }

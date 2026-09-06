@@ -8,38 +8,38 @@ import java.time.temporal.ChronoUnit;
 import java.util.Date;
 
 /**
- * 日期处理
+ * Обработка дат
  * Copyright (c) 人人开源 All rights reserved.
  * Website: https://www.renren.io
  */
 public class DateUtils {
     /**
-     * 时间格式(yyyy-MM-dd)
+     * Формат времени(yyyy-MM-dd)
      */
     public final static String DATE_PATTERN = "yyyy-MM-dd";
     /**
-     * 时间格式(yyyy-MM-dd HH:mm:ss)
+     * Формат времени(yyyy-MM-dd HH:mm:ss)
      */
     public final static String DATE_TIME_PATTERN = "yyyy-MM-dd HH:mm:ss";
     public final static String DATE_TIME_MILLIS_PATTERN = "yyyy-MM-dd HH:mm:ss.SSS";
 
 
     /**
-     * 日期格式化 日期格式为：yyyy-MM-dd
+     * Форматирование даты, формат: yyyy-MM-dd
      *
-     * @param date 日期
-     * @return 返回yyyy-MM-dd格式日期
+     * @param date дата
+     * @return дата в формате yyyy-MM-dd
      */
     public static String format(Date date) {
         return format(date, DATE_PATTERN);
     }
 
     /**
-     * 日期格式化 日期格式为：yyyy-MM-dd
+     * Форматирование даты, формат: yyyy-MM-dd
      *
-     * @param date    日期
-     * @param pattern 格式，如：DateUtils.DATE_TIME_PATTERN
-     * @return 返回yyyy-MM-dd格式日期
+     * @param date    дата
+     * @param pattern формат, например: DateUtils.DATE_TIME_PATTERN
+     * @return дата в формате yyyy-MM-dd
      */
     public static String format(Date date, String pattern) {
         if (date != null) {
@@ -50,11 +50,11 @@ public class DateUtils {
     }
 
     /**
-     * 日期解析
+     * Разбор даты
      *
-     * @param date    日期
-     * @param pattern 格式，如：DateUtils.DATE_TIME_PATTERN
-     * @return 返回Date
+     * @param date    дата
+     * @param pattern формат, например: DateUtils.DATE_TIME_PATTERN
+     * @return Date
      */
     public static Date parse(String date, String pattern) {
         try {
@@ -79,7 +79,7 @@ public class DateUtils {
     }
 
     /**
-     * 获取简短的时间字符串：10秒前返回刚刚，多少秒前，几小时前，超过一周返回年月日时分秒
+     * Получить краткую строку времени: до 10 секунд — «только что», далее — секунды, минуты, часы, дни; более недели — полная дата и время
      * @param date
      * @return
      */
@@ -87,15 +87,15 @@ public class DateUtils {
         if (date == null) {
             return null;
         }
-        // 将 Date 转换为 Instant
+        // Преобразование Date в Instant
         LocalDateTime localDateTime = date.toInstant()
-                // 获取系统默认时区
+                // Получение системного часового пояса
                 .atZone(ZoneId.systemDefault())
-                // 转换为 LocalDateTime
+                // Преобразование в LocalDateTime
                 .toLocalDateTime();
-        // 当前时间
+        // Текущее время
         LocalDateTime now = LocalDateTime.now();
-        // 时间差，单位为秒
+        // Разница во времени в секундах
         long secondsBetween = ChronoUnit.SECONDS.between(localDateTime, now);
 
         if (secondsBetween <= 10) {
@@ -109,7 +109,7 @@ public class DateUtils {
         } else if (secondsBetween < 604800) {
             return secondsBetween / 86400 + "天前";
         } else {
-            // 超过一周，显示完整日期时间
+            // Более недели — показать полные дату и время
             return format(date,DATE_TIME_PATTERN);
         }
     }

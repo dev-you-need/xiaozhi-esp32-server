@@ -7,7 +7,7 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 /**
- * 修改密码
+ * Изменение пароля
  */
 @Data
 @Schema(description = "修改密码")

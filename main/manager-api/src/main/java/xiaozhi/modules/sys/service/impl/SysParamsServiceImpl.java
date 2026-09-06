@@ -30,8 +30,7 @@ import xiaozhi.modules.sys.redis.SysParamsRedis;
 import xiaozhi.modules.sys.service.SysParamsService;
 
 /**
- * 参数管理
- */
+ * Управление параметрами */
 @AllArgsConstructor
 @Service
 public class SysParamsServiceImpl extends BaseServiceImpl<SysParamsDao, SysParamsEntity> implements SysParamsService {
@@ -96,8 +95,7 @@ public class SysParamsServiceImpl extends BaseServiceImpl<SysParamsDao, SysParam
     }
 
     /**
-     * 校验参数值类型
-     */
+     * Проверить тип значения параметра     */
     private void validateParamValue(SysParamsDTO dto) {
         if (dto == null) {
             throw new RenException(ErrorCode.PARAM_VALUE_NULL);
@@ -133,12 +131,12 @@ public class SysParamsServiceImpl extends BaseServiceImpl<SysParamsDao, SysParam
                 break;
             case "json":
                 try {
-                    // 首先检查是否以 { 开头，以 } 结尾
+                    //Начните с проверки, начинается ли оно с {and ends with}
                     String trimmedValue = paramValue.trim();
                     if (!trimmedValue.startsWith("{") || !trimmedValue.endsWith("}")) {
                         throw new RenException(ErrorCode.PARAM_JSON_INVALID);
                     }
-                    // 然后尝试解析JSON
+                    //Затем попробуйте разобрать JSON
                     JsonUtils.parseObject(paramValue, Object.class);
                 } catch (Exception e) {
                     throw new RenException(ErrorCode.PARAM_JSON_INVALID);
@@ -152,14 +150,14 @@ public class SysParamsServiceImpl extends BaseServiceImpl<SysParamsDao, SysParam
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void delete(String[] ids) {
-        // 删除Redis数据
+        //Удалить данные Redis
         List<String> paramCodeList = baseDao.getParamCodeList(ids);
         String[] paramCodes = paramCodeList.toArray(new String[paramCodeList.size()]);
         if (paramCodes.length > 0) {
             sysParamsRedis.delete(paramCodes);
         }
 
-        // 删除
+        //shops|удалить
         deleteBatchIds(Arrays.asList(ids));
     }
 
@@ -203,56 +201,51 @@ public class SysParamsServiceImpl extends BaseServiceImpl<SysParamsDao, SysParam
 
     @Override
     public void initServerSecret() {
-        // 获取服务器密钥
+        //Получить ключ сервера
         String secretParam = getValue(Constant.SERVER_SECRET, false);
         if (StringUtils.isBlank(secretParam) || "null".equals(secretParam)) {
             String newSecret = UUID.randomUUID().toString();
             updateValueByCode(Constant.SERVER_SECRET, newSecret);
         }
 
-        // 初始化SM2密钥对
+        //Инициализация пары ключей SM2
         initSM2KeyPair();
     }
 
     /**
-     * 初始化SM2密钥对
-     */
+     * Инициализация пары ключей SM2     */
     private void initSM2KeyPair() {
-        // 获取SM2公钥
+        //Получение открытого ключа SM2
         String publicKey = getValue(Constant.SM2_PUBLIC_KEY, false);
-        // 获取SM2私钥
+        //Получить закрытый ключ SM2
         String privateKey = getValue(Constant.SM2_PRIVATE_KEY, false);
 
-        // 如果公钥或私钥为空，则生成新的密钥对
+        //Создать новую пару ключей, если открытый или закрытый ключ пуст
         if (StringUtils.isBlank(publicKey) || StringUtils.isBlank(privateKey) || 
             "null".equals(publicKey) || "null".equals(privateKey)) {
             Map<String, String> keyPair = SM2Utils.createKey();
             String newPublicKey = keyPair.get(SM2Utils.KEY_PUBLIC_KEY);
             String newPrivateKey = keyPair.get(SM2Utils.KEY_PRIVATE_KEY);
 
-            // 更新数据库中的密钥对
+            //Обновить пары ключей в базе данных
             updateValueByCode(Constant.SM2_PUBLIC_KEY, newPublicKey);
             updateValueByCode(Constant.SM2_PRIVATE_KEY, newPrivateKey);
         }
     }
 
     /**
-     * 检测短信参数是否符合要求
-     * 
-     * @param paramCode  参数编码
-     * @param paramValue 参数值
-     * @return 是否通过
-     */
+     * Проверьте, соответствуют ли параметры SMS требованиям     * 
+     * Кодировка параметра @ param paramCode     * Значение параметра @ param paramValue     * @ return pass or not     */
     private boolean detectingSMSParameters(String paramCode, String paramValue) {
-        // 判断是否是开启手机注册的参数编码，如果不是参数编码，着不需要检测其他短信参数，直接返回true
+        //Определите, является ли это кодировкой параметра, которая открывает регистрацию мобильного телефона. Если это не кодировка параметра, и нет необходимости обнаруживать другие параметры SMS, верните true напрямую
         if (!Constant.SysMSMParam.SERVER_ENABLE_MOBILE_REGISTER.getValue().equals(paramCode)) {
             return true;
         }
-        // 判断是否为关闭，如果是关闭短信注册，着不需要检测其他短信参数，直接返回true
+        //Определите, выключен ли он, выключена ли регистрация SMS и не нужно ли обнаруживать другие параметры SMS, верните true напрямую
         if ("false".equalsIgnoreCase(paramValue)) {
             return true;
         }
-        // 检测短信关联参数是否为空
+        //Определить, пуст ли параметр ассоциации SMS
         ArrayList<String> list = new ArrayList<String>();
         list.add(Constant.SysMSMParam.SERVER_SMS_MAX_SEND_COUNT.getValue());
         list.add(Constant.SysMSMParam.ALIYUN_SMS_ACCESS_KEY_ID.getValue());
@@ -280,7 +273,7 @@ public class SysParamsServiceImpl extends BaseServiceImpl<SysParamsDao, SysParam
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void updateSystemWebMenu(String configJson) {
-        // 获取当前配置
+        //Получить текущую конфигурацию
         String currentConfig = getSystemWebMenu(false);
         Map<String, Object> currentMap = null;
         Map<String, Object> newMap = null;
@@ -296,7 +289,7 @@ public class SysParamsServiceImpl extends BaseServiceImpl<SysParamsDao, SysParam
             throw new RenException(ErrorCode.PARAM_JSON_INVALID);
         }
 
-        // 检查addressBook功能是否被关闭
+        //Проверьте, отключена ли функция addressBook
         if (currentMap != null && newMap != null) {
             Map<?, ?> currentFeatures = Map.class.cast(currentMap.get("features"));
             Map<?, ?> newFeatures = Map.class.cast(newMap.get("features"));
@@ -318,14 +311,14 @@ public class SysParamsServiceImpl extends BaseServiceImpl<SysParamsDao, SysParam
                     newEnabled = enabled != null ? Boolean.class.cast(enabled) : false;
                 }
 
-                // 如果之前是启用状态，现在被禁用，删除所有call_device插件
+                //Если ранее включено, теперь отключено, удалите все плагины call_device
                 if (Boolean.TRUE.equals(currentEnabled) && !Boolean.TRUE.equals(newEnabled)) {
                     agentPluginMappingService.deleteByPluginId("SYSTEM_PLUGIN_CALL_DEVICE");
                 }
             }
         }
 
-        // 更新配置
+        //Обновить конфигурацию
         updateValueByCode(Constant.SYSTEM_WEB_MENU, configJson);
     }
 }

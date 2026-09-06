@@ -85,7 +85,7 @@ public class KnowledgeFilesDTO implements Serializable {
     @Schema(description = "解析错误信息")
     private String error;
 
-    // 文档解析状态常量定义
+    // Определение константы состояния синтаксического анализа документа
     private static final Integer STATUS_UNSTART = 0;
     private static final Integer STATUS_RUNNING = 1;
     private static final Integer STATUS_CANCEL = 2;
@@ -93,14 +93,14 @@ public class KnowledgeFilesDTO implements Serializable {
     private static final Integer STATUS_FAIL = 4;
 
     /**
-     * 获取文档解析状态码（基于run字段转换）
+     * Получить код состояния синтаксического анализа документа（на основеrunПреобразование поля）
      */
     public Integer getParseStatusCode() {
         if (run == null) {
             return STATUS_UNSTART;
         }
 
-        // RAGFlow根据run字段的值直接映射到对应的状态码
+        // RAGFlowВо исполнениеrunЗначение поля отображается непосредственно в соответствующий код состояния
         switch (run.toUpperCase()) {
             case "RUNNING":
                 return STATUS_RUNNING;

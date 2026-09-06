@@ -24,14 +24,14 @@ import xiaozhi.modules.model.entity.ModelConfigEntity;
 import xiaozhi.modules.model.service.ModelConfigService;
 
 /**
- * OpenAI风格API的LLM服务实现
- * 支持阿里云、DeepSeek、ChatGLM等兼容OpenAI API的模型
+ * Реализация службы LLM для API в стиле OpenAI
+ * Поддержка моделей, совместимых с OpenAI API, таких как Alibaba Cloud, DeepSeek, ChatGLM и др.
  */
 @Slf4j
 @Service
 public class OpenAIStyleLLMServiceImpl implements LLMService {
 
-    // 需要禁用思考模式的平台域名及其对应参数
+    // Домен платформы, для которой необходимо отключить режим размышления, и соответствующие параметры
     private static final Map<String, Map<String, Object>> THINKING_DISABLED_DOMAINS = new LinkedHashMap<>();
     static {
         THINKING_DISABLED_DOMAINS.put("aliyuncs.com", Map.of("enable_thinking", false));
@@ -48,7 +48,7 @@ public class OpenAIStyleLLMServiceImpl implements LLMService {
     private final RestTemplate restTemplate = new RestTemplate();
 
     /**
-     * 根据域名自动禁用思考模式
+     * Автоматически отключать режим размышления в зависимости от домена
      */
     private void applyThinkingDisabled(String baseUrl, Map<String, Object> requestBody) {
         for (Map.Entry<String, Map<String, Object>> entry : THINKING_DISABLED_DOMAINS.entrySet()) {
@@ -82,13 +82,13 @@ public class OpenAIStyleLLMServiceImpl implements LLMService {
         }
 
         try {
-            // 从智控台获取LLM模型配置
+            // Получить конфигурацию модели LLM из панели управления
             ModelConfigEntity llmConfig;
             if (modelId != null && !modelId.trim().isEmpty()) {
-                // 通过具体模型ID获取配置
+                // Получить конфигурацию по конкретному ID модели
                 llmConfig = modelConfigService.getModelByIdFromCache(modelId);
             } else {
-                // 保持向后兼容，使用默认配置
+                // Сохранить обратную совместимость, использовать конфигурацию по умолчанию
                 llmConfig = getDefaultLLMConfig();
             }
 
@@ -109,11 +109,11 @@ public class OpenAIStyleLLMServiceImpl implements LLMService {
                 return "LLM配置不完整，无法生成总结";
             }
 
-            // 构建提示词
+            // Построение подсказки
             String prompt = (promptTemplate != null ? promptTemplate : DEFAULT_SUMMARY_PROMPT).replace("{conversation}",
                     conversation);
 
-            // 构建请求体
+            // Построение тела запроса
             Map<String, Object> requestBody = new HashMap<>();
             requestBody.put("model", model != null ? model : "gpt-3.5-turbo");
 
@@ -125,17 +125,17 @@ public class OpenAIStyleLLMServiceImpl implements LLMService {
             requestBody.put("temperature", temperature != null ? temperature : 0.7);
             requestBody.put("max_tokens", maxTokens != null ? maxTokens : 2000);
 
-            // 禁用思考模式
+            // Отключение режима размышления
             applyThinkingDisabled(baseUrl, requestBody);
 
-            // 发送HTTP请求
+            // Отправка HTTP-запроса
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
             headers.set("Authorization", "Bearer " + apiKey);
 
             HttpEntity<Map<String, Object>> entity = new HttpEntity<>(requestBody, headers);
 
-            // 构建完整的API URL
+            // Построение полного URL API
             String apiUrl = baseUrl;
             if (!apiUrl.endsWith("/chat/completions")) {
                 if (!apiUrl.endsWith("/")) {
@@ -179,7 +179,7 @@ public class OpenAIStyleLLMServiceImpl implements LLMService {
         }
 
         try {
-            // 从智控台获取LLM模型配置
+            // Получить конфигурацию модели LLM из панели управления
             ModelConfigEntity llmConfig;
             if (modelId != null && !modelId.trim().isEmpty()) {
                 llmConfig = modelConfigService.getModelByIdFromCache(modelId);
@@ -202,7 +202,7 @@ public class OpenAIStyleLLMServiceImpl implements LLMService {
                 return "LLM配置不完整，无法生成总结";
             }
 
-            // 构建提示词，包含历史记忆
+            // Построение подсказки, включающей историческую память
             String prompt = (promptTemplate != null ? promptTemplate : DEFAULT_SUMMARY_PROMPT)
                     .replace("{history_memory}", historyMemory != null ? historyMemory : "无历史记忆")
                     .replace("{conversation}", conversation);
@@ -219,17 +219,17 @@ public class OpenAIStyleLLMServiceImpl implements LLMService {
             requestBody.put("temperature", 0.2);
             requestBody.put("max_tokens", 2000);
 
-            // 禁用思考模式
+            // Отключение режима размышления
             applyThinkingDisabled(baseUrl, requestBody);
 
-            // 发送HTTP请求
+            // Отправка HTTP-запроса
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
             headers.set("Authorization", "Bearer " + apiKey);
 
             HttpEntity<Map<String, Object>> entity = new HttpEntity<>(requestBody, headers);
 
-            // 构建完整的API URL
+            // Построение полного URL API
             String apiUrl = baseUrl;
             if (!apiUrl.endsWith("/chat/completions")) {
                 if (!apiUrl.endsWith("/")) {
@@ -286,7 +286,7 @@ public class OpenAIStyleLLMServiceImpl implements LLMService {
                 return isAvailable();
             }
 
-            // 通过具体模型ID获取配置
+            // Получить конфигурацию по конкретному ID модели
             ModelConfigEntity modelConfig = modelConfigService.getModelByIdFromCache(modelId);
             if (modelConfig == null || modelConfig.getConfigJson() == null) {
                 log.warn("未找到指定的LLM模型配置，modelId: {}", modelId);
@@ -306,17 +306,17 @@ public class OpenAIStyleLLMServiceImpl implements LLMService {
     }
 
     /**
-     * 从智控台获取默认的LLM模型配置
+     * Получить конфигурацию модели LLM по умолчанию из панели управления
      */
     private ModelConfigEntity getDefaultLLMConfig() {
         try {
-            // 获取所有启用的LLM模型配置
+            // Получить все активные конфигурации моделей LLM
             List<ModelConfigEntity> llmConfigs = modelConfigService.getEnabledModelsByType("LLM");
             if (llmConfigs == null || llmConfigs.isEmpty()) {
                 return null;
             }
 
-            // 优先返回默认配置，如果没有默认配置则返回第一个启用的配置
+            // В первую очередь возвращать конфигурацию по умолчанию, если конфигурации по умолчанию нет, возвращать первую активную конфигурацию
             for (ModelConfigEntity config : llmConfigs) {
                 if (config.getIsDefault() != null && config.getIsDefault() == 1) {
                     return config;
@@ -373,7 +373,7 @@ public class OpenAIStyleLLMServiceImpl implements LLMService {
             requestBody.put("temperature", 0.3);
             requestBody.put("max_tokens", 50);
 
-            // 禁用思考模式
+            // Отключение режима размышления
             applyThinkingDisabled(baseUrl, requestBody);
 
             HttpHeaders headers = new HttpHeaders();

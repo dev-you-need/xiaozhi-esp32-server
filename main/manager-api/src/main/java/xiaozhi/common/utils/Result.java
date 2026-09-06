@@ -7,7 +7,7 @@ import lombok.Data;
 import xiaozhi.common.exception.ErrorCode;
 
 /**
- * 响应数据
+ * Данные ответа
  * Copyright (c) 人人开源 All rights reserved.
  * Website: https://www.renren.io
  */
@@ -16,17 +16,17 @@ import xiaozhi.common.exception.ErrorCode;
 public class Result<T> implements Serializable {
 
     /**
-     * 编码：0表示成功，其他值表示失败
+     * Код: 0 — успешно, другие значения — ошибка
      */
     @Schema(description = "编码：0表示成功，其他值表示失败")
     private int code = 0;
     /**
-     * 消息内容
+     * Сообщение
      */
     @Schema(description = "消息内容")
     private String msg = "success";
     /**
-     * 响应数据
+     * Данные ответа
      */
     @Schema(description = "响应数据")
     private T data;

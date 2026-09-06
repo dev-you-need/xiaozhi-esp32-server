@@ -38,8 +38,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 知识库服务实现类 (Refactored)
- * 集成 RAGFlow Adapter 与 Shadow DB 模式
+ * Класс реализации услуг базы знаний (рефакторинг)
+ * Встроенный адаптер RAGFlow с режимом Shadow DB
  */
 @Service
 @AllArgsConstructor
@@ -72,8 +72,8 @@ public class KnowledgeBaseServiceImpl extends BaseServiceImpl<KnowledgeBaseDao, 
         if (pageData != null && pageData.getList() != null) {
             pageData.getList().removeIf(dto -> {
                 enrichDocumentCount(dto);
-                // syncDatasetFromRAG 检测到 RAGFlow 端已删除时，会将本地记录清理
-                // 此时 datasetId 被置空作为标记，需要在列表中移除该条目
+                //syncDatasetFromRAG очищает локальные записи, когда обнаруживает, что сторона RAGFlow была удалена
+                //DatasetId пуст в качестве маркера и должен быть удален из списка
                 return dto.getDatasetId() == null;
             });
         }
@@ -85,8 +85,8 @@ public class KnowledgeBaseServiceImpl extends BaseServiceImpl<KnowledgeBaseDao, 
     }
 
     /**
-     * 从 RAGFlow 同步数据集信息：检测删除、同步名称/简介、获取文档数量
-     * 每次列表刷新时实时查询 RAGFlow，确保立即感知远端变更
+     * Синхронизация информации о наборе данных из RAGFlow: обнаружение удаления, имя/профиль синхронизации, получение количества документов
+     * Запрос RAGFlow в режиме реального времени каждый раз при обновлении списка, чтобы обеспечить немедленную осведомленность об удаленных изменениях
      */
     private void syncDatasetFromRAG(KnowledgeBaseDTO dto) {
         try {
@@ -100,17 +100,17 @@ public class KnowledgeBaseServiceImpl extends BaseServiceImpl<KnowledgeBaseDao, 
             }
 
             DatasetDTO.InfoVO datasetInfo = adapter.getDatasetInfo(dto.getDatasetId());
-            // getDatasetInfo 正常返回 null 表示远端确实不存在；异常时已抛出 RenException 由外层 catch 接管
+            //getDatasetInfo обычно возвращает значение null, указывающее на то, что пульт не существует; исключение RenException, вызванное исключением, перехватывается внешней ловушкой
             if (datasetInfo == null) {
-                // RAGFlow 端已确认删除 → 本地级联清理
+                //Сторона RAGFlow подтвердила удаление → локальной каскадной очистки
                 log.info("数据集 {} 在 RAGFlow 端不存在，执行本地清理", dto.getDatasetId());
                 cleanupLocalDataset(dto.getDatasetId(), dto.getId());
-                // 标记为已删除，让上层从列表中移除
+                //Отметить как удаленный, пусть родитель будет удален из списка
                 dto.setDatasetId(null);
                 return;
             }
 
-            // 同步名称（去掉 username_ 前缀）
+            //Имя синхронизации (без префикса username_prefix)
             String ragflowName = datasetInfo.getName();
             if (StringUtils.isNotBlank(ragflowName)) {
                 String localName = ragflowName.contains("_") ? ragflowName.substring(ragflowName.indexOf('_') + 1) : ragflowName;
@@ -125,7 +125,7 @@ public class KnowledgeBaseServiceImpl extends BaseServiceImpl<KnowledgeBaseDao, 
                 }
             }
 
-            // 同步简介
+            //Введение в синхронизацию
             String ragflowDesc = datasetInfo.getDescription();
             String localDesc = dto.getDescription();
             boolean descChanged = (ragflowDesc == null && localDesc != null) || (ragflowDesc != null && !ragflowDesc.equals(localDesc));
@@ -139,7 +139,7 @@ public class KnowledgeBaseServiceImpl extends BaseServiceImpl<KnowledgeBaseDao, 
                 }
             }
 
-            // 设置文档数量（保留原有功能）
+            //Устанавливаем количество документов (сохраняем исходную функцию)
             if (datasetInfo.getDocumentCount() != null) {
                 dto.setDocumentCount(datasetInfo.getDocumentCount().intValue());
             }
@@ -152,19 +152,19 @@ public class KnowledgeBaseServiceImpl extends BaseServiceImpl<KnowledgeBaseDao, 
     }
 
     /**
-     * 本地级联清理：RAGFlow 端已删除时，清理本地所有关联数据
-     * 不调用 RAGFlow 删除 API
+     * Локальная каскадная очистка: очистка всех локальных связанных данных после удаления стороны RAGFlow
+     * Без вызова API удаления RAGFlow
      */
     @Transactional(rollbackFor = Exception.class)
     public void cleanupLocalDataset(String datasetId, String entityId) {
         try {
-            // 1. 删除文档影子记录
+            //1. Удаление теневой записи документа
             documentDao.delete(new QueryWrapper<DocumentEntity>().eq("dataset_id", datasetId));
-            // 2. 删除插件映射
+            //2. Удаление сопоставлений плагинов
             knowledgeBaseDao.deletePluginMappingByKnowledgeBaseId(entityId);
-            // 3. 删除知识库记录
+            //3. Удалить запись базы знаний
             knowledgeBaseDao.deleteById(entityId);
-            // 4. 清理缓存
+            //4. Очистить кэш
             redisUtils.delete(RedisKeys.getKnowledgeBaseCacheKey(entityId));
             log.info("本地级联清理完成: datasetId={}, entityId={}", datasetId, entityId);
         } catch (Exception e) {
@@ -186,7 +186,7 @@ public class KnowledgeBaseServiceImpl extends BaseServiceImpl<KnowledgeBaseDao, 
         if (StringUtils.isBlank(datasetId)) {
             throw new RenException(ErrorCode.PARAMS_GET_ERROR);
         }
-        // [Production Fix] 兼容性查找：优先通过 dataset_id 找，找不到通过主键 id 找，确保前端传哪种 UUID 都能命中
+        //[Production Fix] Поиск совместимости: приоритетный поиск по dataset_id, не удается найти поиск по идентификатору первичного ключа, убедитесь, что любой UUID, переданный во внешний интерфейс, может попасть
         KnowledgeBaseEntity entity = knowledgeBaseDao
                 .selectOne(new QueryWrapper<KnowledgeBaseEntity>()
                         .eq("dataset_id", datasetId)
@@ -208,7 +208,7 @@ public class KnowledgeBaseServiceImpl extends BaseServiceImpl<KnowledgeBaseDao, 
         // 2. RAG Creation
         String datasetId = null;
         try {
-            // 若未指定 RAG 模型，自动使用系统默认
+            //Если не указана модель Rag, автоматически используется системный дефолт
             if (StringUtils.isBlank(dto.getRagModelId())) {
                 List<ModelConfigEntity> models = getRAGModels();
                 if (models != null && !models.isEmpty()) {
@@ -234,14 +234,14 @@ public class KnowledgeBaseServiceImpl extends BaseServiceImpl<KnowledgeBaseDao, 
             // 3. Local Save (Shadow)
             KnowledgeBaseEntity entity = ConvertUtils.sourceToTarget(dto, KnowledgeBaseEntity.class);
 
-            // [Production Fix] 统一本地 ID 与 RAGFlow ID，防止前端调用 /delete 或 /update 时因 ID 混淆（本地
-            // UUID vs RAG UUID）导致 10163 错误
+            //[Production Fix] Унифицируйте локальный идентификатор и идентификатор RAGFlow, чтобы предотвратить путаницу идентификатора при вызовах/удалении или/обновлении интерфейса (локальный
+            //UUID против Rag UUID), что привело к ошибке 10163
             entity.setId(datasetId);
             entity.setDatasetId(datasetId);
             entity.setStatus(1); // Default Enabled
 
-            // ✅ FULL PERSISTENCE: 严格全量回写 (User Requirement)
-            // 使用强类型 DTO 属性获取，不再从 Map 中手动解析 Key
+            //✅полное сохранение: строго полная обратная запись (требование пользователя)
+            //Используйте сильно типизированные свойства DTO для получения, больше не анализируйте вручную ключ из карты
             entity.setTenantId(ragResponse.getTenantId());
             entity.setChunkMethod(ragResponse.getChunkMethod());
             entity.setEmbeddingModel(ragResponse.getEmbeddingModel());
@@ -261,8 +261,8 @@ public class KnowledgeBaseServiceImpl extends BaseServiceImpl<KnowledgeBaseDao, 
             entity.setDocumentCount(ragResponse.getDocumentCount() != null ? ragResponse.getDocumentCount() : 0L);
             entity.setTokenNum(ragResponse.getTokenNum() != null ? ragResponse.getTokenNum() : 0L);
 
-            // 清空 creator/updater，让 FieldMetaObjectHandler 从 SecurityUser 自动填充
-            // ConvertUtils 会把 DTO 中的 creator=0 拷贝过来，导致 strictInsertFill 跳过填充
+            //Пустой Creator/Updater и пусть FieldMetaObjectHandler автозаполнение от SecurityUser
+            //ConvertUtils скопирует creator = 0 в DTO, в результате чего strictInsertFill пропустит заполнение
             entity.setCreator(null);
             entity.setUpdater(null);
 
@@ -270,7 +270,7 @@ public class KnowledgeBaseServiceImpl extends BaseServiceImpl<KnowledgeBaseDao, 
             return ConvertUtils.sourceToTarget(entity, KnowledgeBaseDTO.class);
         } catch (Exception e) {
             log.error("RAG创建或本地保存失败", e);
-            // 如果datasetId已生成但在保存本地时失败，尝试回滚RAG (Best Effort)
+            //Если datasetId был сгенерирован, но не удалось сохранить локально, попробуйте откатить Rag (Best Effort)
             if (StringUtils.isNotBlank(datasetId)) {
                 try {
                     if (adapter != null)
@@ -300,7 +300,7 @@ public class KnowledgeBaseServiceImpl extends BaseServiceImpl<KnowledgeBaseDao, 
 
         checkDuplicateName(dto.getName(), dto.getId());
 
-        // 验证数据集ID是否与其他记录冲突
+        //Проверка конфликта идентификатора набора данных с другими записями
         if (StringUtils.isNotBlank(dto.getDatasetId())) {
             KnowledgeBaseEntity conflictEntity = knowledgeBaseDao.selectOne(
                     new QueryWrapper<KnowledgeBaseEntity>()
@@ -314,13 +314,13 @@ public class KnowledgeBaseServiceImpl extends BaseServiceImpl<KnowledgeBaseDao, 
         // RAG Update if needed
         if (StringUtils.isNotBlank(entity.getDatasetId()) && StringUtils.isNotBlank(dto.getRagModelId())) {
             try {
-                // 🤖 AUTO-FILL: 若 DTO 未传 ragModelId (极少情况)，尝试复用 Entity 中的
+                //🤖AUTO-FILL: Если DTO не передает идентификатор ragModelId (редко), попробуйте повторно использовать
                 if (StringUtils.isBlank(dto.getRagModelId())) {
                     dto.setRagModelId(entity.getRagModelId());
                 }
 
-                // [FIX] 智能补全：如果 DTO 里的关键字段为空，则使用 Entity 里的旧值
-                // 确保发给 RAGFlow 的请求包含所有必填项 (Partial Update Support)
+                //[FIX] Smart Completion: Если поле ключа в DTO пусто, используется старое значение в Entity
+                //Убедитесь, что запрос, отправленный в RAGFlow, содержит все необходимые поля (поддержка частичного обновления)
                 if (StringUtils.isBlank(dto.getPermission())) {
                     dto.setPermission(entity.getPermission());
                 }
@@ -332,12 +332,12 @@ public class KnowledgeBaseServiceImpl extends BaseServiceImpl<KnowledgeBaseDao, 
                 if (adapter != null) {
                     DatasetDTO.UpdateReq updateReq = ConvertUtils.sourceToTarget(dto, DatasetDTO.UpdateReq.class);
 
-                    // 1. 必填/核心字段前缀处理
+                    //1. Обработка обязательного/основного префикса поля
                     if (StringUtils.isNotBlank(dto.getName())) {
                         updateReq.setName(SecurityUser.getUser().getUsername() + "_" + dto.getName());
                     }
 
-                    // 2. 解析器配置支持 (如果 DTO 里有字符串形式的配置，尝试转换，但优先建议 DTO 化)
+                    //2. Поддержка конфигурации парсера (если в DTO есть конфигурация в виде строки, попробуйте конвертировать, но предпочтительнее DTOization)
                     if (StringUtils.isNotBlank(dto.getParserConfig())) {
                         try {
                             DatasetDTO.ParserConfig parserConfig = JsonUtils.parseObject(dto.getParserConfig(),
@@ -353,7 +353,7 @@ public class KnowledgeBaseServiceImpl extends BaseServiceImpl<KnowledgeBaseDao, 
                 }
             } catch (Exception e) {
                 log.error("RAG更新失败", e);
-                // 恢复事务一致性：RAG失败则整体回滚
+                //Восстановление согласованности транзакций: общий откат при сбое Rag
                 if (e instanceof RenException) {
                     throw (RenException) e;
                 }
@@ -380,7 +380,7 @@ public class KnowledgeBaseServiceImpl extends BaseServiceImpl<KnowledgeBaseDao, 
         KnowledgeBaseEntity entity = knowledgeBaseDao
                 .selectOne(new QueryWrapper<KnowledgeBaseEntity>().eq("dataset_id", datasetId));
 
-        // 1. 恢复 404 校验：找不到记录抛异常
+        //1. Возобновить проверку 404: исключение броска записи не найдено
         if (entity == null) {
             log.warn("记录不存在，datasetId: {}", datasetId);
             throw new RenException(ErrorCode.Knowledge_Base_RECORD_NOT_EXISTS);
@@ -389,7 +389,7 @@ public class KnowledgeBaseServiceImpl extends BaseServiceImpl<KnowledgeBaseDao, 
                 entity.getId(), entity.getDatasetId(), entity.getRagModelId());
 
         // 2. RAG Delete (Strict Mode)
-        // 恢复严格一致性：RAG 删除失败则抛出异常，触发事务回滚，不允许已删除本地但保留远程的脏数据
+        //Восстановление строгой согласованности: ошибка удаления Rag вызывает исключение, запускает откат транзакции, не позволяет удалять локальные, но удаленные грязные данные
         boolean apiDeleteSuccess = false;
         if (StringUtils.isNotBlank(entity.getRagModelId()) && StringUtils.isNotBlank(entity.getDatasetId())) {
             try {
@@ -408,11 +408,11 @@ public class KnowledgeBaseServiceImpl extends BaseServiceImpl<KnowledgeBaseDao, 
             }
         } else {
             log.warn("datasetId或ragModelId为空，跳过RAG删除");
-            apiDeleteSuccess = true; // 没有RAG数据集，视为成功
+            apiDeleteSuccess = true; //Нет набора данных Rag, считается успешным
         }
 
         // 3. Local Delete (Safe Order)
-        // 恢复正确顺序：先删子表 (Plugin Mapping)，再删主表 (Entity)
+        //Восстановите правильный порядок: сначала удалите подтаблицу (Plugin Mapping), затем удалите основную таблицу (Entity)
         if (apiDeleteSuccess) {
             log.info("开始删除ai_agent_plugin_mapping表中与知识库ID '{}' 相关的映射记录", entity.getId());
             log.info("开始删除关联数据, entityId: {}", entity.getId());
@@ -429,7 +429,7 @@ public class KnowledgeBaseServiceImpl extends BaseServiceImpl<KnowledgeBaseDao, 
         if (datasetIdList == null || datasetIdList.isEmpty()) {
             return Collections.emptyList();
         }
-        // [Production Fix] 批量兼容性查找
+        //[Production Fix] Поиск массовой совместимости
         QueryWrapper<KnowledgeBaseEntity> queryWrapper = new QueryWrapper<>();
         queryWrapper.in("dataset_id", datasetIdList).or().in("id", datasetIdList);
         List<KnowledgeBaseEntity> list = knowledgeBaseDao.selectList(queryWrapper);

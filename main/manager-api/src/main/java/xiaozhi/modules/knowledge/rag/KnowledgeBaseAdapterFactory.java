@@ -10,32 +10,32 @@ import xiaozhi.common.exception.ErrorCode;
 import xiaozhi.common.exception.RenException;
 
 /**
- * 知识库适配器工厂类
- * 负责创建和管理不同类型的知识库API适配器
+ * Заводской класс адаптера базы знаний
+ * Отвечает за создание и управление различными типами API-адаптеров базы знаний
  */
 @Slf4j
 public class KnowledgeBaseAdapterFactory {
 
-    // 注册的适配器类型映射
+    //Сопоставление типов зарегистрированных адаптеров
     private static final Map<String, Class<? extends KnowledgeBaseAdapter>> adapterRegistry = new HashMap<>();
 
-    // 适配器实例缓存
+    //Кэш экземпляра адаптера
     private static final Map<String, KnowledgeBaseAdapter> adapterCache = new ConcurrentHashMap<>();
 
-    // 最大缓存实例数，防止内存泄露 (Issue 9)
+    //Максимальное количество кэшированных экземпляров для предотвращения утечек памяти (Выпуск 9)
     private static final int MAX_CACHE_SIZE = 50;
 
     static {
-        // 注册内置适配器类型
+        //Зарегистрировать тип встроенного адаптера
         registerAdapter("ragflow", xiaozhi.modules.knowledge.rag.impl.RAGFlowAdapter.class);
-        // 可以在这里注册更多适配器类型
+        //Вы можете зарегистрировать больше типов адаптеров здесь
     }
 
     /**
-     * 注册新的适配器类型
+     * Зарегистрировать новый тип адаптера
      * 
-     * @param adapterType  适配器类型标识
-     * @param adapterClass 适配器类
+     * @ param adapterType идентификация типа адаптера
+     * @ param adapterClass класс адаптера
      */
     public static void registerAdapter(String adapterType, Class<? extends KnowledgeBaseAdapter> adapterClass) {
         if (adapterRegistry.containsKey(adapterType)) {
@@ -46,28 +46,28 @@ public class KnowledgeBaseAdapterFactory {
     }
 
     /**
-     * 获取适配器实例
+     * Получить экземпляр адаптера
      * 
-     * @param adapterType 适配器类型
-     * @param config      配置参数
-     * @return 适配器实例
+     * @ param adapterType тип адаптера
+     * @ param конфигурационные параметры конфигурации
+     * @ return adapter instance
      */
     public static KnowledgeBaseAdapter getAdapter(String adapterType, Map<String, Object> config) {
         String cacheKey = buildCacheKey(adapterType, config);
 
-        // 检查缓存中是否已存在实例
+        //Проверьте, существует ли экземпляр в кэше
         if (adapterCache.containsKey(cacheKey)) {
             log.debug("从缓存获取适配器实例: {}", cacheKey);
             return adapterCache.get(cacheKey);
         }
 
-        // 创建新的适配器实例
+        //Создание нового экземпляра адаптера
         KnowledgeBaseAdapter adapter = createAdapter(adapterType, config);
 
-        // 缓存适配器实例 (带容量限制检查)
+        //Экземпляр адаптера кэша (с проверкой предела емкости)
         if (adapterCache.size() >= MAX_CACHE_SIZE) {
             log.warn("适配器缓存已达上限 ({})，执行内存保护性清除", MAX_CACHE_SIZE);
-            // 简单处理：直接清空，生产环境下建议使用 LRU
+            //Простая обработка: прямое опорожнение, LRU рекомендуется для производственных сред
             adapterCache.clear();
         }
 
@@ -78,36 +78,36 @@ public class KnowledgeBaseAdapterFactory {
     }
 
     /**
-     * 获取适配器实例（无配置）
+     * Получить экземпляр адаптера (без конфигурации)
      * 
-     * @param adapterType 适配器类型
-     * @return 适配器实例
+     * @ param adapterType тип адаптера
+     * @ return adapter instance
      */
     public static KnowledgeBaseAdapter getAdapter(String adapterType) {
         return getAdapter(adapterType, null);
     }
 
     /**
-     * 获取所有已注册的适配器类型
+     * Получить все зарегистрированные типы адаптеров
      * 
-     * @return 适配器类型集合
+     * @ return сборник типов адаптеров
      */
     public static Set<String> getRegisteredAdapterTypes() {
         return adapterRegistry.keySet();
     }
 
     /**
-     * 检查适配器类型是否已注册
+     * Проверьте, зарегистрирован ли тип адаптера
      * 
-     * @param adapterType 适配器类型
-     * @return 是否已注册
+     * @ param adapterType тип адаптера
+     * @ return уже зарегистрирован
      */
     public static boolean isAdapterTypeRegistered(String adapterType) {
         return adapterRegistry.containsKey(adapterType);
     }
 
     /**
-     * 清除适配器缓存
+     * Очистить кэш адаптера
      */
     public static void clearCache() {
         int cacheSize = adapterCache.size();
@@ -116,9 +116,9 @@ public class KnowledgeBaseAdapterFactory {
     }
 
     /**
-     * 移除特定适配器类型的缓存
+     * Удалить кэш для определенных типов адаптеров
      * 
-     * @param adapterType 适配器类型
+     * @ param adapterType тип адаптера
      */
     public static void removeCacheByType(String adapterType) {
         int removedCount = 0;
@@ -132,9 +132,9 @@ public class KnowledgeBaseAdapterFactory {
     }
 
     /**
-     * 获取适配器工厂状态信息
+     * Получить информацию о состоянии адаптера на заводе-изготовителе
      * 
-     * @return 状态信息
+     * @ информация О статусе возврата
      */
     public static Map<String, Object> getFactoryStatus() {
         Map<String, Object> status = new HashMap<>();
@@ -145,11 +145,11 @@ public class KnowledgeBaseAdapterFactory {
     }
 
     /**
-     * 创建适配器实例
+     * Создать экземпляр адаптера
      * 
-     * @param adapterType 适配器类型
-     * @param config      配置参数
-     * @return 适配器实例
+     * @ param adapterType тип адаптера
+     * @ param конфигурационные параметры конфигурации
+     * @ return adapter instance
      */
     private static KnowledgeBaseAdapter createAdapter(String adapterType, Map<String, Object> config) {
         if (!adapterRegistry.containsKey(adapterType)) {
@@ -161,11 +161,11 @@ public class KnowledgeBaseAdapterFactory {
             Class<? extends KnowledgeBaseAdapter> adapterClass = adapterRegistry.get(adapterType);
             KnowledgeBaseAdapter adapter = adapterClass.getDeclaredConstructor().newInstance();
 
-            // 初始化适配器
+            //Инициализация адаптера
             if (config != null) {
                 adapter.initialize(config);
 
-                // 验证配置
+                //Проверка конфигурации
                 if (!adapter.validateConfig(config)) {
                     throw new RenException(ErrorCode.RAG_CONFIG_VALIDATION_FAILED,
                             "适配器配置验证失败: " + adapterType);
@@ -183,21 +183,21 @@ public class KnowledgeBaseAdapterFactory {
     }
 
     /**
-     * 构建缓存键
+     * Создать ключ кэша
      * 
-     * @param adapterType 适配器类型
-     * @param config      配置参数
-     * @return 缓存键
+     * @ param adapterType тип адаптера
+     * @ param конфигурационные параметры конфигурации
+     * @ return cache key
      */
     private static String buildCacheKey(String adapterType, Map<String, Object> config) {
         if (config == null || config.isEmpty()) {
             return adapterType + "@default";
         }
 
-        // 基于配置参数生成缓存键
+        //Генерируем ключ кэша на основе параметров конфигурации
         StringBuilder keyBuilder = new StringBuilder(adapterType + "@");
 
-        // 使用配置的哈希值作为缓存键的一部分
+        //Использовать настроенное значение хэша как часть ключа кэша
         int configHash = config.hashCode();
         keyBuilder.append(configHash);
 

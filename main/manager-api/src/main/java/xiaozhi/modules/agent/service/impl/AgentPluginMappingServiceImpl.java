@@ -22,10 +22,12 @@ import xiaozhi.modules.knowledge.service.KnowledgeBaseService;
 import xiaozhi.modules.model.entity.ModelConfigEntity;
 import xiaozhi.modules.model.service.ModelConfigService;
 
+
 /**
- * @description 针对表【ai_agent_plugin_mapping(Agent与插件的唯一映射表)】的数据库操作Service实现
+ * @description Реализация сервиса работы с БД для таблицы ai_agent_plugin_mapping (уникальные отображения агент-плагин)
  * @createDate 2025-05-25 22:33:17
  */
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -43,7 +45,7 @@ public class AgentPluginMappingServiceImpl extends CrudRepository<AgentPluginMap
         for (int i = list.size() - 1; i >= 0; i--) {
             AgentPluginMapping mapping = list.get(i);
             if (StringUtils.isBlank(mapping.getProviderCode())) {
-                // 查询知识库插件参数
+                // Запрос параметров плагина базы знаний
                 KnowledgeBaseEntity knowledgeBaseEntity = knowledgeBaseService.selectById(mapping.getPluginId());
                 if (knowledgeBaseEntity == null) {
                     list.remove(i);

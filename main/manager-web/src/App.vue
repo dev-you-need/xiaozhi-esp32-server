@@ -60,37 +60,37 @@ export default {
     };
   },
   created() {
-    // 挂载 store 状态
+    // Монтирование состояния store
     this.$store.commit('setUserInfo', JSON.parse(localStorage.getItem('userInfo') || '{}'));
     this.$store.commit('setPubConfig', JSON.parse(localStorage.getItem('pubConfig') || '{}'));
   },
   mounted() {
-    // 检测是否为移动设备且VUE_APP_H5_URL不为空，如果两个条件都满足则跳转到H5页面
+    // Проверка мобильного устройства и непустого VUE_APP_H5_URL, при выполнении обоих условий переход на H5-страницу
     if (this.isMobileDevice() && process.env.VUE_APP_H5_URL) {
       window.location.href = process.env.VUE_APP_H5_URL;
       return;
     }
     
-    // 只有在启用CDN时才添加相关事件和功能
+    // Добавление событий и функций только при включённом CDN
     if (this.isCDNEnabled) {
-      // 添加全局快捷键Alt+C用于显示缓存查看器
+      // Добавление глобальной комбинации клавиш Alt+C для отображения просмотрщика кэша
       document.addEventListener('keydown', this.handleKeyDown);
 
-      // 在全局对象上添加缓存检查方法，便于调试
+      // Добавление метода проверки кэша в глобальный объект для удобства отладки
       window.checkCDNCacheStatus = () => {
         this.showCacheViewer = true;
       };
 
-      // 在控制台输出提示信息
+      // Вывод информационного сообщения в консоль
       console.info(
         '%c[' + this.$t('system.name') + '] ' + this.$t('cache.cdnEnabled'),
         'color: #409EFF; font-weight: bold;'
       );
       console.info(
-        '按下 Alt+C 组合键或在控制台运行 checkCDNCacheStatus() 可以查看CDN缓存状态'
+        'нажимать Alt+C Комбинация клавиш или запуск в консоли checkCDNCacheStatus() Можно просмотретьCDNстатус кэша'
       );
 
-      // 检查Service Worker状态
+      // Проверка статуса Service Worker
       this.checkServiceWorkerStatus();
     } else {
       console.info(
@@ -100,25 +100,25 @@ export default {
     }
   },
   beforeDestroy() {
-    // 只有在启用CDN时才需要移除事件监听
+    // Удаление обработчиков событий только при включённом CDN
     if (this.isCDNEnabled) {
       document.removeEventListener('keydown', this.handleKeyDown);
     }
   },
   methods: {
     handleKeyDown(e) {
-      // Alt+C 快捷键
+      // Горячая клавиша Alt+C
       if (e.altKey && e.key === 'c') {
         this.showCacheViewer = true;
       }
     },
     isMobileDevice() {
-      // 检测是否为移动设备的函数
+      // Функция проверки мобильного устройства
       return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
     },
     
     async checkServiceWorkerStatus() {
-      // 检查Service Worker是否已注册
+      // Проверка регистрации Service Worker
       if ('serviceWorker' in navigator) {
         try {
           const registrations = await navigator.serviceWorker.getRegistrations();
@@ -128,7 +128,7 @@ export default {
               'color: #67C23A; font-weight: bold;'
             );
 
-            // 输出缓存状态到控制台
+            // Вывод состояния кэша в консоль
             setTimeout(async () => {
               const hasCaches = await logCacheStatus();
               if (!hasCaches) {
@@ -137,7 +137,7 @@ export default {
                 'color: #E6A23C; font-weight: bold;'
               );
 
-              // 开发环境下提供额外提示
+              // Дополнительные подсказки в среде разработки
               if (process.env.NODE_ENV === 'development') {
                 console.info(
                   '%c[' + this.$t('system.name') + '] ' + this.$t('cache.swDevEnvWarning'),
@@ -168,7 +168,7 @@ export default {
                 }
           }
         } catch (error) {
-          console.error('检查Service Worker状态失败:', error);
+          console.error('Проверка статуса Service Workerнеудача:', error);
         }
       } else {
           console.warn(this.$t('cache.swNotSupported'));

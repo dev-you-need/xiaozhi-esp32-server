@@ -37,9 +37,9 @@ class Action(Enum):
 
 class ActionResponse:
     def __init__(self, action: Action, result=None, response=None):
-        self.action = action  # 动作类型
-        self.result = result  # 动作产生的结果
-        self.response = response  # 直接回复的内容
+        self.action = action  # Тип действия
+        self.result = result  # Результат действия
+        self.response = response  # Содержание прямого ответа
 
 
 class FunctionItem:
@@ -60,7 +60,7 @@ class DeviceTypeRegistry:
         """通过设备能力描述生成类型ID"""
         properties = sorted(descriptor["properties"].keys())
         methods = sorted(descriptor["methods"].keys())
-        # 使用属性和方法的组合作为设备类型的唯一标识
+        # Уникальная идентификация типа устройства с использованием комбинации свойств и методов
         type_signature = (
             f"{descriptor['name']}:{','.join(properties)}:{','.join(methods)}"
         )
@@ -76,9 +76,9 @@ class DeviceTypeRegistry:
             self.type_functions[type_id] = functions
 
 
-# 初始化函数注册字典
+# Словарь регистрации функции инициализации
 all_function_registry = {}
-# 模块名 -> 函数名列表的映射，用于将模块级别的插件名展开为具体的函数名
+# Module Name - > Mapping of the list of function names, used to expand the plugin name at the module level to the specific function name
 module_func_map = {}
 
 
@@ -87,7 +87,7 @@ def register_function(name, desc, type=None):
 
     def decorator(func):
         all_function_registry[name] = FunctionItem(name, desc, func, type)
-        # 记录模块名到函数名的映射，用于 expand 模块级别的插件配置
+        # Запишите сопоставление имен модулей с именами функций для конфигурации плагина на уровне расширения модуля
         module_name = func.__module__.split(".")[-1]
         module_func_map.setdefault(module_name, []).append(name)
         logger.bind(tag=TAG).debug(f"函数 '{name}' 已加载，可以注册使用")
@@ -112,13 +112,13 @@ class FunctionRegistry:
         self.logger = setup_logging()
 
     def register_function(self, name, func_item=None):
-        # 如果提供了func_item，直接注册
+        # Если предусмотрена функция func_item, зарегистрируйтесь напрямую
         if func_item:
             self.function_registry[name] = func_item
             self.logger.bind(tag=TAG).debug(f"函数 '{name}' 直接注册成功")
             return func_item
 
-        # 否则从all_function_registry中查找
+        # В противном случае посмотрите в all_function_registry
         func = all_function_registry.get(name)
         if not func:
             self.logger.bind(tag=TAG).error(f"函数 '{name}' 未找到")
@@ -128,7 +128,7 @@ class FunctionRegistry:
         return func
 
     def unregister_function(self, name):
-        # 注销函数，检测是否存在
+        # Функция выхода, обнаружение существования
         if name not in self.function_registry:
             self.logger.bind(tag=TAG).error(f"函数 '{name}' 未找到")
             return False

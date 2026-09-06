@@ -3,7 +3,7 @@ package xiaozhi.common.dao;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
 /**
- * 基础Dao
+ * Базовый Dao
  * Copyright (c) 人人开源 All rights reserved.
  * Website: https://www.renren.io
  */

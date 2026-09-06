@@ -1,4 +1,4 @@
-// WebSocket消息处理模块
+// Модуль обработки сообщений WebSocket
 import { getConfig, saveConnectionUrls } from '../../config/manager.js?v=0205';
 import { uiController } from '../../ui/controller.js?v=0205';
 import { log } from '../../utils/logger.js?v=0205';
@@ -7,7 +7,7 @@ import { getAudioRecorder } from '../audio/recorder.js?v=0205';
 import { executeMcpTool, getMcpTools, setWebSocket as setMcpWebSocket } from '../mcp/tools.js?v=0205';
 import { webSocketConnect } from './ota-connector.js?v=0205';
 
-// WebSocket处理器类
+// Класс обработчика WebSocket
 export class WebSocketHandler {
     constructor() {
         this.websocket = null;
@@ -15,12 +15,12 @@ export class WebSocketHandler {
         this.onRecordButtonStateChange = null;
         this.onSessionStateChange = null;
         this.onSessionEmotionChange = null;
-        this.onChatMessage = null; // 新增：聊天消息回调
+        this.onChatMessage = null; // Новое: обратный вызов сообщения чата
         this.currentSessionId = null;
         this.isRemoteSpeaking = false;
     }
 
-    // 发送hello握手消息
+    // Отправка hello-рукопожатия
     async sendHelloMessage() {
         if (!this.websocket || this.websocket.readyState !== WebSocket.OPEN) return false;
 
@@ -39,13 +39,13 @@ export class WebSocketHandler {
                 }
             };
 
-            log('发送hello握手消息', 'info');
+            log('Отправка hello-рукопожатия', 'info');
             this.websocket.send(JSON.stringify(helloMessage));
 
             return new Promise(resolve => {
                 const timeout = setTimeout(() => {
-                    log('等待hello响应超时', 'error');
-                    log('提示: 请尝试点击"测试认证"按钮进行连接排查', 'info');
+                    log('Тайм-аут ожидания hello-ответа', 'error');
+                    log('Подсказка: попробуйте нажать кнопку "Тест аутентификации" для проверки подключения', 'info');
                     resolve(false);
                 }, 5000);
 
@@ -53,20 +53,20 @@ export class WebSocketHandler {
                     try {
                         const response = JSON.parse(event.data);
                         if (response.type === 'hello' && response.session_id) {
-                            log(`服务器握手成功，会话ID: ${response.session_id}`, 'success');
+                            log(`Успешное рукопожатие с сервером, ID сессии: ${response.session_id}`, 'success');
                             clearTimeout(timeout);
                             this.websocket.removeEventListener('message', onMessageHandler);
                             resolve(true);
                         }
                     } catch (e) {
-                        // 忽略非JSON消息
+                        // Игнорирование не-JSON сообщений
                     }
                 };
 
                 this.websocket.addEventListener('message', onMessageHandler);
             });
         } catch (error) {
-            log(`发送hello消息错误: ${error.message}`, 'error');
+            log(`Ошибка отправки hello-сообщения: ${error.message}`, 'error');
             return false;
         }
     }
@@ -79,26 +79,26 @@ export class WebSocketHandler {
             session_id: sessionId,
             type: 'listen',
             state: 'detect',
-            text: '嘿，你好呀'
+            text: 'Привет'
         }));
-        log('发送listen detect消息，唤醒词: 嘿，你好呀', 'info');
+        log('Отправка listen detect, слово активации: Привет', 'info');
 
-        // listen start：开始监听
+        // listen start: начало прослушивания
         this.websocket.send(JSON.stringify({
             session_id: sessionId,
             type: 'listen',
             state: 'start',
             mode: 'auto'
         }));
-        log('发送listen start消息', 'info');
+        log('Отправка listen start', 'info');
     }
 
-    // 处理文本消息
+    // Обработка текстовых сообщений
     handleTextMessage(message) {
         if (message.type === 'hello') {
-            log(`服务器回应：${JSON.stringify(message, null, 2)}`, 'success');
+            log(`Ответ сервера: ${JSON.stringify(message, null, 2)}`, 'success');
             window.cameraAvailable = true;
-            log('连接成功，摄像头已可用', 'success');
+            log('Подключение успешно, камера доступна', 'success');
             uiController.updateDialButton(true);
 
             this._sendWakeupMessages(message.session_id);
@@ -107,54 +107,54 @@ export class WebSocketHandler {
         } else if (message.type === 'tts') {
             this.handleTTSMessage(message);
         } else if (message.type === 'audio') {
-            log(`收到音频控制消息: ${JSON.stringify(message)}`, 'info');
+            log(`Получено сообщение управления аудио: ${JSON.stringify(message)}`, 'info');
         } else if (message.type === 'stt') {
-            log(`识别结果: ${message.text}`, 'info');
-            // 检查是否需要绑定设备
+            log(`Результат распознавания: ${message.text}`, 'info');
+            // Проверка необходимости привязки устройства
             if (message.text && (message.text.includes('绑定') || message.text.includes('bind'))) {
-                log('收到设备绑定提示，更新摄像头状态', 'warning');
+                log('Получен запрос на привязку устройства, обновление статуса камеры', 'warning');
                 window.cameraAvailable = false;
-                // 关闭摄像头
+                // Отключение камеры
                 if (typeof window.stopCamera === 'function') {
                     window.stopCamera();
                 }
-                // 更新摄像头按钮状态
+                // Обновление состояния кнопки камеры
                 const cameraBtn = document.getElementById('cameraBtn');
                 if (cameraBtn) {
                     cameraBtn.classList.remove('camera-active');
-                    cameraBtn.querySelector('.btn-text').textContent = '摄像头';
+                    cameraBtn.querySelector('.btn-text').textContent = 'Камера';
                     cameraBtn.disabled = true;
-                    cameraBtn.title = '请先绑定验证码';
+                    cameraBtn.title = 'Сначала введите код привязки';
                 }
             }
-            // 使用新的聊天消息回调显示STT消息
+            // Использование нового обратного вызова сообщения чата для отображения STT-сообщений
             if (this.onChatMessage && message.text) {
                 this.onChatMessage(message.text, true);
             }
         } else if (message.type === 'llm') {
-            log(`大模型回复: ${message.text}`, 'info');
-            // 使用新的聊天消息回调显示LLM回复
+            log(`Ответ большой модели: ${message.text}`, 'info');
+            // Использование нового обратного вызова сообщения чата для отображения ответа LLM
             if (this.onChatMessage && message.text) {
                 this.onChatMessage(message.text, false);
             }
 
-            // 如果包含表情，更新sessionStatus表情并触发Live2D动作
+            // Если содержится эмодзи, обновление sessionStatus эмодзи и запуск действия Live2D
             if (message.text && /[\u{1F300}-\u{1F9FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/u.test(message.text)) {
-                // 提取表情符号
+                // Извлечение эмодзи
                 const emojiMatch = message.text.match(/[\u{1F300}-\u{1F9FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/u);
                 if (emojiMatch && this.onSessionEmotionChange) {
                     this.onSessionEmotionChange(emojiMatch[0]);
                 }
 
-                // 触发Live2D情绪动作
+                // Запуск действия эмоции Live2D
                 if (message.emotion) {
-                    console.log(`收到情绪消息: emotion=${message.emotion}, text=${message.text}`);
+                    console.log(`Получено сообщение об эмоции: emotion=${message.emotion}, text=${message.text}`);
                     this.triggerLive2DEmotionAction(message.emotion);
                 }
             }
 
-            // 只有当文本不仅仅是表情时，才添加到对话中
-            // 移除文本中的表情后检查是否还有内容
+            // Добавление в диалог только тогда, когда текст не является только эмодзи
+            // Удаление эмодзи из текста и проверка наличия оставшегося содержимого
             const textWithoutEmoji = message.text ? message.text.replace(/[\u{1F300}-\u{1F9FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/gu, '').trim() : '';
             if (textWithoutEmoji && this.onChatMessage) {
                 this.onChatMessage(message.text, false);
@@ -162,46 +162,46 @@ export class WebSocketHandler {
         } else if (message.type === 'mcp') {
             this.handleMCPMessage(message);
         } else {
-            log(`未知消息类型: ${message.type}`, 'info');
+            log(`Неизвестный тип сообщения: ${message.type}`, 'info');
             if (this.onChatMessage) {
-                this.onChatMessage(`未知消息类型: ${message.type}\n${JSON.stringify(message, null, 2)}`, false);
+                this.onChatMessage(`Неизвестный тип сообщения: ${message.type}\n${JSON.stringify(message, null, 2)}`, false);
             }
         }
     }
 
-    // 处理TTS消息
+    // Обработка TTS-сообщений
     handleTTSMessage(message) {
         if (message.state === 'start') {
-            log('服务器开始发送语音', 'info');
+            log('Сервер начал отправлять речь', 'info');
             this.currentSessionId = message.session_id;
             this.isRemoteSpeaking = true;
             if (this.onSessionStateChange) {
                 this.onSessionStateChange(true);
             }
 
-            // 启动Live2D说话动画
+            // Запуск анимации разговора Live2D
             this.startLive2DTalking();
         } else if (message.state === 'sentence_start') {
-            log(`服务器发送语音段: ${message.text}`, 'info');
+            log(`Сервер отправляет сегмент речи: ${message.text}`, 'info');
             this.ttsSentenceCount = (this.ttsSentenceCount || 0) + 1;
 
             if (message.text && this.onChatMessage) {
                 this.onChatMessage(message.text, false);
             }
 
-            // 确保动画在句子开始时运行
+            // Убедиться, что анимация запущена в начале предложения
             const live2dManager = window.chatApp?.live2dManager;
             if (live2dManager && !live2dManager.isTalking) {
                 this.startLive2DTalking();
             }
         } else if (message.state === 'sentence_end') {
-            log(`语音段结束: ${message.text}`, 'info');
+            log(`Сегмент речи завершен: ${message.text}`, 'info');
 
-            // 句子结束时不清除动画，等待下一个句子或最终停止
+            // Не останавливать анимацию при завершении предложения, ожидание следующего предложения или окончательной остановки
         } else if (message.state === 'stop') {
-            log('服务器语音传输结束，清空所有音频缓冲', 'info');
+            log('Сервер завершил передачу речи, очистка всех аудиобуферов', 'info');
 
-            // 清空所有音频缓冲并停止播放
+            // Очистка всех аудиобуферов и остановка воспроизведения
             const audioPlayer = getAudioPlayer();
             audioPlayer.clearAllAudio();
 
@@ -213,63 +213,63 @@ export class WebSocketHandler {
                 this.onSessionStateChange(false);
             }
 
-            // 延迟停止Live2D说话动画，确保所有句子都播放完毕
+            // Отложенная остановка анимации разговора Live2D для обеспечения воспроизведения всех предложений
             setTimeout(() => {
                 this.stopLive2DTalking();
-                this.ttsSentenceCount = 0; // 重置计数器
-            }, 1000); // 1秒延迟，确保所有句子都完成
+                this.ttsSentenceCount = 0; // Сброс счетчика
+            }, 1000); // Задержка 1 секунда для обеспечения завершения всех предложений
         }
     }
 
-    // 启动Live2D说话动画
+    // Запуск анимации разговора Live2D
     startLive2DTalking() {
         try {
-            // 获取Live2D管理器实例
+            // Получение экземпляра менеджера Live2D
             const live2dManager = window.chatApp?.live2dManager;
             if (live2dManager && live2dManager.live2dModel) {
-                // 使用音频播放器的分析器节点
+                // Использование узла анализатора аудиоплеера
                 live2dManager.startTalking();
-                log('Live2D说话动画已启动', 'info');
+                log('Анимация разговора Live2D запущена', 'info');
             }
         } catch (error) {
-            log(`启动Live2D说话动画失败: ${error.message}`, 'error');
+            log(`Ошибка запуска анимации разговора Live2D: ${error.message}`, 'error');
         }
     }
 
-    // 停止Live2D说话动画
+    // Остановка анимации разговора Live2D
     stopLive2DTalking() {
         try {
             const live2dManager = window.chatApp?.live2dManager;
             if (live2dManager) {
                 live2dManager.stopTalking();
-                log('Live2D说话动画已停止', 'info');
+                log('Анимация разговора Live2D остановлена', 'info');
             }
         } catch (error) {
-            log(`停止Live2D说话动画失败: ${error.message}`, 'error');
+            log(`Ошибка остановки анимации разговора Live2D: ${error.message}`, 'error');
         }
     }
 
-    // 初始化Live2D音频分析器
+    // Инициализация аудиоанализатора Live2D
     initializeLive2DAudioAnalyzer() {
         try {
             const live2dManager = window.chatApp?.live2dManager;
             if (live2dManager) {
-                // 初始化音频分析器（使用音频播放器的上下文）
+                // Инициализация аудиоанализатора (с использованием контекста аудиоплеера)
                 if (live2dManager.initializeAudioAnalyzer()) {
-                    log('Live2D音频分析器初始化完成，已连接到音频播放器', 'success');
+                    log('Аудиоанализатор Live2D успешно инициализирован, подключен к аудиоплееру', 'success');
                 } else {
-                    log('Live2D音频分析器初始化失败，将使用模拟动画', 'warning');
+                    log('Ошибка инициализации аудиоанализатора Live2D, будет использоваться имитированная анимация', 'warning');
                 }
             }
         } catch (error) {
-            log(`初始化Live2D音频分析器失败: ${error.message}`, 'error');
+            log(`Ошибка инициализации аудиоанализатора Live2D: ${error.message}`, 'error');
         }
     }
 
-    // 处理MCP消息
+    // Обработка MCP-сообщений
     handleMCPMessage(message) {
         const payload = message.payload || {};
-        log(`服务器下发: ${JSON.stringify(message)}`, 'info');
+        log(`Отправка сервера: ${JSON.stringify(message)}`, 'info');
 
         if (payload.method === 'tools/list') {
             const tools = getMcpTools();
@@ -285,15 +285,15 @@ export class WebSocketHandler {
                     }
                 }
             });
-            log(`客户端上报: ${replyMessage}`, 'info');
+            log(`Отправка клиента: ${replyMessage}`, 'info');
             this.websocket.send(replyMessage);
-            log(`回复MCP工具列表: ${tools.length} 个工具`, 'info');
+            log(`Ответ списком инструментов MCP: ${tools.length} инструментов`, 'info');
 
         } else if (payload.method === 'tools/call') {
             const toolName = payload.params?.name;
             const toolArgs = payload.params?.arguments;
 
-            log(`调用工具: ${toolName} 参数: ${JSON.stringify(toolArgs)}`, 'info');
+            log(`Вызов инструмента: ${toolName} Аргументы: ${JSON.stringify(toolArgs)}`, 'info');
 
             executeMcpTool(toolName, toolArgs).then(result => {
                 const replyMessage = JSON.stringify({
@@ -314,10 +314,10 @@ export class WebSocketHandler {
                     }
                 });
 
-                log(`客户端上报: ${replyMessage}`, 'info');
+                log(`Отправка клиента: ${replyMessage}`, 'info');
                 this.websocket.send(replyMessage);
             }).catch(error => {
-                log(`工具执行失败: ${error.message}`, 'error');
+                log(`Ошибка выполнения инструмента: ${error.message}`, 'error');
                 const errorReply = JSON.stringify({
                     "session_id": message.session_id || "",
                     "type": "mcp",
@@ -333,8 +333,8 @@ export class WebSocketHandler {
                 this.websocket.send(errorReply);
             });
         } else if (payload.method === 'initialize') {
-            log(`收到工具初始化请求: ${JSON.stringify(payload.params)}`, 'info');
-            // 保存视觉分析接口地址
+            log(`Получен запрос на инициализацию инструментов: ${JSON.stringify(payload.params)}`, 'info');
+            // Сохранение адреса интерфейса визуального анализа
             const visionUrl = document.getElementById('visionUrl');
             const visionConfig = payload?.params?.capabilities?.vision;
             if (visionConfig && typeof visionConfig === 'object' && visionConfig.url && visionConfig.token) {
@@ -364,14 +364,14 @@ export class WebSocketHandler {
                     }
                 }
             });
-            log(`回复初始化响应`, 'info');
+            log(`Ответ на инициализацию`, 'info');
             this.websocket.send(replyMessage);
         } else {
-            log(`未知的MCP方法: ${payload.method}`, 'warning');
+            log(`Неизвестный метод MCP: ${payload.method}`, 'warning');
         }
     }
 
-    // 处理二进制消息
+    // Обработка двоичных сообщений
     async handleBinaryMessage(data) {
         try {
             let arrayBuffer;
@@ -379,9 +379,9 @@ export class WebSocketHandler {
                 arrayBuffer = data;
             } else if (data instanceof Blob) {
                 arrayBuffer = await data.arrayBuffer();
-                log(`收到Blob音频数据，大小: ${arrayBuffer.byteLength}字节`, 'debug');
+                log(`Получены аудиоданные Blob, размер: ${arrayBuffer.byteLength} байт`, 'debug');
             } else {
-                log(`收到未知类型的二进制数据: ${typeof data}`, 'warning');
+                log(`Получены двоичные данные неизвестного типа: ${typeof data}`, 'warning');
                 return;
             }
 
@@ -389,14 +389,14 @@ export class WebSocketHandler {
             const audioPlayer = getAudioPlayer();
             audioPlayer.enqueueAudioData(opusData);
         } catch (error) {
-            log(`处理二进制消息出错: ${error.message}`, 'error');
+            log(`Ошибка обработки двоичного сообщения: ${error.message}`, 'error');
         }
     }
 
-    // 连接WebSocket服务器
+    // Подключение к серверу WebSocket
     async connect() {
         const config = getConfig();
-        log('正在检查OTA状态...', 'info');
+        log('Проверка статуса OTA...', 'info');
         saveConnectionUrls();
 
         try {
@@ -407,13 +407,13 @@ export class WebSocketHandler {
             }
             this.websocket = ws;
 
-            // 设置接收二进制数据的类型为ArrayBuffer
+            // Установка типа получаемых двоичных данных как ArrayBuffer
             this.websocket.binaryType = 'arraybuffer';
 
-            // 设置 MCP 模块的 WebSocket 实例
+            // Установка экземпляра WebSocket для модуля MCP
             setMcpWebSocket(this.websocket);
 
-            // 设置录音器的WebSocket
+            // Установка WebSocket для рекордера
             const audioRecorder = getAudioRecorder();
             audioRecorder.setWebSocket(this.websocket);
 
@@ -421,7 +421,7 @@ export class WebSocketHandler {
 
             return true;
         } catch (error) {
-            log(`连接错误: ${error.message}`, 'error');
+            log(`Ошибка подключения: ${error.message}`, 'error');
             if (this.onConnectionStateChange) {
                 this.onConnectionStateChange(false);
             }
@@ -429,30 +429,30 @@ export class WebSocketHandler {
         }
     }
 
-    // 设置事件处理器
+    // Настройка обработчиков событий
     setupEventHandlers() {
         this.websocket.onopen = async () => {
             const url = document.getElementById('serverUrl').value;
-            log(`已连接到服务器: ${url}`, 'success');
+            log(`Подключено к серверу: ${url}`, 'success');
 
             if (this.onConnectionStateChange) {
                 this.onConnectionStateChange(true);
             }
 
-            // 连接成功后，默认状态为聆听中
+            // После успешного подключения состояние по умолчанию - прослушивание
             this.isRemoteSpeaking = false;
             if (this.onSessionStateChange) {
                 this.onSessionStateChange(false);
             }
 
-            // 在WebSocket连接成功时初始化Live2D音频分析器
+            // Инициализация аудиоанализатора Live2D при успешном подключении WebSocket
             this.initializeLive2DAudioAnalyzer();
 
             await this.sendHelloMessage();
         };
 
         this.websocket.onclose = () => {
-            log('已断开连接', 'info');
+            log('Соединение разорвано', 'info');
 
             if (this.onConnectionStateChange) {
                 this.onConnectionStateChange(false);
@@ -461,12 +461,12 @@ export class WebSocketHandler {
             const audioRecorder = getAudioRecorder();
             audioRecorder.stop();
 
-            // 关闭摄像头
+            // Отключение камеры
             if (typeof window.stopCamera === 'function') {
                 window.stopCamera();
             }
 
-            // 隐藏摄像头显示区域
+            // Скрытие области отображения камеры
             const cameraContainer = document.getElementById('cameraContainer');
             if (cameraContainer) {
                 cameraContainer.classList.remove('active');
@@ -474,8 +474,8 @@ export class WebSocketHandler {
         };
 
         this.websocket.onerror = (error) => {
-            log(`WebSocket错误: ${error.message || '未知错误'}`, 'error');
-            uiController.addChatMessage(`⚠️ WebSocket错误: ${error.message || '未知错误'}`, false);
+            log(`Ошибка WebSocket: ${error.message || 'Неизвестная ошибка'}`, 'error');
+            uiController.addChatMessage(`⚠️ Ошибка WebSocket: ${error.message || 'Неизвестная ошибка'}`, false);
             if (this.onConnectionStateChange) {
                 this.onConnectionStateChange(false);
             }
@@ -490,14 +490,14 @@ export class WebSocketHandler {
                     this.handleBinaryMessage(event.data);
                 }
             } catch (error) {
-                log(`WebSocket消息处理错误: ${error.message}`, 'error');
-                // 不再使用旧的addMessage函数，因为conversationDiv元素不存在
-                // 错误消息将通过其他方式显示
+                log(`Ошибка обработки сообщения WebSocket: ${error.message}`, 'error');
+                // Старая функция addMessage больше не используется, так как элемент conversationDiv не существует
+                // Сообщения об ошибках будут отображаться другим способом
             }
         };
     }
 
-    // 断开连接
+    // Разрыв соединения
     disconnect() {
         if (!this.websocket) return;
 
@@ -505,26 +505,26 @@ export class WebSocketHandler {
         const audioRecorder = getAudioRecorder();
         audioRecorder.stop();
 
-        // 关闭摄像头
+        // Отключение камеры
         if (typeof window.stopCamera === 'function') {
             window.stopCamera();
         }
 
-        // 隐藏摄像头显示区域
+        // Скрытие области отображения камеры
         const cameraContainer = document.getElementById('cameraContainer');
         if (cameraContainer) {
             cameraContainer.classList.remove('active');
         }
     }
 
-    // 发送文本消息
+    // Отправка текстового сообщения
     sendTextMessage(text) {
         if (text === '' || !this.websocket || this.websocket.readyState !== WebSocket.OPEN) {
             return false;
         }
 
         try {
-            // 如果对方正在说话，先发送打断消息
+            // Если собеседник говорит, сначала отправка сообщения о прерывании
             if (this.isRemoteSpeaking && this.currentSessionId) {
                 const abortMessage = {
                     session_id: this.currentSessionId,
@@ -532,7 +532,7 @@ export class WebSocketHandler {
                     reason: 'wake_word_detected'
                 };
                 this.websocket.send(JSON.stringify(abortMessage));
-                log('发送打断消息', 'info');
+                log('Отправка сообщения о прерывании', 'info');
             }
 
             const listenMessage = {
@@ -542,45 +542,45 @@ export class WebSocketHandler {
             };
 
             this.websocket.send(JSON.stringify(listenMessage));
-            log(`发送文本消息: ${text}`, 'info');
+            log(`Отправка текстового сообщения: ${text}`, 'info');
 
             return true;
         } catch (error) {
-            log(`发送消息错误: ${error.message}`, 'error');
+            log(`Ошибка отправки сообщения: ${error.message}`, 'error');
             return false;
         }
     }
 
     /**
-     * 触发Live2D情绪动作
-     * @param {string} emotion - 情绪名称
+     * Запуск действия эмоции Live2D
+     * @param {string} emotion - Название эмоции
      */
     triggerLive2DEmotionAction(emotion) {
         try {
             const live2dManager = window.chatApp?.live2dManager;
             if (live2dManager && typeof live2dManager.triggerEmotionAction === 'function') {
                 live2dManager.triggerEmotionAction(emotion);
-                log(`触发Live2D情绪动作: ${emotion}`, 'info');
+                log(`Запуск действия эмоции Live2D: ${emotion}`, 'info');
             } else {
-                log(`无法触发Live2D情绪动作: Live2D管理器未找到或方法不可用`, 'warning');
+                log(`Не удалось запустить действие эмоции Live2D: менеджер Live2D не найден или метод недоступен`, 'warning');
             }
         } catch (error) {
-            log(`触发Live2D情绪动作失败: ${error.message}`, 'error');
+            log(`Ошибка запуска действия эмоции Live2D: ${error.message}`, 'error');
         }
     }
 
-    // 获取WebSocket实例
+    // Получение экземпляра WebSocket
     getWebSocket() {
         return this.websocket;
     }
 
-    // 检查是否已连接
+    // Проверка состояния подключения
     isConnected() {
         return this.websocket && this.websocket.readyState === WebSocket.OPEN;
     }
 }
 
-// 创建单例
+// Создание синглтона
 let wsHandlerInstance = null;
 
 export function getWebSocketHandler() {

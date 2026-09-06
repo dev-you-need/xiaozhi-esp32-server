@@ -37,7 +37,7 @@ def get_lunar(date=None, query=None):
     """
     from core.utils.cache.manager import cache_manager, CacheType
 
-    # 如果提供了日期参数，则使用指定日期；否则使用当前日期
+    # Если указан параметр даты, используется указанная дата; в противном случае используется текущая дата
     if date:
         try:
             now = datetime.strptime(date, "%Y-%m-%d")
@@ -52,11 +52,11 @@ def get_lunar(date=None, query=None):
 
     current_date = now.strftime("%Y-%m-%d")
 
-    # 如果 query 为 None，则使用默认文本
+    # Использовать текст по умолчанию, если запрос Ԥ
     if query is None:
         query = "默认查询干支年和农历日期"
 
-    # 尝试从缓存获取农历信息
+    # Попробуйте получить информацию о лунном календаре из кэша
     lunar_cache_key = f"lunar_info_{current_date}"
     cached_lunar_info = cache_manager.get(CacheType.LUNAR, lunar_cache_key)
     if cached_lunar_info:
@@ -121,7 +121,7 @@ def get_lunar(date=None, query=None):
         + "(默认返回干支年和农历日期；仅在要求查询宜忌信息时才返回本日宜忌)"
     )
 
-    # 缓存农历信息
+    # Информация о лунном календаре в кэше
     cache_manager.set(CacheType.LUNAR, lunar_cache_key, response_text)
 
     return ActionResponse(Action.REQLLM, response_text, None)

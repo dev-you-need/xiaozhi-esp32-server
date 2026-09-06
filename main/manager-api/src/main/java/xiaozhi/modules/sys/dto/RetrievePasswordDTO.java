@@ -7,7 +7,7 @@ import lombok.Data;
 import java.io.Serializable;
 
 /**
- * 找回密码DTO
+ * DTO восстановления пароля
  */
 @Data
 @Schema(description = "找回密码")

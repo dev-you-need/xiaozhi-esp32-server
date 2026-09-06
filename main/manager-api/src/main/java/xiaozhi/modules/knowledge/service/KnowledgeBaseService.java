@@ -10,97 +10,97 @@ import xiaozhi.modules.knowledge.entity.KnowledgeBaseEntity;
 import xiaozhi.modules.model.entity.ModelConfigEntity;
 
 /**
- * 知识库知识库服务接口
+ * Интерфейс сервиса базы знаний
  */
 public interface KnowledgeBaseService extends BaseService<KnowledgeBaseEntity> {
 
     /**
-     * 分页查询知识库列表
+     * Постраничный запрос списка базы знаний
      * 
-     * @param knowledgeBaseDTO 查询条件
-     * @param page             页码
-     * @param limit            每页数量
-     * @return 分页数据
+     * @param knowledgeBaseDTO условия поиска
+     * @param page             номер страницы
+     * @param limit            количество на странице
+     * @return постраничные данные
      */
     PageData<KnowledgeBaseDTO> getPageList(KnowledgeBaseDTO knowledgeBaseDTO, Integer page, Integer limit);
 
     /**
-     * 根据ID获取知识库详情
+     * Получить информацию о базе знаний по ID
      * 
-     * @param id 知识库ID
-     * @return 知识库详情
+     * @param id ID базы знаний
+     * @return информация о базе знаний
      */
     KnowledgeBaseDTO getById(String id);
 
     /**
-     * 新增知识库
+     * Добавить базу знаний
      * 
-     * @param knowledgeBaseDTO 知识库信息
-     * @return 新增的知识库
+     * @param knowledgeBaseDTO информация о базе знаний
+     * @return добавленная база знаний
      */
     KnowledgeBaseDTO save(KnowledgeBaseDTO knowledgeBaseDTO);
 
     /**
-     * 更新知识库
+     * Обновить базу знаний
      * 
-     * @param knowledgeBaseDTO 知识库信息
-     * @return 更新的知识库
+     * @param knowledgeBaseDTO информация о базе знаний
+     * @return обновленная база знаний
      */
     KnowledgeBaseDTO update(KnowledgeBaseDTO knowledgeBaseDTO);
 
     /**
-     * 根据知识库ID查询知识库
+     * Запросить базу знаний по ID набора данных
      * 
-     * @param datasetId 知识库ID
-     * @return 知识库详情
+     * @param datasetId ID набора данных
+     * @return информация о базе знаний
      */
     KnowledgeBaseDTO getByDatasetId(String datasetId);
 
     /**
-     * 根据知识库ID集合查询知识库
+     * Запросить базу знаний по списку ID наборов данных
      *
-     * @param datasetIdList 知识库ID集合
-     * @return 知识库详情
+     * @param datasetIdList список ID наборов данных
+     * @return информация о базе знаний
      */
     List<KnowledgeBaseDTO> getByDatasetIdList(List<String> datasetIdList);
 
     /**
-     * 根据知识库ID删除知识库
+     * Удалить базу знаний по ID набора данных
      * 
-     * @param datasetId 知识库ID
+     * @param datasetId ID набора данных
      */
     void deleteByDatasetId(String datasetId);
 
     /**
-     * 获取RAG配置信息
+     * Получить информацию о конфигурации RAG
      * 
-     * @param ragModelId RAG模型配置ID
-     * @return RAG配置信息
+     * @param ragModelId ID конфигурации модели RAG
+     * @return информация о конфигурации RAG
      */
     Map<String, Object> getRAGConfig(String ragModelId);
 
     /**
-     * 根据知识库ID获取对应的RAG配置
+     * Получить соответствующую конфигурацию RAG по ID набора данных
      * 
-     * @param datasetId 知识库ID
-     * @return RAG配置
+     * @param datasetId ID набора данных
+     * @return конфигурация RAG
      */
     Map<String, Object> getRAGConfigByDatasetId(String datasetId);
 
     /**
-     * 获取RAG模型列表
+     * Получить список моделей RAG
      * 
-     * @return RAG模型列表
+     * @return список моделей RAG
      */
     List<ModelConfigEntity> getRAGModels();
 
     /**
-     * 更新知识库统计信息 (用于被文件服务回调)
+     * Обновить статистику базы знаний (для обратного вызова сервиса файлов)
      * 
-     * @param datasetId  知识库ID
-     * @param docDelta   文档数增量
-     * @param chunkDelta 分块数增量
-     * @param tokenDelta Token数增量
+     * @param datasetId  ID набора данных
+     * @param docDelta   приращение количества документов
+     * @param chunkDelta приращение количества блоков
+     * @param tokenDelta приращение количества токенов
      */
     void updateStatistics(String datasetId, Integer docDelta, Long chunkDelta, Long tokenDelta);
 }

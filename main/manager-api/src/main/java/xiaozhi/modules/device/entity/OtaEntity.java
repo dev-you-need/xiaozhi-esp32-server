@@ -15,47 +15,47 @@ import lombok.EqualsAndHashCode;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @TableName("ai_ota")
-@Schema(description = "固件信息")
+@Schema(description = "Информация о прошивке")
 public class OtaEntity {
 
     @TableId(type = IdType.ASSIGN_UUID)
     @Schema(description = "ID")
     private String id;
 
-    @Schema(description = "固件名称")
+    @Schema(description = "Название прошивки")
     private String firmwareName;
 
-    @Schema(description = "固件类型")
+    @Schema(description = "Тип прошивки")
     private String type;
 
-    @Schema(description = "版本号")
+    @Schema(description = "Номер версии")
     private String version;
 
-    @Schema(description = "文件大小(字节)")
+    @Schema(description = "Размер файла (Байты)")
     private Long size;
 
-    @Schema(description = "备注/说明")
+    @Schema(description = "Примечание/Описание")
     private String remark;
 
-    @Schema(description = "固件路径")
+    @Schema(description = "Путь к прошивке")
     private String firmwarePath;
 
-    @Schema(description = "排序")
+    @Schema(description = "Сортировка")
     private Integer sort;
 
-    @Schema(description = "更新者")
+    @Schema(description = "Обновляющий")
     @TableField(fill = FieldFill.UPDATE)
     private Long updater;
 
-    @Schema(description = "更新时间")
+    @Schema(description = "Время обновления")
     @TableField(fill = FieldFill.UPDATE)
     private Date updateDate;
 
-    @Schema(description = "创建者")
+    @Schema(description = "Создатель")
     @TableField(fill = FieldFill.INSERT)
     private Long creator;
 
-    @Schema(description = "创建时间")
+    @Schema(description = "Время создания")
     @TableField(fill = FieldFill.INSERT)
     private Date createDate;
 }

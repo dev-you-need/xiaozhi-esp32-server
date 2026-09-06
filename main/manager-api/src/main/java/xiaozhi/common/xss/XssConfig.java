@@ -10,7 +10,7 @@ import org.springframework.util.PathMatcher;
 import jakarta.servlet.DispatcherType;
 
 /**
- * XSS 配置文件
+ * Файл конфигурации XSS
  * Copyright (c) 人人开源 All rights reserved.
  * Website: https://www.renren.io
  */

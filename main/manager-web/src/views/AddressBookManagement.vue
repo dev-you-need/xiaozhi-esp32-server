@@ -62,7 +62,7 @@
       <!-- 右侧通讯录详情 -->
       <div class="right-panel">
         <div class="device-detail" v-if="selectedDevice">
-          <!-- 设备信息头部 -->
+          <!-- Заголовок информации об устройстве -->
           <div class="device-header">
             <div class="device-left">
               <div class="device-avatar-large">
@@ -358,11 +358,11 @@ export default {
       this.expandedAgentId = agent.id;
       this.selectedAgent = agent;
       this.selectedDevice = device;
-      // 加载所有设备用于权限选择（排除当前设备）
+      // Загрузка всех устройств для выбора разрешений（排除当前设备）
       this.allDevices = this.agentDeviceOptions
         .flatMap(agent => agent.devices || [])
         .filter(d => d.id !== device.id);
-      // 加载通讯录权限
+      // Загрузка разрешений контактов
       this.loadAddressBookPermissions(device.deviceId);
     },
     loadAddressBookPermissions(macAddress) {
@@ -391,7 +391,7 @@ export default {
               permission
             ])
           );
-          // 设置已选择的权限
+          // Установка выбранных разрешений
           const permittedTargetMacs = new Set(
             permissions
               .filter(p => p.hasPermission)
@@ -402,7 +402,7 @@ export default {
             .map(device => device.deviceId);
           // 保存初始权限状态（用于对比变更）
           this.originalPermissions = [...this.selectedPermissions];
-          // 更新设备的通讯录别名
+          // Обновление псевдонима контакта устройства
           this.allDevices.forEach(device => {
             const addrBook = permissionsByTargetMac.get((device.deviceId || '').toLowerCase());
             if (addrBook) {
@@ -547,7 +547,7 @@ export default {
         Api.agent.updateAgentConfig(this.selectedAgent.id, { agentName: newName }, ({ data }) => {
           if (data.code === 0) {
             this.selectedAgent.agentName = newName;
-            // 更新列表中的智能体名称
+            // Обновление имени агента в списке
             const agentInList = this.agentDeviceOptions.find(a => a.id === this.selectedAgent.id);
             if (agentInList) {
               agentInList.agentName = newName;

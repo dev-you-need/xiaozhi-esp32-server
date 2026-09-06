@@ -41,9 +41,9 @@ public class DeviceTest {
     @DisplayName("测试写入设备信息")
     public void testWriteDeviceInfo() {
         log.info("开始测试写入设备信息...");
-        // 模拟设备MAC地址
+        // Симуляция MAC-адреса устройства
         String macAddress = "00:11:22:33:44:66";
-        // 模拟设备验证码
+        // Симуляция кода подтверждения устройства
         String deviceCode = "123456";
 
         HashMap<String, Object> map = new HashMap<>();
@@ -59,15 +59,15 @@ public class DeviceTest {
         String redisKey = "ota:activation:code:" + deviceCode;
         log.info("Redis Key: {}", redisKey);
 
-        // 将设备信息写入Redis
+        // Записать информацию об устройстве в Redis
         redisUtils.set(redisKey, macAddress, 300);
         log.info("设备信息已写入Redis");
 
-        // 验证是否写入成功
+        // Проверка, успешно ли запись
         String savedMacAddress = (String) redisUtils.get(redisKey);
         log.info("从Redis读取的MAC地址: {}", savedMacAddress);
 
-        // 使用断言验证
+        // Проверка с использованием утверждений
         Assertions.assertNotNull(savedMacAddress, "从Redis读取的MAC地址不应为空");
         Assertions.assertEquals(macAddress, savedMacAddress, "保存的MAC地址与原始MAC地址不匹配");
 

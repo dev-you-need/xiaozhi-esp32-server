@@ -11,74 +11,74 @@ import xiaozhi.modules.timbre.entity.TimbreEntity;
 import xiaozhi.modules.timbre.vo.TimbreDetailsVO;
 
 /**
- * 音色的业务层的定义
+ * Определение бизнес-уровня тембра
  * 
  * @author zjy
  * @since 2025-3-21
  */
 public interface TimbreService extends BaseService<TimbreEntity> {
     /**
-     * 分页获取音色指定tts的下的音色
+     * Получение тембров для указанной TTS-модели с пагинацией
      * 
-     * @param dto 分页查找参数
-     * @return 音色列表分页数据
+     * @param dto Параметры поиска с пагинацией
+     * @return Пагинированные данные списка тембров
      */
     PageData<TimbreDetailsVO> page(TimbrePageDTO dto);
 
     /**
-     * 获取音色指定id的详情信息
+     * Получение подробной информации о тембре по указанному id
      * 
-     * @param timbreId 音色表id
-     * @return 音色信息
+     * @param timbreId ID таблицы тембров
+     * @return Информация о тембре
      */
     TimbreDetailsVO get(String timbreId);
 
     /**
-     * 保存音色信息
+     * Сохранение информации о тембре
      * 
-     * @param dto 需要保存数据
+     * @param dto Данные для сохранения
      */
     void save(TimbreDataDTO dto);
 
     /**
-     * 保存音色信息
+     * Сохранение информации о тембре
      * 
-     * @param timbreId 需要修改的id
-     * @param dto      需要修改的数据
+     * @param timbreId ID для изменения
+     * @param dto      Данные для изменения
      */
     void update(String timbreId, TimbreDataDTO dto);
 
     /**
-     * 批量删除音色
+     * Пакетное удаление тембров
      * 
-     * @param ids 需要被删除的音色id列表
+     * @param ids Список ID тембров для удаления
      */
     void delete(String[] ids);
 
     List<VoiceDTO> getVoiceNames(String ttsModelId, String voiceName);
 
     /**
-     * 获取普通音色或克隆音色配置的首个有效语言。
+     * Получение первого действующего языка конфигурации обычного тембра или клонированного тембра.
      *
-     * @param id 音色ID
-     * @return 默认语言；音色不存在或未配置有效语言时返回null
+     * @param id ID тембра
+     * @return Язык по умолчанию; возвращает null, если тембр не существует или эффективный язык не настроен
      */
     String getDefaultLanguageById(String id);
 
     /**
-     * 根据ID获取音色名称
+     * Получение имени тембра по ID
      * 
-     * @param id 音色ID
-     * @return 音色名称
+     * @param id ID тембра
+     * @return Имя тембра
      */
     String getTimbreNameById(String id);
 
     /**
-     * 根据音色编码获取音色信息
+     * Получение информации о тембре по коду тембра
      * 
-     * @param ttsModelId 音色模型ID
-     * @param voiceCode  音色编码
-     * @return 音色信息
+     * @param ttsModelId ID модели тембра
+     * @param voiceCode  Код тембра
+     * @return Информация о тембре
      */
     VoiceDTO getByVoiceCode(String ttsModelId, String voiceCode);
 }

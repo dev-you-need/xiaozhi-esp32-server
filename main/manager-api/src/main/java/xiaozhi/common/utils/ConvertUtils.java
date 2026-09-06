@@ -9,7 +9,7 @@ import org.springframework.beans.BeanUtils;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * 转换工具类
+ * Утилита преобразования
  * Copyright (c) 人人开源 All rights reserved.
  * Website: https://www.renren.io
  */

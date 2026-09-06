@@ -19,10 +19,10 @@ interface Props {
 
 const props = defineProps<Props>()
 
-// 响应式数据
+// Реактивные данные
 const configuring = ref(false)
 
-// 计算属性
+// Вычисляемые свойства
 const canSubmit = computed(() => {
   if (!props.selectedNetwork)
     return false
@@ -47,7 +47,7 @@ async function checkESP32Connection() {
   }
 }
 
-// 提交配网
+// Отправка настройки сети
 async function submitConfig() {
   if (!props.selectedNetwork)
     return
@@ -80,7 +80,7 @@ async function submitConfig() {
 
     if (response.statusCode === 200 && (response.data as any)?.success) {
       toast.success(`${t('deviceConfig.configSuccess')}！${t('deviceConfig.deviceWillConnectTo')} ${props.selectedNetwork.ssid}，${t('deviceConfig.deviceWillRestart')}。${t('deviceConfig.pleaseDisconnectXiaozhiHotspot')}`)
-      // 设备退出配网模式
+      // Выход устройства из режима настройки сети
       setTimeout(() => {
         uni.request({
           url: 'http://192.168.4.1/exit',
@@ -106,7 +106,7 @@ async function submitConfig() {
 
 <template>
   <view class="wifi-config">
-    <!-- 选中的网络信息 -->
+    <!-- 选中的Информация о сети -->
     <view v-if="props.selectedNetwork" class="selected-network">
       <view class="network-info">
         <view class="network-name">

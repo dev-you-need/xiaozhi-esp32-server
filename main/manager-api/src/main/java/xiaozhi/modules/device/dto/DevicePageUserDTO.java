@@ -5,7 +5,7 @@ import jakarta.validation.constraints.Min;
 import lombok.Data;
 
 /**
- * 查询所有设备的DTO
+ * Запрос всех устройствDTO
  * 
  * @author zjy
  * @since 2025-3-21

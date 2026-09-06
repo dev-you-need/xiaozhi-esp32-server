@@ -13,69 +13,69 @@ import lombok.Data;
 
 @Data
 @TableName(value = "ai_rag_dataset", autoResultMap = true)
-@Schema(description = "知识库知识库表")
+@Schema(description = "Таблица базы знаний")
 public class KnowledgeBaseEntity {
 
     @TableId(type = IdType.ASSIGN_UUID)
-    @Schema(description = "唯一标识")
+    @Schema(description = "Уникальный идентификатор")
     private String id;
 
-    @Schema(description = "知识库ID")
+    @Schema(description = "ID базы знаний")
     private String datasetId;
 
 //    @Deprecated
-    @Schema(description = "RAG模型配置ID (连接RAGFlow的凭证指针)")
+    @Schema(description = "ID конфигурации модели RAG (указатель на учетные данные RAGFlow)")
     private String ragModelId;
 
-    @Schema(description = "租户ID")
+    @Schema(description = "ID арендатора")
     private String tenantId;
 
-    @Schema(description = "知识库名称")
+    @Schema(description = "Название базы знаний")
     private String name;
 
-    @Schema(description = "知识库头像(Base64)")
+    @Schema(description = "Аватар базы знаний (Base64)")
     private String avatar;
 
-    @Schema(description = "知识库描述")
+    @Schema(description = "Описание базы знаний")
     private String description;
 
-    @Schema(description = "嵌入模型名称")
+    @Schema(description = "Название модели встраивания")
     private String embeddingModel;
 
-    @Schema(description = "权限设置: me/team")
+    @Schema(description = "Настройки разрешений: me/team")
     private String permission;
 
-    @Schema(description = "分块方法")
+    @Schema(description = "Метод разбиения на блоки")
     private String chunkMethod;
 
-    @Schema(description = "解析器配置(JSON String)")
+    @Schema(description = "Конфигурация парсера (JSON строка)")
     private String parserConfig;
 
-    @Schema(description = "分块总数")
+    @Schema(description = "Общее количество блоков")
     private Long chunkCount;
 
-    @Schema(description = "文档总数")
+    @Schema(description = "Общее количество документов")
     private Long documentCount;
 
-    @Schema(description = "总Token数")
+    @Schema(description = "Общее количество токенов")
     private Long tokenNum;
 
-    @Schema(description = "状态(0:禁用 1:启用)")
+    @Schema(description = "Статус (0: отключен 1: включен)")
     private Integer status;
 
-    @Schema(description = "创建者")
+    @Schema(description = "Создатель")
     @TableField(fill = FieldFill.INSERT)
     private Long creator;
 
-    @Schema(description = "创建时间")
+    @Schema(description = "Время создания")
     @TableField(fill = FieldFill.INSERT)
     private Date createdAt;
 
-    @Schema(description = "更新者")
+    @Schema(description = "Обновляющий")
     @TableField(fill = FieldFill.UPDATE)
     private Long updater;
 
-    @Schema(description = "更新时间")
+    @Schema(description = "Время обновления")
     @TableField(fill = FieldFill.UPDATE)
     private Date updatedAt;
 }

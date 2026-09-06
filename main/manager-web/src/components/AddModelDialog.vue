@@ -9,7 +9,7 @@
     @confirm="confirm"
   >
     <div class="dialog-content">
-      <!-- 模型信息部分 -->
+      <!-- Раздел информации о модели -->
       <div class="section-header">
         <div class="section-title">{{ $t('modelConfigDialog.modelInfo') }}</div>
         <div class="switch-group">
@@ -190,7 +190,7 @@ export default {
     confirm() {
       this.saving = true;
 
-      // 校验模型ID不能为纯文字或空格
+      // Проверка, что ID модели не является чистым текстом или пробелами
       if (this.formData.id && !this.validateModelId(this.formData.id)) {
         this.$message.error(this.$t('modelConfigDialog.invalidModelId'));
         this.saving = false;
@@ -244,39 +244,39 @@ export default {
         isDefault: true,
         configJson: {}
       };
-      // 重置加载状态
+      // Сброс состояния загрузки
       this.providers = [];
       this.providersLoaded = false;
-      // 重置字段配置
+      // Сброс конфигурации полей
       this.providerFields = [];
       this.currentProvider = null;
     },
     
-    // 校验模型ID：不能为纯文字或空格
+    // Проверка ID модели: не может быть чистым текстом или пробелами
     validateModelId(modelId) {
       if (!modelId || typeof modelId !== 'string') {
         return false;
       }
       
-      // 去除首尾空格
+      // Удаление пробелов в начале и конце
       const trimmedId = modelId.trim();
       
-      // 检查是否为空或纯空格
+      // Проверка на пустоту или только пробелы
       if (trimmedId === '') {
         return false;
       }
       
-      // 检查是否只包含字母（纯文字）
+      // Проверка, содержит ли только буквы (чистый текст)
       if (/^[a-zA-Z]+$/.test(trimmedId)) {
         return false;
       }
       
-      // 检查是否包含空格
+      // Проверка наличия пробелов
       if (/\s/.test(trimmedId)) {
         return false;
       }
       
-      // 允许字母、数字、下划线、连字符
+      // Разрешены буквы, цифры, подчёркивание, дефисы
       if (!/^[a-zA-Z0-9_-]+$/.test(trimmedId)) {
         return false;
       }

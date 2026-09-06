@@ -69,7 +69,7 @@ public class DeviceController {
         if (StringUtils.isBlank(macAddress)) {
             return new Result<String>().error(ErrorCode.MCA_NOT_NULL);
         }
-        // 生成六位验证码
+        // Сгенерировать шестизначный код
         String code;
         String key;
         String existsMac = null;

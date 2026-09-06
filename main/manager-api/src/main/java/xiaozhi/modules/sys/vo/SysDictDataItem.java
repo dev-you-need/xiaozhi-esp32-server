@@ -6,8 +6,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 /**
- * 字典数据VO
- */
+ * Словарь данных VO */
 @Data
 @Schema(description = "字典数据项")
 public class SysDictDataItem implements Serializable {

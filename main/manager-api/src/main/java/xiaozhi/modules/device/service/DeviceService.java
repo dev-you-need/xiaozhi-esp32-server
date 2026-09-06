@@ -15,126 +15,126 @@ import xiaozhi.modules.device.vo.UserShowDeviceListVO;
 
 public interface DeviceService extends BaseService<DeviceEntity> {
     /**
-     * 获取设备在线数据
+     * Получить данные об онлайн-статусе устройства
      */
     String getDeviceOnlineData(String agentId);
 
     /**
-     * 检查设备是否激活
+     * Проверить, активно ли устройство
      */
     DeviceReportRespDTO checkDeviceActive(String macAddress, String clientId,
             DeviceReportReqDTO deviceReport);
 
     /**
-     * 获取用户指定智能体的设备列表，
+     * Получить список устройств пользователя для указанного агента
      */
     List<DeviceEntity> getUserDevices(Long userId, String agentId);
 
     /**
-     * 获取用户指定智能体的设备列表（带时区处理），
+     * Получить список устройств пользователя для указанного агента (с обработкой часового пояса)
      */
     List<UserShowDeviceListVO> getUserDeviceList(Long userId, String agentId);
 
     /**
-     * 解绑设备
+     * Отвязать устройство
      */
     void unbindDevice(Long userId, String deviceId);
 
     /**
-     * 设备激活
+     * Активация устройства
      */
     Boolean deviceActivation(String agentId, String activationCode);
 
     /**
-     * 删除此用户的所有设备
+     * Удалить все устройства пользователя
      * 
-     * @param userId 用户id
+     * @param userId ID пользователя
      */
     void deleteByUserId(Long userId);
 
     /**
-     * 删除指定智能体关联的所有设备
+     * Удалить все устройства, связанные с указанным агентом
      * 
-     * @param agentId 智能体id
+     * @param agentId ID агента
      */
     void deleteByAgentId(String agentId);
 
     /**
-     * 获取指定用户的设备数量
+     * Получить количество устройств пользователя
      * 
-     * @param userId 用户id
-     * @return 设备数量
+     * @param userId ID пользователя
+     * @return количество устройств
      */
     Long selectCountByUserId(Long userId);
 
     /**
-     * 分页获取全部设备信息
+     * Получить информацию обо всех устройствах с постраничной разбивкой
      *
-     * @param dto 分页查找参数
-     * @return 用户列表分页数据
+     * @param dto параметры поиска с постраничной разбивкой
+     * @return постраничные данные списка пользователей
      */
     PageData<UserShowDeviceListVO> page(DevicePageUserDTO dto);
 
     /**
-     * 根据MAC地址获取设备信息
+     * Получить информацию об устройстве по MAC-адресу
      * 
-     * @param macAddress MAC地址
-     * @return 设备信息
+     * @param macAddress MAC-адрес
+     * @return информация об устройстве
      */
     DeviceEntity getDeviceByMacAddress(String macAddress);
 
     /**
-     * 根据设备ID获取激活码
+     * Получить код активации по ID устройства
      * 
-     * @param deviceId 设备ID
-     * @return 激活码
+     * @param deviceId ID устройства
+     * @return код активации
      */
     String geCodeByDeviceId(String deviceId);
 
     /**
-     * 获取这个智能体设备理的最近的最后连接时间
+     * Получить время последнего подключения устройства для этого агента
      * 
-     * @param agentId 智能体id
-     * @return 返回设备最近的最后连接时间
+     * @param agentId ID агента
+     * @return время последнего подключения устройства
      */
     Date getLatestLastConnectionTime(String agentId);
 
     /**
-     * 手动添加设备
+     * Ручное добавление устройства
      */
     void manualAddDevice(Long userId, DeviceManualAddDTO dto);
 
     /**
-     * 更新设备连接信息
+     * Обновить информацию о подключении устройства
      */
     void updateDeviceConnectionInfo(String agentId, String deviceId, String appVersion);
 
     /**
-     * 生成WebSocket认证token
+     * Генерировать токен аутентификации WebSocket
      *
-     * @param clientId 客户端ID
-     * @param username 用户名(通常为deviceId)
-     * @return 认证token字符串
-     * @throws Exception 生成token时的异常
+     * @param clientId ID клиента
+     * @param username имя пользователя (обычно deviceId)
+     * @return строка токена аутентификации
+     * @throws Exception исключение при генерации токена
      */
     String generateWebSocketToken(String clientId, String username) throws Exception;
 
     /**
-     * 根据MAC地址搜索设备
+     * Искать устройства по MAC-адресу
      *
-     * @param macAddress MAC地址关键词
-     * @param userId     用户ID
-     * @return 设备列表
+     * @param macAddress ключевое слово MAC-адреса
+     * @param userId     ID пользователя
+     * @return список устройств
      */
     List<DeviceEntity> searchDevicesByMacAddress(String macAddress, Long userId);
 
     /**
-     * 获取设备工具列表
+     * Получить список инструментов устройства
      */
     Object getDeviceTools(String deviceId);
 
     /**
-     * 调用设备工具
+     * Вызвать инструмент устройства
      */
     Object callDeviceTool(String deviceId, String toolName, Map<String, Object> arguments);
 

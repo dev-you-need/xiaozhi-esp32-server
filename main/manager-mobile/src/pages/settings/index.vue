@@ -2,7 +2,7 @@
 {
   "layout": "default",
   "style": {
-    "navigationBarTitleText": "设置",
+    "navigationBarTitleText": "настраивать",
     "navigationStyle": "custom"
   }
 }
@@ -23,7 +23,7 @@ defineOptions({
 
 const toast = useToast()
 
-// 缓存信息
+// информация кэша
 const cacheInfo = reactive({
   storageSize: '0MB',
   imageCache: '0MB',
@@ -32,23 +32,23 @@ const cacheInfo = reactive({
 
 const configStore = useConfigStore()
 
-// 服务端地址设置
+// Настройки адреса сервера
 const baseUrlInput = ref('')
 const urlError = ref('')
 
-// 系统信息（保留）
+// Информация о системе（бронировать）
 const systemInfo = computed(() => {
   const info = uni.getSystemInfoSync()
   return `${info.platform} ${info.system}`
 })
 
-// 读取本地覆盖地址
+// Чтение локального перекрывающего адреса
 function loadServerBaseUrl() {
   const override = getServerBaseUrlOverride()
   baseUrlInput.value = override || getEnvBaseUrl()
 }
 
-// 获取缓存信息
+// Получить информацию о кэше
 function getCacheInfo() {
   try {
     const info = uni.getStorageInfoSync()
@@ -56,11 +56,11 @@ function getCacheInfo() {
     cacheInfo.storageSize = `${totalSize.toFixed(2)}MB`
   }
   catch (error) {
-    console.error('获取缓存信息失败:', error)
+    console.error('Ошибка получения информации о кэше:', error)
   }
 }
 
-// 验证URL格式
+// проверятьURLФормат
 function validateUrl() {
   urlError.value = ''
 
@@ -73,9 +73,9 @@ function validateUrl() {
   }
 }
 
-// 测试服务端地址
+// Адрес тестового сервера
 async function testServerBaseUrl() {
-  // 先清除错误信息
+  // Сначала удалите сообщение об ошибке
   urlError.value = ''
 
   if (!baseUrlInput.value || !/^https?:\/\/.+\/xiaozhi$/.test(baseUrlInput.value)) {
@@ -101,7 +101,7 @@ async function testServerBaseUrl() {
     }
   }
   catch (error) {
-    console.error('测试服务端地址失败:', error)
+    console.error('Адрес тестового сервера не удался:', error)
     toast.error({
       msg: t('message.invalidAddress'),
       duration: 3000,
@@ -110,20 +110,20 @@ async function testServerBaseUrl() {
   }
 }
 
-// 保存服务端地址
+// Сохранить адрес сервера
 async function saveServerBaseUrl() {
   if (!baseUrlInput.value || !/^https?:\/\/.+\/xiaozhi$/.test(baseUrlInput.value)) {
     toast.warning(t('settings.validServerUrl'))
     return
   }
 
-  // 测试地址有效性
+  // Проверка достоверности адреса
   const isServerValid = await testServerBaseUrl()
   if (!isServerValid) {
     return
   }
   setServerBaseUrlOverride(baseUrlInput.value)
-  // 处理config缓存无法更新的问题
+  // иметь дело сconfigКэш не может быть обновлен
   uni.request({
     url: `${getEnvBaseUrl()}/user/pub-config`,
     method: 'GET',
@@ -134,11 +134,11 @@ async function saveServerBaseUrl() {
       }
     },
     fail: (err) => {
-      console.error('获取SM2公钥失败:', err)
+      console.error('ПолучатьSM2Открытый ключ не удался:', err)
     },
   })
 
-  // 切换请求地址后清空所有缓存
+  // Очистка всего кэша после смены адреса запроса
   clearAllCacheAfterUrlChange()
 
   uni.showModal({
@@ -157,7 +157,7 @@ async function saveServerBaseUrl() {
   })
 }
 
-// 语言切换
+// переключатель языка
 const supportedLanguages = getSupportedLanguages()
 const currentLanguage = ref<Language>(getCurrentLanguage())
 const showLanguageSheet = ref(false)
@@ -169,12 +169,12 @@ function handleLanguageChange(lang: Language) {
   toast.success(t('settings.languageChanged'))
 }
 
-// 重置为 env 默认
+// сбросить до env по умолчанию
 function resetServerBaseUrl() {
   clearServerBaseUrlOverride()
   baseUrlInput.value = getEnvBaseUrl()
 
-  // 切换请求地址后清空所有缓存
+  // Очистка всего кэша после смены адреса запроса
   clearAllCacheAfterUrlChange()
 
   uni.showModal({
@@ -193,7 +193,7 @@ function resetServerBaseUrl() {
   })
 }
 
-// 重启应用（App 原生重启；其他端回到首页）
+// Перезапустить приложение（App собственный перезапуск；Вернуться на домашнюю страницу на других терминалах）
 function restartApp() {
   // #ifdef APP-PLUS
   plus.runtime.restart()
@@ -203,36 +203,36 @@ function restartApp() {
   // #endif
 }
 
-// 切换地址后自动清空所有缓存
+// Автоматическая очистка всего кэша после смены адреса
 function clearAllCacheAfterUrlChange() {
   try {
-    // 备份运行时覆盖地址，确保清理后恢复
+    // Резервное копирование перекрывающего адреса времени выполнения，Обеспечение восстановления после очистки
     const preservedOverride = getServerBaseUrlOverride()
 
-    // 完全清空所有缓存，包括token
+    // Полная очистка всего кэша，включатьtoken
     uni.clearStorageSync()
 
-    // 清空localStorage（H5环境）
+    // ПрозрачныйlocalStorage（H5среда）
     // #ifdef H5
     if (typeof localStorage !== 'undefined') {
       localStorage.clear()
     }
     // #endif
 
-    // 恢复运行时覆盖地址（如有），需要在清理完成后再写入
+    // Восстановление перекрывающего адреса времени выполнения（Если есть），Необходимо написать после завершения уборки
     if (preservedOverride) {
       setServerBaseUrlOverride(preservedOverride)
     }
 
-    // 重新获取缓存信息
+    // Повторное получение информации о кэше
     getCacheInfo()
   }
   catch (error) {
-    console.error('清除缓存失败:', error)
+    console.error('Ошибка очистки кэша:', error)
   }
 }
 
-// 清除缓存
+// Очистить кэш
 async function clearCache() {
   try {
     uni.showModal({
@@ -245,7 +245,7 @@ async function clearCache() {
           clearAllCacheAfterUrlChange()
           toast.success(t('settings.cacheCleared'))
 
-          // 延迟跳转到登录页
+          // Задержка перехода на страницу входа
           setTimeout(() => {
             uni.reLaunch({ url: '/pages/login/index' })
           }, 1500)
@@ -254,12 +254,12 @@ async function clearCache() {
     })
   }
   catch (error) {
-    console.error('清除缓存失败:', error)
+    console.error('Ошибка очистки кэша:', error)
     toast.error(t('settings.clearCacheFailed'))
   }
 }
 
-// 关于我们
+// о нас
 function showAbout() {
   uni.showModal({
     title: t('settings.aboutApp', { appName: import.meta.env.VITE_APP_TITLE }),
@@ -273,13 +273,13 @@ function showAbout() {
 }
 
 onMounted(async () => {
-  // 仅在非小程序环境加载服务端地址设置
+  // Загрузка настроек адреса сервера только в не-miniprogram окружении
   if (!isMp) {
     loadServerBaseUrl()
   }
   getCacheInfo()
 
-  // 动态设置导航栏标题为国际化文本
+  // Динамическая установка заголовка панели навигации на интернационализированный текст
   uni.setNavigationBarTitle({
     title: t('settings.title'),
   })
@@ -291,7 +291,7 @@ onMounted(async () => {
     <wd-navbar :title="t('settings.title')" placeholder safe-area-inset-top fixed />
 
     <view class="p-[24rpx]">
-      <!-- 网络设置 - 仅在非小程序环境显示 -->
+      <!-- Настройки сети - Отображается только в средах, отличных от мини-программ. -->
       <view v-if="!isMp" class="mb-[32rpx]">
         <view class="mb-[24rpx] flex items-center">
           <text class="text-[32rpx] text-[#232338] font-bold">
@@ -345,7 +345,7 @@ onMounted(async () => {
         </view>
       </view>
 
-      <!-- 缓存管理 -->
+      <!-- Управление кэшем -->
       <view class="mb-[32rpx]">
         <view class="mb-[24rpx] flex items-center">
           <text class="text-[32rpx] text-[#232338] font-bold">
@@ -358,7 +358,7 @@ onMounted(async () => {
           style="box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.06);"
         >
           <view class="space-y-[16rpx]">
-            <!-- 缓存信息展示，参考插件样式 -->
+            <!-- Отображение информации о кэше，Справочный стиль плагина -->
             <view
               class="flex items-center justify-between border border-[#eeeeee] rounded-[16rpx] bg-[#f5f7fb] p-[24rpx] transition-all active:bg-[#eef3ff]"
             >
@@ -375,7 +375,7 @@ onMounted(async () => {
               </text>
             </view>
 
-            <!-- 清除缓存按钮，参考插件编辑按钮样式 -->
+            <!-- кнопка очистки кэша，Стиль кнопки редактирования эталонного плагина -->
             <view
               class="flex items-center justify-between border border-[#eeeeee] rounded-[16rpx] bg-[#f5f7fb] p-[24rpx]"
             >
@@ -398,7 +398,7 @@ onMounted(async () => {
         </view>
       </view>
 
-      <!-- 应用信息 -->
+      <!-- Информация о приложении -->
       <view class="mb-[32rpx]">
         <view class="mb-[24rpx] flex items-center">
           <text class="text-[32rpx] text-[#232338] font-bold">
@@ -427,7 +427,7 @@ onMounted(async () => {
         </view>
       </view>
 
-      <!-- 语言设置 -->
+      <!-- Языковые настройки -->
       <view class="mb-[32rpx]">
         <view class="mb-[24rpx] flex items-center">
           <text class="text-[32rpx] text-[#232338] font-bold">
@@ -461,7 +461,7 @@ onMounted(async () => {
         </view>
       </view>
 
-      <!-- 语言选择弹窗 -->
+      <!-- Всплывающее окно выбора языка -->
       <wd-action-sheet v-model="showLanguageSheet" :title="t('settings.selectLanguage')" :close-on-click-modal="true">
         <view class="language-sheet">
           <scroll-view scroll-y class="language-list">
@@ -477,17 +477,17 @@ onMounted(async () => {
         </view>
       </wd-action-sheet>
 
-      <!-- 底部安全距离 -->
-      <!-- 底部安全距离 -->
+      <!-- Нижнее безопасное расстояние -->
+      <!-- Нижнее безопасное расстояние -->
       <view style="height: env(safe-area-inset-bottom);" />
     </view>
   </view>
 </template>
 
 <style lang="scss" scoped>
-// 保持与 edit.vue 一致的风格，样式主要通过类名控制
+// держаться с edit.vue последовательный стиль，Стили в основном контролируются через имена классов.
 
-// 语言选择弹窗样式
+// Стиль всплывающего окна выбора языка
 .language-sheet {
   .language-list {
     max-height: 50vh;

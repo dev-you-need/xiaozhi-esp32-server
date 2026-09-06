@@ -1,79 +1,79 @@
 package xiaozhi.modules.llm.service;
 
 /**
- * LLM服务接口
- * 支持多种大模型调用
+ * Интерфейс службы LLM
+ * Поддержка вызова различных больших моделей
  */
 public interface LLMService {
 
     /**
-     * 生成聊天记录总结
+     * Генерация сводки истории чата
      * 
-     * @param conversation   对话内容
-     * @param promptTemplate 提示词模板
-     * @return 总结结果
+     * @param conversation   Содержимое диалога
+     * @param promptTemplate Шаблон подсказки
+     * @return Результат сводки
      */
     String generateSummary(String conversation, String promptTemplate);
 
     /**
-     * 生成聊天记录总结（使用默认提示词）
+     * Генерация сводки истории чата (с использованием подсказки по умолчанию)
      * 
-     * @param conversation 对话内容
-     * @return 总结结果
+     * @param conversation Содержимое диалога
+     * @return Результат сводки
      */
     String generateSummary(String conversation);
 
     /**
-     * 生成聊天记录总结（指定模型ID）
+     * Генерация сводки истории чата (с указанным ID модели)
      * 
-     * @param conversation 对话内容
-     * @param modelId      模型ID
-     * @return 总结结果
+     * @param conversation Содержимое диалога
+     * @param modelId      ID модели
+     * @return Результат сводки
      */
     String generateSummaryWithModel(String conversation, String modelId);
 
     /**
-     * 生成聊天记录总结（指定模型ID和提示词模板）
+     * Генерация сводки истории чата (с указанным ID модели и шаблоном подсказки)
      * 
-     * @param conversation   对话内容
-     * @param promptTemplate 提示词模板
-     * @param modelId        模型ID
-     * @return 总结结果
+     * @param conversation   Содержимое диалога
+     * @param promptTemplate Шаблон подсказки
+     * @param modelId        ID модели
+     * @return Результат сводки
      */
     String generateSummary(String conversation, String promptTemplate, String modelId);
 
     /**
-     * 生成聊天记录总结（包含历史记忆合并）
+     * Генерация сводки истории чата (с объединением исторической памяти)
      * 
-     * @param conversation   对话内容
-     * @param historyMemory  历史记忆
-     * @param promptTemplate 提示词模板
-     * @param modelId        模型ID
-     * @return 总结结果
+     * @param conversation   Содержимое диалога
+     * @param historyMemory  Историческая память
+     * @param promptTemplate Шаблон подсказки
+     * @param modelId        ID модели
+     * @return Результат сводки
      */
     String generateSummaryWithHistory(String conversation, String historyMemory, String promptTemplate, String modelId);
 
     /**
-     * 检查服务是否可用
+     * Проверка доступности службы
      * 
-     * @return 是否可用
+     * @return Доступно ли
      */
     boolean isAvailable();
 
     /**
-     * 检查指定模型的服务是否可用
+     * Проверка доступности службы для указанной модели
      * 
-     * @param modelId 模型ID
-     * @return 是否可用
+     * @param modelId ID модели
+     * @return Доступно ли
      */
     boolean isAvailable(String modelId);
 
     /**
-     * 生成会话标题
+     * Генерация заголовка сессии
      * 
-     * @param conversation 对话内容
-     * @param modelId      模型ID
-     * @return 标题（约15字）
+     * @param conversation Содержимое диалога
+     * @param modelId      ID модели
+     * @return Заголовок (около 15 символов)
      */
     String generateTitle(String conversation, String modelId);
 }

@@ -63,7 +63,7 @@ public class AgentVoicePrintController {
     @RequiresPermissions("sys:role:normal")
     public Result<Void> delete(@PathVariable String id) {
         Long userId = SecurityUser.getUserId();
-        // 先删除关联的设备
+        // Сначала удалить связанные устройства
         boolean delete = agentVoicePrintService.delete(userId, id);
         if (delete) {
             return new Result<>();

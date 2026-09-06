@@ -32,7 +32,7 @@
               {{ $t("login.welcome") }}
             </div>
 
-            <!-- 语言切换下拉菜单 -->
+            <!-- Раскрывающееся меню переключения языка -->
             <el-dropdown trigger="click" class="title-language-dropdown"
               @visible-change="handleLanguageDropdownVisibleChange">
               <span class="el-dropdown-link">
@@ -62,7 +62,7 @@
             </el-dropdown>
           </div>
           <div style="padding: 0 30px">
-            <!-- 用户名登录 -->
+            <!-- Логин пользователя -->
             <template v-if="!isMobileLogin">
               <div class="input-box">
                 <img loading="lazy" alt="" class="input-icon" src="@/assets/login/username.png" />
@@ -70,7 +70,7 @@
               </div>
             </template>
 
-            <!-- 手机号登录 -->
+            <!-- Вход по телефону -->
             <template v-else>
               <div class="input-box">
                 <div style="display: flex; align-items: center; width: 100%">
@@ -99,7 +99,7 @@
                 <img loading="lazy" alt="" class="input-icon" src="@/assets/login/shield.png" />
                 <el-input v-model="form.captcha" :placeholder="$t('login.captchaPlaceholder')" style="flex: 1" />
               </div>
-              <img loading="lazy" v-if="captchaUrl" :src="captchaUrl" alt="验证码"
+              <img loading="lazy" v-if="captchaUrl" :src="captchaUrl" alt="Проверочный код"
                 style="width: 150px; height: 40px; cursor: pointer" @click="fetchCaptcha" />
             </div>
             <div style="
@@ -121,7 +121,7 @@
           </div>
           <div class="login-btn" @click="login">{{ $t("login.login") }}</div>
 
-          <!-- 登录方式切换按钮 -->
+          <!-- Кнопка переключения метода входа -->
           <div class="login-type-container" v-if="enableMobileRegister">
             <div style="display: flex; gap: 10px">
               <el-tooltip :content="$t('login.mobileLogin')" placement="bottom">
@@ -173,11 +173,11 @@ export default {
       mobileAreaList: (state) => state.pubConfig.mobileAreaList,
       sm2PublicKey: (state) => state.pubConfig.sm2PublicKey,
     }),
-    // 获取当前语言
+    // Получить текущий язык
     currentLanguage() {
       return i18n.locale || "zh_CN";
     },
-    // 获取当前语言显示文本
+    // Получение отображаемого текста текущего языка
     currentLanguageText() {
       const currentLang = this.currentLanguage;
       switch (currentLang) {
@@ -197,7 +197,7 @@ export default {
           return this.$t("language.zhCN");
       }
     },
-    // 根据当前语言获取对应的xiaozhi-ai图标
+    // Получить соответствующее на основе текущего языкаxiaozhi-aiПиктограмма
     xiaozhiAiIcon() {
       const currentLang = this.currentLanguage;
       switch (currentLang) {
@@ -236,7 +236,7 @@ export default {
   mounted() {
     this.fetchCaptcha();
     this.$store.dispatch("fetchPubConfig").then(() => {
-      // 根据配置决定默认登录方式
+      // Определение способа входа по умолчанию на основе конфигурации
       this.isMobileLogin = this.enableMobileRegister;
     });
   },
@@ -249,7 +249,7 @@ export default {
       window.open(url, '_blank');
     },
     fetchCaptcha() {
-      // 处理手动清空localstorage导致无法获取验证码的问题
+      // Ручное опорожнение при обращенииlocalstorageНе удалось получить код подтверждения
       const token = localStorage.getItem('token')
       if (token) {
         if (this.$route.path !== "/home") {
@@ -263,18 +263,18 @@ export default {
             const blob = new Blob([res.data], { type: res.data.type });
             this.captchaUrl = URL.createObjectURL(blob);
           } else {
-            showDanger("验证码加载失败，点击刷新");
+            showDanger("Ошибка загрузки кода подтверждения, нажмите для обновления");
           }
         });
       }
     },
 
-    // 切换语言下拉菜单的可见状态变化
+    // Изменение видимости выпадающего меню смены языка
     handleLanguageDropdownVisibleChange(visible) {
       this.languageDropdownVisible = visible;
     },
 
-    // 切换语言
+    // Смена языка
     changeLanguage(lang) {
       changeLanguage(lang);
       this.languageDropdownVisible = false;
@@ -284,10 +284,10 @@ export default {
       });
     },
 
-    // 切换登录方式
+    // Переключение способа входа
     switchLoginType(type) {
       this.isMobileLogin = type === "mobile";
-      // 清空表单
+      // Очистка формы
       this.form.username = "";
       this.form.mobile = "";
       this.form.password = "";
@@ -295,7 +295,7 @@ export default {
       this.fetchCaptcha();
     },
 
-    // 封装输入验证逻辑
+    // Инкапсуляция логики проверки ввода
     validateInput(input, messageKey) {
       if (!input.trim()) {
         showDanger(this.$t(messageKey));
@@ -310,43 +310,43 @@ export default {
           this.$store.commit("setUserInfo", data.data);
           goToPage("/home");
         } else {
-          showDanger("用户信息获取失败");
+          showDanger("Ошибка получения информации о пользователе");
         }
       });
     },
 
     async login() {
       if (this.isMobileLogin) {
-        // 手机号登录验证
+        // Проверка входа по номеру телефона
         if (!validateMobile(this.form.mobile, this.form.areaCode)) {
           showDanger(this.$t('login.requiredMobile'));
           return;
         }
-        // 拼接手机号作为用户名
+        // Объединение кода области и номера телефона в имя пользователя
         this.form.username = this.form.areaCode + this.form.mobile;
       } else {
-        // 用户名登录验证
+        // Проверка входа по имени пользователя
         if (!this.validateInput(this.form.username, 'login.requiredUsername')) {
           return;
         }
       }
 
-      // 验证密码
+      // Подтвердить пароль
       if (!this.validateInput(this.form.password, 'login.requiredPassword')) {
         return;
       }
-      // 验证验证码
+      // Проверить код
       if (!this.validateInput(this.form.captcha, 'login.requiredCaptcha')) {
         return;
       }
-      // 加密密码
+      // Зашифровать пароль
       let encryptedPassword;
       try {
-        // 拼接验证码和密码
+        // Объединение кода подтверждения и пароля
         const captchaAndPassword = this.form.captcha + this.form.password;
         encryptedPassword = sm2Encrypt(this.sm2PublicKey, captchaAndPassword);
       } catch (error) {
-        console.error("密码加密失败:", error);
+        console.error("Ошибка шифрования пароля:", error);
         showDanger(this.$t('sm2.encryptionFailed'));
         return;
       }
@@ -355,7 +355,7 @@ export default {
 
       this.form.captchaId = this.captchaUuid;
 
-      // 加密
+      // Шифрование
       const loginData = {
         username: plainUsername,
         password: encryptedPassword,
@@ -370,14 +370,14 @@ export default {
           this.getUserInfo();
         },
         (err) => {
-          // 直接使用后端返回的国际化消息
-          let errorMessage = err.data.msg || "登录失败";
+          // Использование интернационализированного сообщения от сервера
+          let errorMessage = err.data.msg || "Ошибка входа в систему";
 
           showDanger(errorMessage);
         }
       );
 
-      // 重新获取验证码
+      // Повторное получение кода подтверждения
       setTimeout(() => {
         this.fetchCaptcha();
       }, 1000);

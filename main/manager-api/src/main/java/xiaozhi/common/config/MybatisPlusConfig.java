@@ -11,7 +11,7 @@ import com.baomidou.mybatisplus.extension.plugins.inner.PaginationInnerIntercept
 import xiaozhi.common.interceptor.DataFilterInterceptor;
 
 /**
- * mybatis-plus配置
+ * Конфигурация mybatis-plus
  * Copyright (c) 人人开源 All rights reserved.
  * Website: https://www.renren.io
  */
@@ -21,13 +21,13 @@ public class MybatisPlusConfig {
     @Bean
     public MybatisPlusInterceptor mybatisPlusInterceptor() {
         MybatisPlusInterceptor mybatisPlusInterceptor = new MybatisPlusInterceptor();
-        // 数据权限
+        // Разрешения на данные
         mybatisPlusInterceptor.addInnerInterceptor(new DataFilterInterceptor());
-        // 分页插件
+        // Плагин постраничного разбиения
         mybatisPlusInterceptor.addInnerInterceptor(new PaginationInnerInterceptor());
-        // 乐观锁
+        // Оптимистичная блокировка
         mybatisPlusInterceptor.addInnerInterceptor(new OptimisticLockerInnerInterceptor());
-        // 防止全表更新与删除
+        // Предотвращение обновления и удаления всей таблицы
         mybatisPlusInterceptor.addInnerInterceptor(new BlockAttackInnerInterceptor());
 
         return mybatisPlusInterceptor;

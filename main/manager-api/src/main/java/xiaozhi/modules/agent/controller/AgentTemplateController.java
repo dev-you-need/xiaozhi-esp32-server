@@ -52,12 +52,12 @@ public class AgentTemplateController {
     public Result<PageData<AgentTemplateVO>> getAgentTemplatesPage(
             @Parameter(hidden = true) @RequestParam Map<String, Object> params) {
         
-        // 创建分页对象
+        // Создать объект постраничной навигации
         int page = Integer.parseInt(params.getOrDefault(Constant.PAGE, "1").toString());
         int limit = Integer.parseInt(params.getOrDefault(Constant.LIMIT, "10").toString());
         Page<AgentTemplateEntity> pageInfo = new Page<>(page, limit);
         
-        // 创建查询条件
+        // Сформировать условия запроса
         QueryWrapper<AgentTemplateEntity> wrapper = new QueryWrapper<>();
         String agentName = (String) params.get("agentName");
         if (agentName != null && !agentName.isEmpty()) {
@@ -65,13 +65,13 @@ public class AgentTemplateController {
         }
         wrapper.orderByAsc("sort");
         
-        // 执行分页查询
+        // Выполнить постраничный запрос
         IPage<AgentTemplateEntity> pageResult = agentTemplateService.page(pageInfo, wrapper);
         
-        // 使用ConvertUtils转换为VO列表
+        // Преобразовать в список VO с помощью ConvertUtils
         List<AgentTemplateVO> voList = ConvertUtils.sourceToTarget(pageResult.getRecords(), AgentTemplateVO.class);
 
-        // 修复：使用构造函数创建PageData对象，而不是无参构造+setter
+        // Исправлено: создание PageData через конструктор вместо конструктора без аргументов + setter
         PageData<AgentTemplateVO> pageData = new PageData<>(voList, pageResult.getTotal());
 
         return new Result<PageData<AgentTemplateVO>>().ok(pageData);
@@ -86,7 +86,7 @@ public class AgentTemplateController {
             return ResultUtils.error("模板不存在");
         }
         
-        // 使用ConvertUtils转换为VO
+        // Преобразовать в VO с помощью ConvertUtils
         AgentTemplateVO vo = ConvertUtils.sourceToTarget(template, AgentTemplateVO.class);
         
         return ResultUtils.success(vo);
@@ -96,7 +96,7 @@ public class AgentTemplateController {
     @Operation(summary = "创建模板")
     @RequiresPermissions("sys:role:superAdmin")
     public Result<AgentTemplateEntity> createAgentTemplate(@Valid @RequestBody AgentTemplateEntity template) {
-        // 设置排序值为下一个可用的序号
+        // Установить значение сортировки как следующий доступный номер
         template.setSort(agentTemplateService.getNextAvailableSort());
         
         boolean saved = agentTemplateService.save(template);
@@ -123,7 +123,7 @@ public class AgentTemplateController {
     @Operation(summary = "删除模板")
     @RequiresPermissions("sys:role:superAdmin")
     public Result<String> deleteAgentTemplate(@PathVariable("id") String id) {
-        // 先查询要删除的模板信息，获取其排序值
+        // Сначала запросить информацию удаляемого шаблона для получения его значения сортировки
         AgentTemplateEntity template = agentTemplateService.getById(id);
         if (template == null) {
             return ResultUtils.error("模板不存在");
@@ -131,10 +131,10 @@ public class AgentTemplateController {
         
         Integer deletedSort = template.getSort();
         
-        // 执行删除操作
+        // Выполнить операцию удаления
         boolean deleted = agentTemplateService.removeById(id);
         if (deleted) {
-            // 删除成功后，重新排序剩余模板
+            // После успешного удаления пересортировать оставшиеся шаблоны
             agentTemplateService.reorderTemplatesAfterDelete(deletedSort);
             return ResultUtils.success("删除模板成功");
         } else {
@@ -143,7 +143,7 @@ public class AgentTemplateController {
     }
     
     
-    // 添加新的批量删除方法，使用不同的URL
+    // Добавить новый метод массового удаления с другим URL
     @PostMapping("/batch-remove")
     @Operation(summary = "批量删除模板")
     @RequiresPermissions("sys:role:superAdmin")

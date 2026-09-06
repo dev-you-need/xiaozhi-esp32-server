@@ -27,7 +27,7 @@ async def load_config():
     """加载配置文件"""
     from core.utils.cache.manager import cache_manager, CacheType
 
-    # 检查缓存
+    # Проверить кэш
     cached_config = cache_manager.get(CacheType.CONFIG, "main_config")
     if cached_config is not None:
         return cached_config
@@ -35,29 +35,29 @@ async def load_config():
     default_config_path = get_project_dir() + "config.yaml"
     custom_config_path = get_project_dir() + "data/.config.yaml"
 
-    # 加载默认配置
+    # Загрузить конфигурацию по умолчанию
     default_config = read_config(default_config_path)
     custom_config = read_config(custom_config_path)
 
     if custom_config.get("manager-api", {}).get("url"):
         config = await get_config_from_api_async(custom_config)
     else:
-        # 合并配置
+        # Конфигурация слияния
         config = merge_configs(default_config, custom_config)
-    # 初始化目录
+    # Инициализировать каталог
     ensure_directories(config)
 
-    # 缓存配置
+    # Конфигурация кэша
     cache_manager.set(CacheType.CONFIG, "main_config", config)
     return config
 
 
 async def get_config_from_api_async(config):
     """从Java API获取配置（异步版本）"""
-    # 初始化API客户端
+    # Инициализация API-клиента
     init_service(config)
 
-    # 获取服务器配置
+    # Получить конфигурацию сервера
     config_data = await get_server_config()
     if config_data is None:
         raise Exception("Failed to fetch server config from API")
@@ -68,7 +68,7 @@ async def get_config_from_api_async(config):
         "secret": config["manager-api"].get("secret", ""),
     }
     auth_enabled = config_data.get("server", {}).get("auth", {}).get("enabled", False)
-    # server的配置以本地为准
+    # конфигурация сервера локальная
     if config.get("server"):
         config_data["server"] = {
             "ip": config["server"].get("ip", ""),
@@ -78,7 +78,7 @@ async def get_config_from_api_async(config):
             "auth_key": config["server"].get("auth_key", ""),
         }
     config_data["server"]["auth"] = {"enabled": auth_enabled}
-    # 如果服务器没有prompt_template，则从本地配置读取
+    # Чтение из локальной конфигурации, если сервер не имеет prompt_template
     if not config_data.get("prompt_template"):
         config_data["prompt_template"] = config.get("prompt_template")
     return config_data
@@ -94,7 +94,7 @@ async def get_private_config_from_api(config, device_id, client_id):
     agent_result = results[0]
     correct_words = results[1] if not isinstance(results[1], Exception) else None
 
-    # 抛出业务异常
+    # Отбрасывание исключений для бизнеса
     if isinstance(agent_result, DeviceNotFoundException):
         raise agent_result
     if isinstance(agent_result, DeviceBindException):
@@ -109,12 +109,12 @@ async def get_private_config_from_api(config, device_id, client_id):
 def ensure_directories(config):
     """确保所有配置路径存在"""
     dirs_to_create = set()
-    project_dir = get_project_dir()  # 获取项目根目录
-    # 日志文件目录
+    project_dir = get_project_dir()  # Получение корневого каталога проекта
+    # Каталог файлов журнала
     log_dir = config.get("log", {}).get("log_dir", "tmp")
     dirs_to_create.add(os.path.join(project_dir, log_dir))
 
-    # ASR/TTS模块输出目录
+    # Выходной каталог модуля ASR/TTS
     for module in ["ASR", "TTS"]:
         if config.get(module) is None:
             continue
@@ -123,7 +123,7 @@ def ensure_directories(config):
             if output_dir:
                 dirs_to_create.add(output_dir)
 
-    # 根据selected_module创建模型目录
+    # Создать каталог моделей из Selected_Module
     selected_modules = config.get("selected_module", {})
     for module_type in ["ASR", "LLM", "TTS"]:
         selected_provider = selected_modules.get(module_type)
@@ -139,7 +139,7 @@ def ensure_directories(config):
             full_model_dir = os.path.join(project_dir, output_dir)
             dirs_to_create.add(full_model_dir)
 
-    # 统一创建目录（保留原data目录创建）
+    # Равномерное создание каталогов (сохранение исходного каталога данных)
     for dir_path in dirs_to_create:
         try:
             os.makedirs(dir_path, exist_ok=True)

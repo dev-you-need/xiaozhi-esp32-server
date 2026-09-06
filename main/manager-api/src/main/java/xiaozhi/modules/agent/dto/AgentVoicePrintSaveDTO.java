@@ -2,27 +2,37 @@ package xiaozhi.modules.agent.dto;
 
 import lombok.Data;
 
+
 /**
- * 保存智能体声纹的dto
+ * DTO сохранения голосового отпечатка агента
  *
  * @author zjy
  */
+
 @Data
 public class AgentVoicePrintSaveDTO {
-    /**
-     * 关联的智能体id
+    
+/**
+     * ID связанного агента
      */
+
     private String agentId;
-    /**
-     * 音频文件id
+    
+/**
+     * ID аудиофайла
      */
+
     private String audioId;
-    /**
-     * 声纹来源的人姓名
+    
+/**
+     * Имя владельца голосового отпечатка
      */
+
     private String sourceName;
-    /**
-     * 描述声纹来源的人
+    
+/**
+     * Описание владельца голосового отпечатка
      */
+
     private String introduce;
 }

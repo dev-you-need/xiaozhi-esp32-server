@@ -5,7 +5,7 @@ import java.io.Serializable;
 import lombok.Data;
 
 /**
- * 登录用户信息
+ * Информация о вошедшем пользователе
  * Copyright (c) 人人开源 All rights reserved.
  * Website: https://www.renren.io
  */

@@ -11,7 +11,7 @@
         <div class="content-area">
           <el-card class="config-card" shadow="never">
               <div class="config-header">
-              <!-- 使用角色配置页面相同的彩色图标效果 -->
+              <!-- Использование того же эффекта цветных иконок, что и на странице конфигурации ролей -->
               <div class="header-icon">
                 <img loading="lazy" src="@/assets/home/setting-user.png" alt="">
               </div>
@@ -27,7 +27,7 @@
             <div class="divider"></div>
 
             <el-form ref="form" :model="form" label-width="72px" class="full-height-form">
-              <!-- 助手昵称 -->
+              <!-- Псевдоним ассистента -->
               <el-form-item :label="$t('templateQuickConfig.agentSettings.agentName')" prop="agentName" class="nickname-item">
                 <el-input
                   v-model="form.agentName"
@@ -37,7 +37,7 @@
                 />
               </el-form-item>
               
-              <!-- 角色介绍 -->
+              <!-- Описание роли -->
               <el-form-item :label="$t('templateQuickConfig.agentSettings.systemPrompt')" prop="systemPrompt" class="description-item">
                 <el-input
                   v-model="form.systemPrompt"
@@ -64,7 +64,7 @@ import HeaderBar from "@/components/HeaderBar.vue";
 import agentApi from '@/apis/module/agent';
 import VersionFooter from "@/components/VersionFooter.vue";
 
-// 默认模型配置常量
+// Константа конфигурации модели по умолчанию
 const DEFAULT_MODEL_CONFIG = {
   ttsModelId: "TTS_EdgeTTS",
   vadModelId: "VAD_SileroVAD",
@@ -92,12 +92,12 @@ export default {
     };
   },
   methods: {
-    // 返回模板管理页面
+    // Возврат на страницу управления шаблонами
     goToHome() {
       this.$router.push('/agent-template-management');
     },
     
-    // 保存配置
+    // Сохранение конфигурации
     saveConfig() {
       const configData = this.prepareConfigData();
       
@@ -108,7 +108,7 @@ export default {
       }
     },
     
-    // 准备配置数据
+    // Подготовка данных конфигурации
     prepareConfigData() {
       return {
         id: this.templateId || '',
@@ -117,12 +117,12 @@ export default {
         systemPrompt: this.form.systemPrompt,
         sort: this.form.sort,
         functions: [],
-        // 包含必要的模型字段以确保API调用成功
+        // Включает обязательные поля модели для обеспечения успешного вызова API
         ...this.form.model
       };
     },
     
-    // 更新现有模板
+    // Обновление существующего шаблона
     updateExistingTemplate(configData) {
       agentApi.updateAgentTemplate(configData, (res) => {
         if (res && res.data && res.data.code === 0) {
@@ -140,7 +140,7 @@ export default {
       });
     },
     
-    // 创建新模板
+    // Создание нового шаблона
     createNewTemplate(configData) {
       agentApi.addAgentTemplate(configData, (res) => {
         if (res && res.data && res.data.code === 0) {
@@ -158,7 +158,7 @@ export default {
       });
     },
     
-    // 重置配置
+    // Сброс конфигурации
     resetConfig() {
       this.$confirm(
         this.$t('templateQuickConfig.confirmReset'), 
@@ -179,7 +179,7 @@ export default {
       }).catch(() => {});
     },
     
-    // 根据ID获取模板
+    // Получение шаблона по ID
     fetchTemplateById(templateId) {
       agentApi.getAgentTemplateById(templateId, (res) => {
         if (res && res.data && res.data.code === 0 && res.data.data) {
@@ -193,7 +193,7 @@ export default {
       });
     },
     
-    // 应用模板数据
+    // Применение данных шаблона
     applyTemplateData(templateData) {
       this.form = {
         ...this.form,
@@ -213,7 +213,7 @@ export default {
       };
     },
     
-    // 设置默认模板值
+    // Установка значений шаблона по умолчанию
     setDefaultTemplateValues() {
       this.form = {
         ...this.form,
@@ -226,7 +226,7 @@ export default {
       this.originalForm = JSON.parse(JSON.stringify(this.form));
     },
     
-    // 获取模板列表并设置排序号
+    // Получение списка шаблонов и установка номера сортировки
     fetchTemplateListForSort() {
       agentApi.getAgentTemplate((res) => {
         if (res && res.data && res.data.code === 0) {
@@ -246,15 +246,15 @@ export default {
     }
   },
   
-  // 组件挂载时执行初始化
+  // Выполнение инициализации при монтировании компонента
   mounted() {
     const templateId = this.$route.query.templateId;
     
     if (templateId) {
-      // 编辑模式：加载现有模板
+      // Режим редактирования: Загрузка существующего шаблона
       this.fetchTemplateById(templateId);
     } else {
-      // 新建模式：设置默认值并获取排序号
+      // Режим создания：Установка значений по умолчанию и получение номера сортировки
       this.form.agentName = this.$t('templateQuickConfig.newTemplate');
       this.fetchTemplateListForSort();
     }

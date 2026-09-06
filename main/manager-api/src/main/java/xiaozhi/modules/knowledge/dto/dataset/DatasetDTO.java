@@ -11,19 +11,19 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.validation.constraints.*;
 
 /**
- * 知识库管理聚合 DTO
+ * Агрегация управления базой знаний DTO
  * <p>
- * 容器类，内含知识库模块所有请求/响应对象的静态内部类定义。
+ * Класс контейнера，Включает все запросы на модули Базы знаний/Статическое определение внутреннего класса объекта ответа。
  * </p>
  */
 @Schema(description = "知识库管理聚合 DTO")
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class DatasetDTO {
 
-    // ========== 通用内部类 ==========
+    // ========== Общий внутренний класс ==========
 
     /**
-     * 解析器配置
+     * Конфигурация парсера
      */
     @Data
     @NoArgsConstructor
@@ -56,10 +56,10 @@ public class DatasetDTO {
         private Integer autoQuestions;
     }
 
-    // ========== 请求类 ==========
+    // ========== Класс запроса ==========
 
     /**
-     * 创建知识库请求 (映射接口 1: create)
+     * Создать запрос базы знаний (Интерфейс карты 1: create)
      */
     @Data
     @NoArgsConstructor
@@ -96,7 +96,7 @@ public class DatasetDTO {
     }
 
     /**
-     * 更新知识库请求 (映射接口 4: update)
+     * Обновить запрос базы знаний (Интерфейс карты 4: update)
      */
     @Data
     @NoArgsConstructor
@@ -136,7 +136,7 @@ public class DatasetDTO {
     }
 
     /**
-     * 查询知识库列表请求 (映射接口 3: list_datasets)
+     * Запрос запроса списка базы знаний (Интерфейс карты 3: list_datasets)
      */
     @Data
     @NoArgsConstructor
@@ -167,7 +167,7 @@ public class DatasetDTO {
     }
 
     /**
-     * 批量删除知识库请求 (映射接口 2: delete)
+     * Массовое удаление запросов базы знаний (Интерфейс карты 2: delete)
      */
     @Data
     @NoArgsConstructor
@@ -183,7 +183,7 @@ public class DatasetDTO {
     }
 
     /**
-     * 运行 GraphRAG 请求
+     * Вождение GraphRAG Запрос
      */
     @Data
     @NoArgsConstructor
@@ -201,7 +201,7 @@ public class DatasetDTO {
     }
 
     /**
-     * 运行 RAPTOR 请求
+     * Вождение RAPTOR Запрос
      */
     @Data
     @NoArgsConstructor
@@ -219,7 +219,7 @@ public class DatasetDTO {
     }
 
     /**
-     * 异步任务 ID 响应 VO (映射接口 7/8: run_graphrag/run_raptor)
+     * Асинхронные задачи ID ответ VO (Интерфейс карты 7/8: run_graphrag/run_raptor)
      */
     @Data
     @NoArgsConstructor
@@ -238,10 +238,10 @@ public class DatasetDTO {
         private String raptorTaskId;
     }
 
-    // ========== 响应类 ==========
+    // ========== Класс ответа ==========
 
     /**
-     * 知识库详情 VO (映射接口 1/3 的返回数据项)
+     * Сведения о базе знаний VO (Интерфейс карты 1/3 Возврат элементов данных для)
      */
     @Data
     @NoArgsConstructor
@@ -312,7 +312,7 @@ public class DatasetDTO {
     }
 
     /**
-     * 批量操作响应 VO
+     * Ответ на массовое действие VO
      */
     @Data
     @NoArgsConstructor
@@ -329,10 +329,10 @@ public class DatasetDTO {
         private List<Object> errors;
     }
 
-    // ========== 知识图谱相关 ==========
+    // ========== Корреляция графика знаний ==========
 
     /**
-     * 知识图谱数据 VO (映射接口 5: knowledge_graph)
+     * Данные графика знаний VO (Интерфейс карты 5: knowledge_graph)
      */
     @Data
     @NoArgsConstructor
@@ -352,7 +352,7 @@ public class DatasetDTO {
         private Map<String, Object> mindMap;
 
         /**
-         * 图谱节点
+         * Узел Atlas
          */
         @Data
         @NoArgsConstructor
@@ -379,7 +379,7 @@ public class DatasetDTO {
         }
 
         /**
-         * 图谱边
+         * Граница графика
          */
         @Data
         @NoArgsConstructor
@@ -403,10 +403,10 @@ public class DatasetDTO {
         }
     }
 
-    // ========== 异步任务追踪 (GraphRAG/RAPTOR) ==========
+    // ========== Асинхронное отслеживание задач (GraphRAG/RAPTOR) ==========
 
     /**
-     * 异步任务追踪 VO (映射接口 9/10: 任务进度返回)
+     * Асинхронное отслеживание задач VO (Интерфейс карты 9/10: Возврат к ходу выполнения задачи)
      */
     @Data
     @NoArgsConstructor

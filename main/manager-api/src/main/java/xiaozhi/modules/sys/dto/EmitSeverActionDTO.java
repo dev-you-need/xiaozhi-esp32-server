@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 import xiaozhi.modules.sys.enums.ServerActionEnum;
 
 /**
- * 发送python服务端操作DTO
+ * DTO отправки операции на Python-сервер
  */
 @Data
 @NoArgsConstructor

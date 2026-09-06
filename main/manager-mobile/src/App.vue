@@ -14,62 +14,62 @@ const langStore = useLangStore()
 
 onLaunch(() => {
   console.log('App Launch')
-  // 获取公共配置
+  // Получить общедоступную конфигурацию
   configStore.fetchPublicConfig().catch((error) => {
-    console.error('获取公共配置失败:', error)
+    console.error('Ошибка получения общих настроек:', error)
   })
 })
 onShow(() => {
   console.log('App Show')
-  // 使用setTimeout延迟执行，确保tabBar已经初始化
+  // использоватьsetTimeoutОтложенное выполнение，убеждатьсяtabBarУже инициализировано
   setTimeout(() => {
     updateTabBarText()
   }, 100)
 })
 
-// 动态更新tabBar文本
+// Динамические обновленияtabBarтекст
 function updateTabBarText() {
   try {
-    // 设置首页tabBar文本
+    // Настроить домашнюю страницуtabBarтекст
     uni.setTabBarItem({
       index: 0,
       text: t('tabBar.home'),
       success: () => {},
       fail: (err) => {
-        console.log('设置首页tabBar文本失败:', err)
+        console.log('Настроить домашнюю страницуtabBarтекст не удался:', err)
       },
     })
 
-    // 设置配网tabBar文本
+    // Установка настройки сетиtabBarтекст
     uni.setTabBarItem({
       index: 1,
       text: t('tabBar.deviceConfig'),
       success: () => {},
       fail: (err) => {
-        console.log('设置配网tabBar文本失败:', err)
+        console.log('Установка настройки сетиtabBarтекст не удался:', err)
       },
     })
 
-    // 设置系统tabBar文本
+    // Настройте системуtabBarтекст
     uni.setTabBarItem({
       index: 2,
       text: t('tabBar.settings'),
       success: () => {},
       fail: (err) => {
-        console.log('设置系统tabBar文本失败:', err)
+        console.log('Настройте системуtabBarтекст не удался:', err)
       },
     })
   }
   catch (error) {
-    console.log('更新tabBar文本时出错:', error)
+    console.log('возобновлятьtabBarПри отправке текста произошла ошибка:', error)
   }
 }
-// 监听语言切换事件
+// Отслеживание события смены языка
 onMounted(() => {
-  // 监听语言变化，当语言改变时自动更新tabBar文本
+  // Слушайте изменения языка，когда язык меняетсяАвтообновлениеtabBarтекст
   watch(() => langStore.currentLang, () => {
-    console.log('语言已切换，更新tabBar文本')
-    // 语言切换后立即更新tabBar文本
+    console.log('Язык был переключен，возобновлятьtabBarтекст')
+    // Обновление сразу после переключения языкаtabBarтекст
     updateTabBarText()
   })
 })

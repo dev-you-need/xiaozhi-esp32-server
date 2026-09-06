@@ -35,7 +35,7 @@ class StreamTTSPerformanceTester:
                 host = tts_config["host"]
                 ws_url = f"wss://{host}/ws/v1"
 
-                # 统一计时起点：在建立连接前开始计时
+                # Единая начальная точка синхронизации: начните синхронизацию до установления соединения
                 start_time = time.time()
                 async with websockets.connect(ws_url, extra_headers={"X-NLS-Token": token}) as ws:
                     task_id = str(uuid.uuid4())
@@ -127,7 +127,7 @@ class StreamTTSPerformanceTester:
                 ) as ws:
                     session_id = uuid.uuid4().hex
 
-                    # 1. 发送 run-task（启动任务）
+                    # 1. Отправьте run-task
                     run_task_message = {
                         "header": {
                             "action": "run-task",
@@ -153,7 +153,7 @@ class StreamTTSPerformanceTester:
                     }
                     await ws.send(json.dumps(run_task_message))
 
-                    # 2. 等待 task-started 事件（关键！必须等这个再发文本）
+                    # 2. Дождитесь события, начатого в задаче (критично! Необходимо дождаться повторной отправки этого текста)
                     task_started = False
                     while not task_started:
                         msg = await ws.recv()
@@ -167,10 +167,10 @@ class StreamTTSPerformanceTester:
                             elif event == "task-failed":
                                 raise Exception(f"启动失败: {header.get('error_message', '未知错误')}")
 
-                    # 3. 发送 continue-task（发送文本！这是正确动作）
+                    # 3. Отправьте continue-task (отправьте текст! Это правильное действие)
                     continue_task_message = {
                         "header": {
-                            "action": "continue-task",  # 改回 continue-task
+                            "action": "continue-task",  # Вернуться к задаче «Продолжить»
                             "task_id": session_id,
                             "streaming": "duplex",
                         },
@@ -178,7 +178,7 @@ class StreamTTSPerformanceTester:
                     }
                     await ws.send(json.dumps(continue_task_message))
 
-                    # 4. 发送 finish-task（结束任务）
+                    # 4. Отправьте завершающее задание
                     finish_task_message = {
                         "header": {
                             "action": "finish-task",
@@ -189,7 +189,7 @@ class StreamTTSPerformanceTester:
                     }
                     await ws.send(json.dumps(finish_task_message))
 
-                    # 5. 等待第一个音频数据块
+                    # 5. Дождитесь первого блока аудиоданных
                     while True:
                         msg = await asyncio.wait_for(ws.recv(), timeout=15.0)
                         if isinstance(msg, (bytes, bytearray)) and len(msg) > 0:
@@ -236,7 +236,7 @@ class StreamTTSPerformanceTester:
                 async with websockets.connect(ws_url, additional_headers=ws_header, max_size=1000000000) as ws:
                     session_id = uuid.uuid4().hex
 
-                    # 发送会话启动请求
+                    # Отправить запрос на начало сеанса
                     header = bytes([
                         (0b0001 << 4) | 0b0001,  
                         0b0001 << 4 | 0b1011,     
@@ -250,7 +250,7 @@ class StreamTTSPerformanceTester:
                     payload = json.dumps({"speaker": speaker}).encode()
                     await ws.send(header + optional + len(payload).to_bytes(4, "big", signed=True) + payload)
 
-                    # 发送文本
+                    # Отправить текст
                     header = bytes([
                         (0b0001 << 4) | 0b0001,  
                         0b0001 << 4 | 0b1011,    
@@ -291,7 +291,7 @@ class StreamTTSPerformanceTester:
 
                 start_time = time.time()
                 async with websockets.connect(tts_url) as ws:
-                    # 发送开始请求
+                    # Отправить запрос на запуск
                     await ws.send(json.dumps({
                         "task": "tts",
                         "signal": "start"
@@ -301,7 +301,7 @@ class StreamTTSPerformanceTester:
                     if start_response.get("status") != 0:
                         raise Exception("连接失败")
                     
-                    # 发送文本数据
+                    # Отправить текстовые данные
                     await ws.send(json.dumps({
                         "text": text,
                         "spk_id": spk_id,
@@ -309,20 +309,20 @@ class StreamTTSPerformanceTester:
                         "volume": volume
                     }))
                     
-                    # 接收第一个数据块
+                    # Получение первого блока данных
                     first_chunk = await ws.recv()
                     latency = time.time() - start_time
                     latencies.append(latency)
                     print(f"[PaddleSpeechTTS] 第{i+1}次 首词延迟: {latency:.3f}s")
 
-                    # 发送结束请求
+                    # Отправить запрос на завершение
                     end_request = {
                         "task": "tts",
                         "signal": "end"
                     }
                     await ws.send(json.dumps(end_request))
 
-                    # 确保连接正常关闭
+                    # Убедитесь, что соединение закрыто правильно
                     try:
                         await ws.recv()
                     except websockets.exceptions.ConnectionClosedOK:
@@ -345,7 +345,7 @@ class StreamTTSPerformanceTester:
                 api_url = tts_config.get("api_url")
                 voice = tts_config.get("voice")
 
-                # 统一计时起点：在建立连接前开始计时
+                # Единая начальная точка синхронизации: начните синхронизацию до установления соединения
                 start_time = time.time()
 
                 async with aiohttp.ClientSession() as session:
@@ -385,7 +385,7 @@ class StreamTTSPerformanceTester:
                 access_token = tts_config["access_token"]
                 voice = tts_config["voice"]
 
-                # 统一计时起点：在建立连接前开始计时
+                # Единая начальная точка синхронизации: начните синхронизацию до установления соединения
                 start_time = time.time()
                 async with aiohttp.ClientSession() as session:
                     params = {
@@ -406,7 +406,7 @@ class StreamTTSPerformanceTester:
                         if resp.status != 200:
                             raise Exception(f"请求失败: {resp.status}, {await resp.text()}")
 
-                        # 接收第一个数据块
+                        # Получение первого блока данных
                         async for _ in resp.content.iter_any():
                             latency = time.time() - start_time
                             latencies.append(latency)
@@ -428,14 +428,14 @@ class StreamTTSPerformanceTester:
         
         for i in range(test_count):
             try:
-                # 修正配置节点名称，与配置文件中的XunFeiTTS匹配
+                # Исправление имени узла конфигурации для соответствия XunFeiTTS в файле конфигурации
                 tts_config = self.config["TTS"]["XunFeiTTS"]
                 app_id = tts_config["app_id"]
                 api_key = tts_config["api_key"]
                 api_secret = tts_config["api_secret"]
                 api_url = tts_config.get("api_url", "wss://cbm01.cn-huabei-1.xf-yun.com/v1/private/mcd9m97e6")
                 voice = tts_config.get("voice", "x5_lingxiaoxuan_flow")
-                # 生成认证URL
+                # Сгенерировать URL аутентификации
                 auth_url = self._create_xunfei_auth_url(api_key, api_secret, api_url)
                 start_time = time.time()
                 async with websockets.connect(
@@ -445,10 +445,10 @@ class StreamTTSPerformanceTester:
                     close_timeout=10,
                     max_size=1000000000
                 ) as ws:
-                    # 构造请求
+                    # Запрос ткани
                     request = self._build_xunfei_request(app_id, text, voice)
                     await ws.send(json.dumps(request))
-                    # 等待第一个音频数据块
+                    # Дождитесь первого блока аудиоданных
                     first_audio_received = False
                     while not first_audio_received:
                         msg = await asyncio.wait_for(ws.recv(), timeout=10)
@@ -467,7 +467,7 @@ class StreamTTSPerformanceTester:
                             status = audio_payload.get("status", 0)
                             audio_data = audio_payload.get("audio", "")
                             if status == 1 and audio_data:
-                                # 收到第一个音频数据块
+                                # Получен первый блок аудиоданных
                                 latency = time.time() - start_time
                                 latencies.append(latency)
                                 print(f"[讯飞TTS] 第{i+1}次 首词延迟: {latency:.3f}s")
@@ -485,14 +485,14 @@ class StreamTTSPerformanceTester:
         host = parsed_url.netloc
         path = parsed_url.path
         
-        # 获取UTC时间，讯飞要求使用RFC1123格式
+        # Получить время UTC, Xunfei требует формат RFC1123
         now = time.gmtime()
         date = time.strftime('%a, %d %b %Y %H:%M:%S GMT', now)
         
-        # 构造签名字符串
+        # Построить строку подписи
         signature_origin = f"host: {host}\ndate: {date}\nGET {path} HTTP/1.1"
         
-        # 计算签名
+        # Рассчитать подпись
         signature_sha = hmac.new(
             api_secret.encode('utf-8'),
             signature_origin.encode('utf-8'),
@@ -500,11 +500,11 @@ class StreamTTSPerformanceTester:
         ).digest()
         signature_sha_base64 = base64.b64encode(signature_sha).decode(encoding='utf-8')
         
-        # 构造authorization
+        # Авторизация структуры
         authorization_origin = f'api_key="{api_key}", algorithm="hmac-sha256", headers="host date request-line", signature="{signature_sha_base64}"'
         authorization = base64.b64encode(authorization_origin.encode('utf-8')).decode(encoding='utf-8')
         
-        # 构造最终的WebSocket URL
+        # Создайте окончательный URL-адрес WebSocket
         v = {
             "authorization": authorization,
             "date": date,
@@ -560,7 +560,7 @@ class StreamTTSPerformanceTester:
 
     def _calculate_result(self, service_name, latencies, test_count):
         """计算测试结果（正确处理None值，剔除失败测试）"""
-        # 剔除失败的测试（None值和<=0延迟），只统计有效延迟
+        # Тесты отбраковки не пройдены (значение отсутствует и задержка < = 0), учитывается только эффективная задержка
         valid_latencies = [l for l in latencies if l is not None and l > 0]
         if valid_latencies:
             avg_latency = sum(valid_latencies) / len(valid_latencies)
@@ -582,7 +582,7 @@ class StreamTTSPerformanceTester:
         print(f"测试文本: {test_text}")
         print(f"测试次数: 每个TTS服务测试 {test_count} 次")
 
-        # 排序结果：成功优先，按延迟升序
+        # Результат сортировки: сначала успех, по возрастанию с задержкой
         success_results = sorted(
             [r for r in self.results if "成功" in r["status"]],
             key=lambda x: x["latency"]
@@ -618,40 +618,40 @@ class StreamTTSPerformanceTester:
             print("配置文件中未找到TTS配置")
             return
         
-        # 测试每种TTS服务
+        # Протестируйте каждую услугу TTS
         self.results = []
         
-        # 测试阿里云TTS
+        # Тестирование Alibaba Cloud TTS
         result = await self.test_aliyun_tts(test_text, test_count)
         self.results.append(result)
 
-        # 测试阿里云百炼TTS
+        # Протестируйте Alibaba Cloud Refining TTS
         if self.config.get("TTS", {}).get("AliBLTTS"):
             result = await self.test_alibl_tts(test_text, test_count)
             self.results.append(result)
 
-        # 测试火山引擎TTS
+        # Испытательный двигатель Volcano TTS
         result = await self.test_doubao_tts(test_text, test_count)
         self.results.append(result)
         
-        # 测试PaddleSpeech TTS
+        # Test PaddleSpeech TTS
         result = await self.test_paddlespeech_tts(test_text, test_count)
         self.results.append(result)
         
-        # 测试Linkerai TTS
+        # Тест Linkerai TTS
         result = await self.test_linkerai_tts(test_text, test_count)
         self.results.append(result)
         
-        # 测试IndexStreamTTS
+        # Test IndexStreamTTS
         result = await self.test_indexstream_tts(test_text, test_count)
         self.results.append(result)
         
-        # 测试讯飞TTS
+        # Испытание Xunfei TTS
         if self.config.get("TTS", {}).get("XunFeiTTS"):
             result = await self.test_xunfei_tts(test_text, test_count)
             self.results.append(result)
         
-        # 打印结果
+        # Распечатать результаты
         self._print_results(test_text, test_count)
 
 

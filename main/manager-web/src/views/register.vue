@@ -69,7 +69,7 @@
                 </div>
               </template>
 
-              <!-- 密码输入框 -->
+              <!-- Поле ввода пароля -->
               <div class="input-box">
                 <img loading="lazy" alt="" class="input-icon" src="@/assets/login/password.png" />
                 <el-input v-model="form.password" :placeholder="$t('register.passwordPlaceholder')" type="password"
@@ -220,7 +220,7 @@ export default {
       });
     },
 
-    // 封装输入验证逻辑
+    // Инкапсуляция логики проверки ввода
     validateInput(input, message) {
       if (!input.trim()) {
         showDanger(message);
@@ -242,13 +242,13 @@ export default {
         return;
       }
 
-      // 清除可能存在的旧定时器
+      // Очистка возможных старых таймеров
       if (this.timer) {
         clearInterval(this.timer);
         this.timer = null;
       }
 
-      // 开始倒计时
+      // Начало обратного отсчёта
       this.countdown = 60;
       this.timer = setInterval(() => {
         if (this.countdown > 0) {
@@ -307,11 +307,11 @@ export default {
       // 加密
       let encryptedPassword;
       try {
-        // 拼接验证码和密码
+        // Объединение кода подтверждения и пароля
         const captchaAndPassword = this.form.captcha + this.form.password;
         encryptedPassword = sm2Encrypt(this.sm2PublicKey, captchaAndPassword);
       } catch (error) {
-        console.error("密码加密失败:", error);
+        console.error("Ошибка шифрования пароля:", error);
         showDanger(this.$t('sm2.encryptionFailed'));
         return;
       }
@@ -323,7 +323,7 @@ export default {
         plainUsername = this.form.username;
       }
 
-      // 准备注册数据
+      // 准Примечание册数据
       const registerData = {
         username: plainUsername,
         password: encryptedPassword,

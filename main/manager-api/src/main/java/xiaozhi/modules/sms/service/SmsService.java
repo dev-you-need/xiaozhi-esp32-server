@@ -1,7 +1,7 @@
 package xiaozhi.modules.sms.service;
 
 /**
- * 短信服务的方法定义接口
+ * Интерфейс определения методов службы SMS
  *
  * @author zjy
  * @since 2025-05-12
@@ -9,9 +9,9 @@ package xiaozhi.modules.sms.service;
 public interface SmsService {
 
     /**
-     * 发送验证码短信
-     * @param phone 手机号码
-     * @param VerificationCode 验证码
+     * Отправка SMS с кодом проверки
+     * @param phone Номер телефона
+     * @param VerificationCode Код проверки
      */
     void sendVerificationCodeSms(String phone, String VerificationCode) ;
 }

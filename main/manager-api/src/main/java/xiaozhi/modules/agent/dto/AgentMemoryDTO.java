@@ -5,9 +5,11 @@ import java.io.Serializable;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
+
 /**
- * 智能体记忆更新DTO
+ * DTO обновления памяти агента
  */
+
 @Data
 @Schema(description = "智能体记忆更新对象")
 public class AgentMemoryDTO implements Serializable {

@@ -31,21 +31,21 @@ public class AgentMcpAccessPointServiceImpl implements AgentMcpAccessPointServic
 
     @Override
     public String getAgentMcpAccessAddress(String id) {
-        // 获取到mcp的地址
+        // Получить адрес MCP
         String url = sysParamsService.getValue(Constant.SERVER_MCP_ENDPOINT, true);
         if (StringUtils.isBlank(url) || "null".equals(url)) {
             return null;
         }
         URI uri = getURI(url);
-        // 获取智能体mcp的url前缀
+        // Получить префикс URL MCP агента
         String agentMcpUrl = getAgentMcpUrl(uri);
-        // 获取密钥
+        // Получить ключ
         String key = getSecretKey(uri);
-        // 获取加密的token
+        // Получить зашифрованный токен
         String encryptToken = encryptToken(id, key);
-        // 对token进行URL编码
+        // Выполнить URL-кодирование токена
         String encodedToken = URLEncoder.encode(encryptToken, StandardCharsets.UTF_8);
-        // 返回智能体Mcp路径的格式
+        // Вернуть формат пути MCP агента
         agentMcpUrl = "%s/mcp/?token=%s".formatted(agentMcpUrl, encodedToken);
         return agentMcpUrl;
     }
@@ -57,11 +57,11 @@ public class AgentMcpAccessPointServiceImpl implements AgentMcpAccessPointServic
             return List.of();
         }
 
-        // 将 /mcp 替换为 /call
+        // Заменить /mcp на /call
         wsUrl = wsUrl.replace("/mcp/", "/call/");
 
         try {
-            // 创建 WebSocket 连接，增加超时时间到15秒
+            // Создать WebSocket соединение, увеличить тайм-аут до 15 секунд
             try (WebSocketClientManager client = WebSocketClientManager.build(
                     new WebSocketClientManager.Builder()
                             .uri(wsUrl)
@@ -69,16 +69,16 @@ public class AgentMcpAccessPointServiceImpl implements AgentMcpAccessPointServic
                             .connectTimeout(8, TimeUnit.SECONDS)
                             .maxSessionDuration(10, TimeUnit.SECONDS))) {
 
-                // 步骤1: 发送初始化消息并等待响应
+                // Шаг 1: Отправить сообщение инициализации и ожидать ответа
                 log.info("发送MCP初始化消息，智能体ID: {}", id);
                 client.sendText(XiaoZhiMcpJsonRpcJson.getInitializeJson());
 
-                // 等待初始化响应 (id=1) - 移除固定延迟，改为响应驱动
+                // Ожидание ответа инициализации (id=1) - убрана фиксированная задержка, переход на ответное управление
                 List<String> initResponses = client.listenerWithoutClose(response -> {
                     try {
                         Map<String, Object> jsonMap = JsonUtils.parseMap(response);
                         if (jsonMap != null && Integer.valueOf(1).equals(jsonMap.get("id"))) {
-                            // 检查是否有result字段，表示初始化成功
+                            // Проверить наличие поля result, указывающего на успешную инициализацию
                             return jsonMap.containsKey("result") && !jsonMap.containsKey("error");
                         }
                         return false;
@@ -88,7 +88,7 @@ public class AgentMcpAccessPointServiceImpl implements AgentMcpAccessPointServic
                     }
                 });
 
-                // 验证初始化响应
+                // Проверка ответа инициализации
                 boolean initSucceeded = false;
                 for (String response : initResponses) {
                     try {
@@ -113,14 +113,14 @@ public class AgentMcpAccessPointServiceImpl implements AgentMcpAccessPointServic
                     return List.of();
                 }
 
-                // 步骤2: 发送初始化完成通知 - 只有在收到initialize响应后才发送
+                // Шаг 2: Отправить уведомление о завершении инициализации - только после получения ответа initialize
                 log.info("发送MCP初始化完成通知，智能体ID: {}", id);
                 client.sendText(XiaoZhiMcpJsonRpcJson.getNotificationsInitializedJson());
-                // 步骤3: 发送工具列表请求 - 立即发送，无需额外延迟
+                // Шаг 3: Запросить список инструментов - отправить сразу, без дополнительной задержки
                 log.info("发送MCP工具列表请求，智能体ID: {}", id);
                 client.sendText(XiaoZhiMcpJsonRpcJson.getToolsListJson());
 
-                // 等待工具列表响应 (id=2)
+                // Ожидание ответа списка инструментов (id=2)
                 List<String> toolsResponses = client.listener(response -> {
                     try {
                         Map<String, Object> jsonMap = JsonUtils.parseMap(response);
@@ -131,19 +131,19 @@ public class AgentMcpAccessPointServiceImpl implements AgentMcpAccessPointServic
                     }
                 });
 
-                // 处理工具列表响应
+                // Обработка ответа списка инструментов
                 for (String response : toolsResponses) {
                     try {
                         Map<String, Object> jsonMap = JsonUtils.parseMap(response);
                         if (jsonMap != null && Integer.valueOf(2).equals(jsonMap.get("id"))) {
-                            // 检查是否有result字段
+                            // Проверить наличие поля result
                             Object resultObj = jsonMap.get("result");
                             if (resultObj instanceof Map<?, ?>) {
                                 Map<String, Object> resultMap = JsonUtils.toStringObjectMap(resultObj);
                                 Object toolsObj = resultMap.get("tools");
                                 if (toolsObj instanceof List<?>) {
                                     List<Map<String, Object>> toolsList = JsonUtils.toStringObjectMapList(toolsObj);
-                                    // 提取工具名称列表
+                                    // Извлечь список имен инструментов
                                     List<String> result = toolsList.stream()
                                             .map(tool -> String.class.cast(tool.get("name")))
                                             .filter(name -> name != null)
@@ -172,12 +172,14 @@ public class AgentMcpAccessPointServiceImpl implements AgentMcpAccessPointServic
         }
     }
 
-    /**
-     * 获取URI对象
+    
+/**
+     * Получить объект URI
      * 
-     * @param url 路径
-     * @return URI对象
+     * @param url Путь
+     * @return Объект URI
      */
+
     private static URI getURI(String url) {
         try {
             return new URI(url);
@@ -187,49 +189,55 @@ public class AgentMcpAccessPointServiceImpl implements AgentMcpAccessPointServic
         }
     }
 
-    /**
-     * 获取密钥
+    
+/**
+     * Получить ключ
      *
-     * @param uri mcp地址
-     * @return 密钥
+     * @param uri Адрес MCP
+     * @return Ключ
      */
+
     private static String getSecretKey(URI uri) {
-        // 获取参数
+        // Получить параметры
         String query = uri.getQuery();
-        // 获取aes加密密钥
+        // Получить ключ шифрования aes
         String str = "key=";
         return query.substring(query.indexOf(str) + str.length());
     }
 
-    /**
-     * 获取智能体mcp接入点url
+    
+/**
+     * Получить URL точки доступа MCP агента
      *
-     * @param uri mcp地址
-     * @return 智能体mcp接入点url
+     * @param uri Адрес MCP
+     * @return АгентURL точки доступа MCP
      */
+
     private String getAgentMcpUrl(URI uri) {
-        // 获取协议
+        // Получить протокол
         String wsScheme = (uri.getScheme().equals("https")) ? "wss" : "ws";
-        // 获取主机，端口，路径
+        // Получить хост, порт, путь
         String path = uri.getSchemeSpecificPart();
-        // 获取到最后一个/前的path
+        // Получить путь до последнего /
         path = path.substring(0, path.lastIndexOf("/"));
         return wsScheme + ":" + path;
     }
 
-    /**
-     * 获取对智能体id加密的token
+    
+/**
+     * Получить токен, зашифрованный по ID агента
      *
-     * @param agentId 智能体id
-     * @param key     加密密钥
-     * @return 加密后token
+     * @param agentId ID агента
+     * @param key     Ключ шифрования
+     * @return Зашифрованный токен
      */
+
     private static String encryptToken(String agentId, String key) {
-        // 使用md5对智能体id进行加密
+        // Выполнить шифрование MD5 по ID агента
         String md5 = DigestUtil.md5Hex(agentId);
-        // aes需要加密文本
+        // Текст для шифрования AES
         String json = "{\"agentId\": \"%s\"}".formatted(md5);
-        // 加密后成token值
+        // Зашифровать в значение токена
         return AESUtils.encrypt(key, json);
     }
 }

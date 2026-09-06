@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 /**
- * 音色分页参数DTO
+ * DTO параметров пагинации тембра
  * 
  * @author zjy
  * @since 2025-3-21

@@ -15,20 +15,24 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 
+
 /**
  * @author chenerlei
- * @description 针对表【ai_agent_template(智能体配置模板表)】的数据库操作Service实现
+ * @description Сервис работы с БД для таблицы ai_agent_template (шаблоны конфигурации агента)реализация
  * @createDate 2025-03-22 11:48:18
  */
+
 @Service
 public class AgentTemplateServiceImpl extends CrudRepository<AgentTemplateDao, AgentTemplateEntity>
         implements AgentTemplateService {
 
-    /**
-     * 获取默认模板
+    
+/**
+     * Получить шаблон по умолчанию
      * 
-     * @return 默认模板实体
+     * @return Сущность шаблона по умолчанию
      */
+
     public AgentTemplateEntity getDefaultTemplate() {
         LambdaQueryWrapper<AgentTemplateEntity> wrapper = new LambdaQueryWrapper<>();
         wrapper.orderByAsc(AgentTemplateEntity::getSort)
@@ -36,16 +40,18 @@ public class AgentTemplateServiceImpl extends CrudRepository<AgentTemplateDao, A
         return this.getOne(wrapper);
     }
 
-    /**
-     * 更新默认模板中的模型ID
+    
+/**
+     * Обновить ID модели в шаблоне по умолчанию
      * 
-     * @param modelType 模型类型
-     * @param modelId   模型ID
+     * @param modelType Тип модели
+     * @param modelId   ID модели
      */
+
     @Override
     public void updateDefaultTemplateModelId(String modelType, String modelId) {
         modelType = modelType.toUpperCase();
-        // 如果是rag模型，不需要更新
+        // Если модель RAG — обновление не требуется
         if (modelType.equals("RAG")) {
             return;
         }
@@ -85,18 +91,18 @@ public class AgentTemplateServiceImpl extends CrudRepository<AgentTemplateDao, A
             return;
         }
         
-        // 查询所有排序值大于被删除模板的记录
+        // Запросить записи со значением сортировки больше, чем у удалённого шаблона
         UpdateWrapper<AgentTemplateEntity> updateWrapper = new UpdateWrapper<>();
         updateWrapper.gt("sort", deletedSort)
                     .setSql("sort = sort - 1");
         
-        // 执行批量更新，将这些记录的排序值减1
+        // Массовое обновление — уменьшить значение сортировки на 1
         this.update(updateWrapper);
     }
 
     @Override
     public Integer getNextAvailableSort() {
-        // 查询所有已存在的排序值并按升序排序
+        // Запросить все существующие значения сортировки по возрастанию
         List<Integer> sortValues = baseMapper.selectList(new QueryWrapper<AgentTemplateEntity>())
                 .stream()
                 .map(AgentTemplateEntity::getSort)
@@ -104,22 +110,22 @@ public class AgentTemplateServiceImpl extends CrudRepository<AgentTemplateDao, A
                 .sorted()
                 .collect(Collectors.toList());
         
-        // 如果没有排序值，返回1
+        // Если значений сортировки нет — вернуть 1
         if (sortValues.isEmpty()) {
             return 1;
         }
         
-        // 寻找最小的未使用序号
+        // Найти наименьший неиспользуемый номер
         int expectedSort = 1;
         for (Integer sort : sortValues) {
             if (sort > expectedSort) {
-                // 找到空缺的序号
+                // Найден пропущенный номер
                 return expectedSort;
             }
             expectedSort = sort + 1;
         }
         
-        // 如果没有空缺，返回最大序号+1
+        // Если пропусков нет — вернуть максимальный номер + 1
         return expectedSort;
     }
 }

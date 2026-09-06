@@ -22,12 +22,12 @@ public class AsyncConfig {
         executor.setMaxPoolSize(4);
         executor.setQueueCapacity(1000);
         executor.setThreadNamePrefix("AsyncThread-");
-        // 设置拒绝策略：由调用线程执行
+        // Установка политики отказа: выполнение вызывающим потоком
         executor.setRejectedExecutionHandler(new RejectedExecutionHandler() {
             @Override
             public void rejectedExecution(Runnable r, ThreadPoolExecutor executor) {
                 try {
-                    // 如果线程池已满，则由调用线程执行
+                    // Если пул потоков заполнен, выполняется вызывающим потоком
                     r.run();
                 } catch (Exception e) {
                     throw new RuntimeException("执行异步任务失败", e);

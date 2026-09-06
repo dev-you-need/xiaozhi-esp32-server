@@ -97,10 +97,10 @@ export default {
     visible(val) {
       this.dialogVisible = val;
       if (val) {
-        // 对话框显示时加载RAG模型列表
+        // Загрузить список моделей RAG при отображении диалога
         this.loadRAGModels();
 
-        // 如果是新增知识库且没有设置ragModelId，则默认选择第一个RAG模型
+        // Если добавляется база знаний и не настроенаragModelId，则默认选择第一个RAG模型
         if (!this.form.id && !this.form.ragModelId && this.ragModels.length > 0) {
           this.$set(this.form, 'ragModelId', this.ragModels[0].id);
         }
@@ -110,10 +110,10 @@ export default {
         }
       }
     },
-    // 监听RAG模型列表变化，确保新增时能正确设置默认值
+    // Отслеживание изменений списка моделей RAG, Обеспечение корректной установки значений по умолчанию при добавлении
     ragModels(newModels) {
       if (newModels.length > 0) {
-        // 如果是新增知识库且没有设置ragModelId，则默认选择第一个RAG模型
+        // Если добавляется база знаний и не настроена ragModelId, то по умолчанию выбирается первая модель RAG
         if (!this.form.id && !this.form.ragModelId) {
           this.$set(this.form, 'ragModelId', newModels[0].id);
         }
@@ -122,8 +122,8 @@ export default {
   },
   methods: {
     handleClose() {
-      // 不重置表单字段，以便在编辑时能保留之前的选择
-      // 只在对话框关闭时重置验证状态
+      // Не сбрасывать поля формы, чтобы при редактировании сохранять предыдущий выбор
+      // Сбрасывать состояние проверки только при закрытии диалога
       if (this.$refs.knowledgeBaseForm) {
         this.$refs.knowledgeBaseForm.clearValidate();
       }
@@ -144,17 +144,17 @@ export default {
     },
     loadRAGModels() {
       if (this.ragModels.length > 0) {
-        return; // 已经加载过，避免重复加载
+        return; // Уже загружено, Избежание повторной загрузки
       }
 
-      console.log('开始加载RAG模型列表');
+      console.log('Начало загрузкиRAG模型列表');
       Api.model.getRAGModels((res) => {
         console.log('RAG模型列表响应:', res);
         if (res.data && res.data.code === 0) {
           this.ragModels = res.data.data || [];
           console.log('RAG模型列表加载成功，共', this.ragModels.length, '个模型');
 
-          // 如果是新增知识库且没有设置ragModelId，则默认选择第一个RAG模型
+        // Если добавляется база знаний и не настроена ragModelId, то по умолчанию выбирается первая модель RAG
           if (!this.form.id && !this.form.ragModelId && this.ragModels.length > 0) {
             this.$set(this.form, 'ragModelId', this.ragModels[0].id);
             console.log('已设置默认RAG模型:', this.ragModels[0].id);

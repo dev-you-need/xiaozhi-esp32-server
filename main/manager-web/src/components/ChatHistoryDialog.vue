@@ -121,7 +121,7 @@ export default {
             isFirstLoad: true,
             playingAudioId: null,
             audioElement: null,
-            expandedToolResults: {} // 跟踪工具结果的展开状态
+            expandedToolResults: {} // Отслеживание состояния развёрнутости результатов инструментов
         };
     },
     components: {
@@ -151,9 +151,9 @@ export default {
             if (!this.messages || this.messages.length === 0) return [];
 
             const result = [];
-            const TIME_INTERVAL = 60 * 1000; // 1分钟的时间间隔（毫秒）
+            const TIME_INTERVAL = 60 * 1000; // Интервал 1 минута (миллисекунды)
 
-            // 添加第一条消息的时间标记
+            // Добавление временной метки первого сообщения
             if (this.messages[0]) {
                 result.push({
                     type: 'time',
@@ -162,12 +162,12 @@ export default {
                 });
             }
 
-            // 处理消息列表
+            // Обработка списка сообщений
             for (let i = 0; i < this.messages.length; i++) {
                 const currentMessage = this.messages[i];
                 result.push(currentMessage);
 
-                // 检查是否需要添加时间标记
+                // Проверка необходимости добавления временной метки
                 if (i < this.messages.length - 1) {
                     const currentTime = new Date(currentMessage.createdAt).getTime();
                     const nextTime = new Date(this.messages[i + 1].createdAt).getTime();
@@ -187,50 +187,50 @@ export default {
     },
     methods: {
         /**
-         * 从 content 字段中提取聊天内容
-         * 如果 content 是 JSON 格式（如 {"speaker": "未知说话人", "content": "现在几点了。"}），则提取 content 字段
-         * 如果 content 是普通字符串，则直接返回
+         * Извлечение содержимого чата из поля content
+         * Если content имеет формат JSON (например {"speaker": "Неизвестный говорящий", "content": "Который час."}), то извлекается поле content
+         * Если content является обычной строкой, то возвращается как есть
          * 
-         * @param {string} content 原始内容
-         * @returns {string} 提取的聊天内容
+         * @param {string} content Исходное содержимое
+         * @returns {string} Извлечённое содержимое чата
          */
         extractContentFromString(content) {
             if (!content || content.trim() === '') {
                 return content;
             }
 
-            // 尝试解析为 JSON
+            // Попытка разобрать как JSON
             try {
                 const jsonObj = JSON.parse(content);
 
-                // 如果是数组格式（包含 text 和 tool）
+                // Если формат массива (содержит text и tool)
                 if (Array.isArray(jsonObj)) {
                     return jsonObj;
                 }
 
-                // 如果是对象且有 content 字段
+                // Если это объект и имеет поле content
                 if (jsonObj && typeof jsonObj === 'object' && jsonObj.content) {
                     return jsonObj.content;
                 }
             } catch (e) {
-                // 如果不是有效的 JSON，直接返回原内容
+                // Если не является валидным JSON, вернуть оригинальное содержимое
             }
 
-            // 如果不是 JSON 格式或没有 content 字段，直接返回原内容
+            // Если не является форматом JSON или отсутствует поле content, вернуть оригинальное содержимое
             return content;
         },
-        // 切换工具结果的展开/折叠状态
+        // Переключение состояния развёрнутости/свёрнутости результатов инструментов
         toggleToolResult(messageIndex, itemIndex) {
             const key = `${messageIndex}-${itemIndex}`;
             this.$set(this.expandedToolResults, key, !this.expandedToolResults[key]);
         },
-        // 判断工具结果是否处于折叠状态
+        // Проверка, находятся ли результаты инструментов в свёрнутом состоянии
         isToolResultCollapsed(messageIndex, itemIndex) {
             const key = `${messageIndex}-${itemIndex}`;
-            // 默认折叠（true表示折叠）
+            // Свёрнуто по умолчанию (true означает свёрнуто)
             return !this.expandedToolResults[key];
         },
-        // 获取截断的文本（只显示第一行）
+        // Получение обрезанного текста (отображается только первая строка)
         getFirstLineText(text) {
             if (!text) return '';
             const firstLine = text.split('\n')[0];
@@ -282,7 +282,7 @@ export default {
                     if (this.messages.length > 0 && this.messages[0].macAddress) {
                         this.currentMacAddress = this.messages[0].macAddress;
                     }
-                    // 更新会话列表中的聊天记录数量
+                    // Обновление количества записей чата в списке сессий
                     this.sessions = this.sessions.map(item => {
                         if (item.sessionId === session.sessionId) {
                             item.chatCount = this.messages.length;
@@ -299,7 +299,7 @@ export default {
 
             this.scrollTimer = setTimeout(() => {
                 const { scrollTop, scrollHeight, clientHeight } = e.target;
-                // 当滚动到底部时加载更多
+                // Загрузка дополнительных данных при прокрутке вниз
                 if (scrollHeight - scrollTop <= clientHeight + 50) {
                     this.loadSessions();
                 }
@@ -334,7 +334,7 @@ export default {
         },
         playAudio: debounce(function(message) {
             if (this.playingAudioId === message.audioId) {
-                // 如果正在播放当前音频，则停止播放
+                // Если воспроизводится текущее аудио, остановить воспроизведение
                 if (this.audioElement) {
                     this.audioElement.pause();
                     this.audioElement = null;
@@ -343,13 +343,13 @@ export default {
                 return;
             }
 
-            // 停止当前正在播放的音频
+            // Остановка текущего воспроизводимого аудио
             if (this.audioElement) {
                 this.audioElement.pause();
                 this.audioElement = null;
             }
 
-            // 先获取音频下载ID
+            // Сначала получить ID скачивания аудио
             this.playingAudioId = message.audioId;
             Api.agent.getAudioId(message.audioId, (res) => {
                 if (res.data && res.data.data) {
@@ -357,7 +357,7 @@ export default {
                         this.audioElement = new Audio();
                     }
                     
-                    // 使用获取到的下载ID播放音频
+                    // Воспроизвести аудио, используя полученный ID скачивания
                     this.audioElement.src = Api.getServiceUrl() + `/agent/play/${res.data.data}`;
                     this.audioElement.onended = () => {
                         this.playingAudioId = null;
@@ -369,21 +369,21 @@ export default {
             });
         }, 300),
         getUserAvatar(sessionId) {
-            // 从 sessionId 中提取所有数字
+            // Извлечение всех цифр из sessionId
             const numbers = sessionId.match(/\d+/g);
             if (!numbers) return require('@/assets/user-avatar1.png');
 
-            // 将所有数字相加
+            // Суммирование всех цифр
             const sum = numbers.reduce((acc, num) => acc + parseInt(num), 0);
 
-            // 计算模5并加1，得到1-5之间的数字
+            // Вычисление остатка от деления на 5 и добавление 1, получаем число от 1 до 5
             const avatarIndex = (sum % 5) + 1;
 
-            // 返回对应的头像图片
+            // Возврат соответствующего изображения аватара
             return require(`@/assets/user-avatar${avatarIndex}.png`);
         },
 
-        // 下载本会话聊天记录
+        // Скачивание записей чата текущей сессии
         downloadCurrentSession() {
             Api.agent.getDownloadUrl(this.agentId, this.currentSessionId, (res) => {
                 if (res && res.data && res.data.code === 0 && res.data.data) {
@@ -395,7 +395,7 @@ export default {
             });
         },
 
-        // 下载本会话及前20条会话聊天记录
+        // Скачивание записей чата текущей сессии и 20 предыдущих сессий
         downloadCurrentSessionWithPrevious() {
             Api.agent.getDownloadUrl(this.agentId, this.currentSessionId, (res) => {
                 if (res && res.data && res.data.code === 0 && res.data.data) {
@@ -458,7 +458,7 @@ export default {
     height: 30px;
     line-height: 30px;
     width: calc(100% - 30px);
-    /* 为消息数量留出空间 */
+    /* Оставляем место для количества сообщений */
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -642,6 +642,6 @@ export default {
     padding: 0;
     overflow: hidden;
     height: calc(90vh - 54px);
-    /* 减去标题栏的高度 */
+    /* Вычитание высоты заголовка */
 }
 </style>

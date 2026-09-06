@@ -8,7 +8,7 @@ from tabulate import tabulate
 from core.utils.vllm import create_instance
 from config.settings import load_config
 
-# 设置全局日志级别为WARNING，抑制INFO级别日志
+# Установите глобальный уровень журнала на предупреждение для подавления журналов уровня информации
 logging.basicConfig(level=logging.WARNING)
 
 description = "视觉识别模型性能测试"
@@ -27,26 +27,26 @@ class AsyncVisionPerformanceTester:
             "请详细描述这张图片的内容",
         ]
 
-        # 加载测试图片
+        # Загрузить тестовое изображение
         self.results = {"vllm": {}}
 
     async def _test_vllm(self, vllm_name: str, config: Dict) -> Dict:
         """异步测试单个视觉大模型性能"""
         try:
-            # 检查API密钥配置
+            # Проверить конфигурацию API-ключа
             if "api_key" in config and any(
                 x in config["api_key"] for x in ["你的", "placeholder", "sk-xxx"]
             ):
                 print(f"⏭️  VLLM {vllm_name} 未配置api_key，已跳过")
                 return {"name": vllm_name, "type": "vllm", "errors": 1}
 
-            # 获取实际类型（兼容旧配置）
+            # Получение фактического типа (совместимо с устаревшей конфигурацией)
             module_type = config.get("type", vllm_name)
             vllm = create_instance(module_type, config)
 
             print(f"🖼️ 测试 VLLM: {vllm_name}")
 
-            # 创建所有测试任务
+            # Создать все тестовые задачи
             test_tasks = []
             for question in self.test_questions:
                 for image in self.test_images:
@@ -54,10 +54,10 @@ class AsyncVisionPerformanceTester:
                         self._test_single_vision(vllm_name, vllm, question, image)
                     )
 
-            # 并发执行所有测试
+            # Выполнять все тесты одновременно
             test_results = await asyncio.gather(*test_tasks)
 
-            # 处理结果
+            # Результаты урегулирования
             valid_results = [r for r in test_results if r is not None]
             if not valid_results:
                 print(f"⚠️  {vllm_name} 无有效数据，可能配置错误")
@@ -65,7 +65,7 @@ class AsyncVisionPerformanceTester:
 
             response_times = [r["response_time"] for r in valid_results]
 
-            # 过滤异常数据
+            # Фильтр данных об исключениях
             mean = statistics.mean(response_times)
             stdev = statistics.stdev(response_times) if len(response_times) > 1 else 0
             filtered_times = [t for t in response_times if t <= mean + 3 * stdev]
@@ -96,12 +96,12 @@ class AsyncVisionPerformanceTester:
             print(f"📝 {vllm_name} 开始测试: {question[:20]}...")
             start_time = time.time()
 
-            # 读取图片并转换为base64
+            # Чтение изображений и преобразование в base64
             with open(image, "rb") as image_file:
                 image_data = image_file.read()
                 image_base64 = base64.b64encode(image_data).decode("utf-8")
 
-            # 直接获取响应
+            # Получите ответ напрямую
             response = vllm.response(question, image_base64)
             response_time = time.time() - start_time
             print(f"✓ {vllm_name} 完成响应: {response_time:.3f}s")
@@ -151,10 +151,10 @@ class AsyncVisionPerformanceTester:
             print(f"\n⚠️  {self.image_root} 路径下没有图片文件，无法进行测试")
             return
 
-        # 创建所有测试任务
+        # Создать все тестовые задачи
         all_tasks = []
 
-        # VLLM测试任务
+        # Тестовая задача VLLM
         if self.config.get("VLLM") is not None:
             for vllm_name, config in self.config.get("VLLM", {}).items():
                 if "api_key" in config and any(
@@ -170,15 +170,15 @@ class AsyncVisionPerformanceTester:
         print(f"✅ 使用 {len(self.test_questions)} 个测试问题")
         print("\n⏳ 开始并发测试所有模型...\n")
 
-        # 并发执行所有测试任务
+        # Выполнять все тестовые задания одновременно
         all_results = await asyncio.gather(*all_tasks, return_exceptions=True)
 
-        # 处理结果
+        # Результаты урегулирования
         for result in all_results:
             if isinstance(result, dict) and result["errors"] == 0:
                 self.results["vllm"][result["name"]] = result
 
-        # 打印结果
+        # Распечатать результаты
         print("\n📊 生成测试报告...")
         self._print_results()
 

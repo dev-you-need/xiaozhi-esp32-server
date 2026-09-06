@@ -3,7 +3,7 @@ package xiaozhi.common.exception;
 import xiaozhi.common.utils.MessageUtils;
 
 /**
- * 自定义异常
+ * Пользовательское исключение
  * Copyright (c) 人人开源 All rights reserved.
  * Website: https://www.renren.io
  */

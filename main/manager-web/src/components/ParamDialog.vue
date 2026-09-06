@@ -62,7 +62,7 @@ export default {
   props: {
     title: {
       type: String,
-      default: '新增参数'
+      default: 'Добавить параметры'
     },
     visible: {
       type: Boolean,
@@ -112,14 +112,14 @@ export default {
         if (valid) {
           const submitData = { ...this.form };
 
-          // 如果是 array 类型，校验格式并转换
+          // Если  "да ", ... array Модель，Проверка формата и преобразование
           if (submitData.valueType === 'array' && submitData.paramValue) {
             const lines = submitData.paramValue.split('\n').filter(line => line.trim());
 
-            // 检查除最后一行外的每行是否以分号结尾
+            // Проверка завершения каждой строки, кроме последней, точкой с запятой
             for (let i = 0; i < lines.length - 1; i++) {
               if (!lines[i].trim().endsWith(';')) {
-                this.$message.error('数组格式错误，需要使用英文分号结尾');
+                this.$message.error('Ошибка формата массива，Должен заканчиваться английской точкой с запятой');
                 return;
               }
             }
@@ -129,28 +129,28 @@ export default {
               .filter(item => item);
             submitData.paramValue = items.join(';');
           }
-          // 如果是 json 类型，压缩 JSON 格式后再提交
+          // Если  "да ", ... json Модель，Сжатие JSON Форматирование и отправка
           else if (submitData.valueType === 'json' && submitData.paramValue) {
             try {
               const parsed = JSON.parse(submitData.paramValue);
               submitData.paramValue = JSON.stringify(parsed);
             } catch (e) {
-              // 如果解析失败，保持原值
+              // Если разбор не удался，Сохранить исходное значение
             }
           }
 
-          this.saving = true; // 开始加载
+          this.saving = true; // Начало загрузки
           this.$emit('submit', submitData);
         }
       });
     },
     cancel() {
-      this.saving = false; // 取消时重置状态
+      this.saving = false; // Сброс состояния при отмене
       this.dialogKey = Date.now();
       this.$emit('cancel');
     },
 
-    // 提供给父组件调用以重置saving状态
+    // Предоставляется вызову родительского компонента для сбросаsavingСтатус
     resetSaving() {
       this.saving = false;
     }
@@ -159,23 +159,23 @@ export default {
     visible(newVal) {
       if (newVal) {
         if (this.form.paramValue) {
-          // 如果是 json 类型，格式化显示
+          // Если  "да ", ... json Модель，Отформатированный дисплей
           if (this.form.valueType === 'json') {
             try {
               const parsed = JSON.parse(this.form.paramValue);
               this.form.paramValue = JSON.stringify(parsed, null, 2);
             } catch (e) {
-              // 如果解析失败，保持原值
+              // Если разбор не удался，Сохранить исходное значение
             }
           }
-          // 如果是 array 类型，将分号分隔的字符串转换为每行一个项目
+          // Если  "да ", ... array Модель，Преобразование строк, разделенных точкой с запятой, в один элемент на строку
           else if (this.form.valueType === 'array') {
             const items = this.form.paramValue.split(';').filter(item => item.trim());
             this.form.paramValue = items.join(';\n');
           }
         }
       } else {
-        // 当对话框关闭时，重置saving状态
+        // Когда диалоговое окно закрыто，СбросsavingСтатус
         this.saving = false;
       }
     }

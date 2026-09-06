@@ -12,15 +12,15 @@ public class AESUtils {
     private static final String TRANSFORMATION = "AES/ECB/PKCS5Padding";
 
     /**
-     * AES加密
+     * Шифрование AES
      * 
-     * @param key       密钥（16位、24位或32位）
-     * @param plainText 待加密字符串
-     * @return 加密后的Base64字符串
+     * @param key       ключ (16, 24 или 32 байта)
+     * @param plainText строка для шифрования
+     * @return зашифрованная строка в Base64
      */
     public static String encrypt(String key, String plainText) {
         try {
-            // 确保密钥长度为16、24或32位
+            // Убедиться, что длина ключа составляет 16, 24 или 32 байта
             byte[] keyBytes = padKey(key.getBytes(StandardCharsets.UTF_8));
             SecretKeySpec secretKey = new SecretKeySpec(keyBytes, ALGORITHM);
 
@@ -35,15 +35,15 @@ public class AESUtils {
     }
 
     /**
-     * AES解密
+     * Дешифрование AES
      * 
-     * @param key           密钥（16位、24位或32位）
-     * @param encryptedText 待解密的Base64字符串
-     * @return 解密后的字符串
+     * @param key           ключ (16, 24 или 32 байта)
+     * @param encryptedText зашифрованная строка в Base64
+     * @return расшифрованная строка
      */
     public static String decrypt(String key, String encryptedText) {
         try {
-            // 确保密钥长度为16、24或32位
+            // Убедиться, что длина ключа составляет 16, 24 или 32 байта
             byte[] keyBytes = padKey(key.getBytes(StandardCharsets.UTF_8));
             SecretKeySpec secretKey = new SecretKeySpec(keyBytes, ALGORITHM);
 
@@ -59,10 +59,10 @@ public class AESUtils {
     }
 
     /**
-     * 填充密钥到指定长度（16、24或32位）
+     * Дополнение ключа до нужной длины (16, 24 или 32 байта)
      * 
-     * @param keyBytes 原始密钥字节数组
-     * @return 填充后的密钥字节数组
+     * @param keyBytes исходный массив байтов ключа
+     * @return дополненный массив байтов ключа
      */
     private static byte[] padKey(byte[] keyBytes) {
         int keyLength = keyBytes.length;
@@ -70,7 +70,7 @@ public class AESUtils {
             return keyBytes;
         }
 
-        // 如果密钥长度不足，用0填充；如果超过，截取前32位
+        // Если длина ключа недостаточна — дополнить нулями; если превышает — обрезать до 32 байт
         byte[] paddedKey = new byte[32];
         System.arraycopy(keyBytes, 0, paddedKey, 0, Math.min(keyLength, 32));
         return paddedKey;

@@ -51,7 +51,7 @@ class BaseASRTester:
 
     def _calculate_result(self, service_name, latencies, test_count):
         """计算测试结果（修复：正确处理None值，剔除失败测试）"""
-        # 剔除None值（失败的测试）和无效延迟，只统计有效延迟
+        # Исключить значения None (неудачные тесты) и недопустимые задержки, учитываются только допустимые задержки
         valid_latencies = [l for l in latencies if l is not None and l > 0]
         if valid_latencies:
             avg_latency = sum(valid_latencies) / len(valid_latencies)
@@ -107,7 +107,7 @@ class DoubaoStreamASRTester(BaseASRTester):
                     if audio_data.startswith(b'RIFF'):
                         audio_data = audio_data[44:]
 
-                    # 发送音频数据（使用最后一帧标记，告诉服务端音频已结束）
+                    # Отправка аудиоданных (используйте последний тег кадра, чтобы сообщить серверу, что аудио закончилось)
                     payload = gzip.compress(audio_data)
                     audio_request = bytearray(self.provider.generate_last_audio_default_header())
                     audio_request.extend(len(payload).to_bytes(4, "big"))
@@ -137,7 +137,7 @@ class QwenASRFlashTester(BaseASRTester):
         try:
             audio_data = audio_file_info['data']
 
-            # 优化：将临时文件准备工作移到计时前，减少磁盘IO对性能测试的影响
+            # Оптимизация: Уменьшите влияние дискового ввода-вывода на тестирование производительности, переместив временную подготовку файлов на перед таймингом
             with tempfile.NamedTemporaryFile(suffix='.wav', delete=False) as f:
                 temp_file_path = f.name
 
@@ -165,7 +165,7 @@ class QwenASRFlashTester(BaseASRTester):
 
             dashscope.api_key = api_key
 
-            # 统一计时起点：在API调用前开始计时（但文件准备已完成）
+            # Начало единого времени: начало времени до вызова API (но подготовка файла завершена)
             start_time = time.time()
 
             response = dashscope.MultiModalConversation.call(
@@ -266,7 +266,7 @@ class XunfeiStreamASRTester(BaseASRTester):
                     close_timeout=30,
                 ) as ws:
 
-                    # 第一帧：移除 punc 字段，避免未知参数错误
+                    # Первый кадр: удалите поле punc, чтобы избежать ошибок неизвестных параметров
                     await ws.send(json.dumps({
                         "common": {"app_id": self.asr_config["app_id"]},
                         "business": {
@@ -275,7 +275,7 @@ class XunfeiStreamASRTester(BaseASRTester):
                             "accent": "mandarin",
                             "dwa": "wpgs",
                             "vad_eos": 5000
-                            # 已移除 "punc": True
+                            # Удалено "punc": True
                         },
                         "data": {
                             "status": 0,
@@ -285,7 +285,7 @@ class XunfeiStreamASRTester(BaseASRTester):
                         }
                     }, ensure_ascii=False))
 
-                    # 后续所有帧
+                    # Все последующие кадры
                     pos = frame_size
                     while pos < len(audio_raw):
                         chunk = audio_raw[pos:pos + frame_size]
@@ -302,7 +302,7 @@ class XunfeiStreamASRTester(BaseASRTester):
                             break
                         pos += frame_size
 
-                    # 接收首词
+                    # Получить инициалы
                     first_token = True
                     async for message in ws:
                         data = json.loads(message)

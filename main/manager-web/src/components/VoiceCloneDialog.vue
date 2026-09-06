@@ -7,7 +7,7 @@
         @close="handleDialogClose"
     >
         <div class="dialog-content">
-            <!-- 步骤指示器 -->
+            <!-- шагСигнализатор -->
             <div class="steps-header">
                 <div class="step-item" :class="{ 'active': currentStep === 1, 'completed': currentStep > 1 }">
                     <div class="step-number">
@@ -26,7 +26,7 @@
                 </div>
             </div>
 
-            <!-- 步骤1: 音频上传 -->
+            <!-- шаг1: Загрузка аудио -->
             <div v-if="currentStep === 1" class="step-content">
                 <div class="upload-area">
                     <el-upload class="audio-uploader" drag :action="uploadAction" :auto-upload="false"
@@ -38,7 +38,7 @@
                 </div>
             </div>
 
-            <!-- 步骤2: 音频编辑 -->
+            <!-- шаг2: Редактирование аудио -->
             <div v-if="currentStep === 2" class="step-content">
                 <div class="audio-edit-area">
                     <div class="edit-tips">
@@ -46,7 +46,7 @@
                         <p>{{ $t('voiceClone.editTip2') }}</p>
                     </div>
 
-                    <!-- 波形显示区域 -->
+                    <!-- Область отображения кривой -->
                     <div class="waveform-container">
                         <canvas ref="waveformCanvas" class="waveform-canvas" @mousedown="handleWaveformMouseDown"
                             @mousemove="handleWaveformMouseMove" @mouseup="handleWaveformMouseUp"></canvas>
@@ -57,7 +57,7 @@
                         </div>
                     </div>
 
-                    <!-- 音频控制按钮 -->
+                    <!-- Кнопки управления аудио -->
                     <div class="audio-controls">
                         <el-button size="small" :icon="isPlaying ? 'el-icon-video-pause' : 'el-icon-video-play'"
                             @click="togglePlay" type="primary">
@@ -72,7 +72,7 @@
                         </el-button>
                     </div>
 
-                    <!-- 音频元素 -->
+                    <!-- Аудиоэлемент -->
                     <audio ref="audioPlayer" @timeupdate="handleTimeUpdate" @ended="handleAudioEnded"
                         style="display: none;"></audio>
                 </div>
@@ -120,14 +120,14 @@ export default {
             originalAudioBuffer: null,
             isPlaying: false,
             uploading: false,
-            // 波形相关
+            // Корреляция кривой
             waveformData: [],
-            // 选择相关
+            // Выберите Связанные
             isSelecting: false,
             selectionStart: null,
             selectionEnd: null,
             mouseStartX: 0,
-            // 音频上下文
+            // Аудиоконтекст
             audioContext: null,
             audioSource: null,
         };
@@ -197,10 +197,10 @@ export default {
             this.audioFile = file.raw;
             this.originalAudioFile = file.raw;
 
-            // 先进入第二步,确保DOM已渲染
+            // Сначала перейдите к шагу 2,убеждатьсяDOMОтражено
             this.currentStep = 2;
 
-            // 等待DOM更新后再加载音频
+            // ОжиданиеDOMОбновление, затем загрузка аудио
             await this.$nextTick();
             await this.loadAudio(file.raw);
         },
@@ -213,18 +213,18 @@ export default {
                 this.audioBuffer = await this.audioContext.decodeAudioData(arrayBuffer.slice(0));
                 this.originalAudioBuffer = await this.audioContext.decodeAudioData(await file.arrayBuffer());
 
-                // 设置音频播放器
+                // Установка аудиоплеера
                 if (this.$refs.audioPlayer) {
                     const audioUrl = URL.createObjectURL(file);
                     this.$refs.audioPlayer.src = audioUrl;
-                    // 加载音频元数据
+                    // Загрузка метаданных аудио
                     this.$refs.audioPlayer.load();
                 }
 
-                // 生成波形数据
+                // Генерация данных формы волны
                 await this.generateWaveform();
             } catch (error) {
-                console.error('加载音频失败:', error);
+                console.error('Ошибка загрузки аудио:', error);
                 this.$message.error(this.$t('voiceClone.loadAudioFailed'));
             }
         },
@@ -234,11 +234,11 @@ export default {
             await this.$nextTick();
             const canvas = this.$refs.waveformCanvas;
             if (!canvas) {
-                console.error('Canvas元素不存在');
+                console.error('CanvasЭлемент не существует');
                 return;
             }
 
-            // 设置canvas大小
+            // НастройкиcanvasРазмер
             const containerWidth = canvas.parentElement.offsetWidth;
             const containerHeight = canvas.parentElement.offsetHeight;
             canvas.width = containerWidth || 800;
@@ -263,7 +263,7 @@ export default {
         drawWaveform() {
             const canvas = this.$refs.waveformCanvas;
             if (!canvas) {
-                console.error('绘制波形时Canvas不存在');
+                console.error('Отрисовка формы волны Canvas id не существует.');
                 return;
             }
 
@@ -271,22 +271,22 @@ export default {
             const width = canvas.width;
             const height = canvas.height;
 
-            // 清空画布
+            // Очистка холста
             ctx.clearRect(0, 0, width, height);
 
-            // 绘制背景
+            // Отрисовка фона
             ctx.fillStyle = '#e0f2ff';
             ctx.fillRect(0, 0, width, height);
 
             if (this.waveformData.length === 0) {
-                console.error('波形数据为空');
+                console.error('Данные кривой пусты');
                 return;
             }
 
-            // 找到最大值用于归一化
+            // Найдите максимальное значение для нормализации
             const maxValue = Math.max(...this.waveformData);
 
-            // 绘制波形
+            // Отрисовка формы волны
             ctx.fillStyle = '#4ade80';
             ctx.strokeStyle = '#4ade80';
             ctx.lineWidth = 1;
@@ -294,7 +294,7 @@ export default {
             const barWidth = width / this.waveformData.length;
 
             this.waveformData.forEach((value, index) => {
-                // 归一化并放大，使用80%的高度
+                // Нормализация и увеличение，Эксплуатация 80%Высота
                 const normalizedValue = maxValue > 0 ? value / maxValue : 0;
                 const barHeight = Math.max(1, normalizedValue * height * 0.8);
                 const x = index * barWidth;
@@ -328,7 +328,7 @@ export default {
             const start = Math.min(this.selectionStart, this.selectionEnd);
             const end = Math.max(this.selectionStart, this.selectionEnd);
 
-            // 创建新的音频buffer
+            // Создание нового аудиоbuffer
             const duration = this.audioBuffer.duration;
             const startTime = start * duration;
             const endTime = end * duration;
@@ -352,14 +352,14 @@ export default {
 
             this.audioBuffer = newBuffer;
 
-            // 更新音频文件
+            // Обновление аудиофайла
             await this.bufferToFile(newBuffer);
 
-            // 重置选择
+            // Сбросить выбор
             this.selectionStart = null;
             this.selectionEnd = null;
 
-            // 重新生成波形
+            // Повторная генерация формы волны
             this.generateWaveform();
 
             this.$message.success(this.$t('voiceClone.trimSuccess'));
@@ -385,18 +385,18 @@ export default {
             }
         },
         handleTimeUpdate() {
-            // 可以在这里更新播放进度
+            // Прогресс воспроизведения можно обновить здесь
         },
         handleAudioEnded() {
             this.isPlaying = false;
         },
         async bufferToFile(buffer) {
-            // 将AudioBuffer转换为WAV文件
+            // -AudioBufferСтоимостьWAVДокументация:  
             const wav = this.audioBufferToWav(buffer);
             const blob = new Blob([wav], { type: 'audio/wav' });
             this.audioFile = new File([blob], 'audio.wav', { type: 'audio/wav' });
 
-            // 更新播放器
+            // Обновление плеера
             await this.$nextTick();
             if (this.$refs.audioPlayer) {
                 const audioUrl = URL.createObjectURL(blob);
@@ -411,7 +411,7 @@ export default {
             let offset = 0;
             let pos = 0;
 
-            // 写入WAV文件头
+            // ЗаписьWAVЗаголовок файла
             const setUint16 = (data) => {
                 view.setUint16(pos, data, true);
                 pos += 2;
@@ -440,7 +440,7 @@ export default {
             setUint32(0x61746164); // "data"
             setUint32(length - pos - 4); // SubChunk2Size
 
-            // 写入音频数据
+            // Запись аудиоданных
             for (let i = 0; i < buffer.numberOfChannels; i++) {
                 channels.push(buffer.getChannelData(i));
             }
@@ -459,14 +459,14 @@ export default {
         },
         async handleNext() {
             if (this.currentStep === 1) {
-                // 验证是否已选择文件
+                // Убедитесь, что выбран файл
                 if (!this.audioFile) {
                     this.$message.warning(this.$t('voiceClone.pleaseSelectAudio'));
                     return;
                 }
                 this.currentStep = 2;
             } else {
-                // 上传音频
+                // Загрузить аудио
                 await this.uploadAudio();
             }
         },
@@ -476,7 +476,7 @@ export default {
                 return;
             }
 
-            // 验证音频时长（8-60秒）
+            // Проверить продолжительность звука（8-60второй）
             if (this.audioBuffer) {
                 const duration = this.audioBuffer.duration;
                 if (duration < 8 || duration > 60) {
@@ -506,13 +506,13 @@ export default {
                 });
             } catch (error) {
                 this.uploading = false;
-                console.error('上传音频失败:', error);
+                console.error('Не удалось загрузить аудио:', error);
                 this.$message.error(this.$t('voiceClone.uploadFailed'));
             }
         }
     },
     mounted() {
-        // 设置canvas大小
+        // НастройкиcanvasРазмер
         this.$nextTick(() => {
             const canvas = this.$refs.waveformCanvas;
             if (canvas) {

@@ -36,8 +36,8 @@ import xiaozhi.common.exception.ErrorCode;
 import xiaozhi.common.exception.RenException;
 
 /**
- * RAGFlow HTTP Client
- * 统一处理HTTP通信、鉴权、超时与错误解析
+ * HTTP-клиент RAGFlow
+ * Унифицированная обработка HTTP-коммуникаций, аутентификация, тайм-ауты и устранение ошибок
  */
 @Slf4j
 public class RAGFlowClient {
@@ -47,7 +47,7 @@ public class RAGFlowClient {
     private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper;
 
-    // 默认超时时间 (秒)
+    //Время ожидания по умолчанию (секунды)
     private static final int DEFAULT_TIMEOUT = 30;
 
     public RAGFlowClient(String baseUrl, String apiKey) {
@@ -58,12 +58,12 @@ public class RAGFlowClient {
         this.baseUrl = baseUrl.endsWith("/") ? baseUrl.substring(0, baseUrl.length() - 1) : baseUrl;
         this.apiKey = apiKey;
         this.objectMapper = new ObjectMapper();
-        // [Reinforce] 兼容 RAGFlow 返回的 RFC 1123 日期格式 (如: Tue, 10 Feb 2026 10:27:35 GMT)
+        //[Reinforce] совместим с форматом даты RFC 1123, возвращаемым RAGFlow (например, Tue, 10 Feb 2026 10:27:35 GMT)
         this.objectMapper
                 .setDateFormat(new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss 'GMT'", Locale.US));
         this.objectMapper.setTimeZone(TimeZone.getTimeZone("GMT"));
 
-        // 优先从 Spring 上下文中获取池化的 RestTemplate Bean (Issue 3: 连接池化)
+        //Предпочитаем получить пул RestTemplate Bean из контекста Spring (Проблема 3: Пул подключений)
         RestTemplate pooledTemplate = null;
         try {
             pooledTemplate = xiaozhi.common.utils.SpringContextUtils.getBean(RestTemplate.class);
@@ -75,7 +75,7 @@ public class RAGFlowClient {
             this.restTemplate = pooledTemplate;
             log.debug("RAGFlowClient 已成功挂载全局池化 RestTemplate");
         } else {
-            // 兜底方案：配置超时并创建简单 RestTemplate
+            //Схема Pocket-bottom: Настройте таймаут и создайте простой RestTemplate
             log.info("RAGFlowClient 初始化: 使用独立 RestTemplate (Debug Mode)");
             SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
             factory.setConnectTimeout(timeoutSeconds * 1000);
@@ -85,7 +85,7 @@ public class RAGFlowClient {
     }
 
     /**
-     * 发送 GET 请求
+     * Отправить GET-запрос
      */
     public Map<String, Object> get(String endpoint, Map<String, Object> queryParams) {
         String url = buildUrl(endpoint, queryParams);
@@ -94,7 +94,7 @@ public class RAGFlowClient {
     }
 
     /**
-     * 发送 POST 请求 (JSON)
+     * Отправить POST-запрос (JSON)
      */
     public Map<String, Object> post(String endpoint, Object body) {
         String url = buildUrl(endpoint, null);
@@ -109,7 +109,7 @@ public class RAGFlowClient {
     }
 
     /**
-     * 发送 DELETE 请求
+     * Отправить запрос на удаление
      */
     public Map<String, Object> delete(String endpoint, Object body) {
         String url = buildUrl(endpoint, null);
@@ -118,7 +118,7 @@ public class RAGFlowClient {
     }
 
     /**
-     * 发送 PUT 请求
+     * Отправить PUT-запрос
      */
     public Map<String, Object> put(String endpoint, Object body) {
         String url = buildUrl(endpoint, null);
@@ -127,7 +127,7 @@ public class RAGFlowClient {
     }
 
     /**
-     * 发送 Multipart 请求 (文件上传)
+     * Отправить составной запрос (загрузка файла)
      */
     public Map<String, Object> postMultipart(String endpoint, MultiValueMap<String, Object> parts) {
         String url = buildUrl(endpoint, null);
@@ -136,7 +136,7 @@ public class RAGFlowClient {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
         headers.setBearerAuth(apiKey);
-        // 为了防止中文文件名乱码，某些环境可能需要设置 Charset，但在 Multipart 中通常由 Part header 控制
+        //Чтобы предотвратить искажение китайских имен файлов, в некоторых средах может потребоваться настройка набора символов, но обычно он контролируется заголовком Part в Multipart
 
         HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(parts, headers);
 
@@ -147,7 +147,7 @@ public class RAGFlowClient {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.setBearerAuth(apiKey);
-        // 强制 UTF-8
+        //Force UTF-8
         headers.setAcceptCharset(Collections.singletonList(StandardCharsets.UTF_8));
 
         HttpEntity<Object> requestEntity = new HttpEntity<>(body, headers);
@@ -178,12 +178,12 @@ public class RAGFlowClient {
                 throw new RenException(ErrorCode.RAG_API_ERROR, msg != null ? msg : "Unknown RAGFlow Error");
             }
 
-            // 返回 data 字段，如果 data 不存在则返回整个 map (视具体情况，通常 RAGFlow 返回 code=0, data=...)
-            // 兼容性处理：如果 external caller 需要 check code，这里已经 check 过了。
-            // 统一返回 wrap 了 code 的 map 还是只返回 data?
-            // 根据分析报告，旧逻辑 check code==0 后取 data.
-            // 这里我们返回整个 Map，让 Adapter 决定怎么取，或者我们直接在这里剥离？
-            // 建议：为了灵活性，返回全量 Map，但在 Client 层做 code!=0 的抛错。
+            //Возвращает поле данных или всю карту, если данных не существует (обычно RAGFlow возвращает code = 0, data =..., в зависимости от обстоятельств)
+            //Обработка совместимости: Если внешнему вызывающему абоненту нужен проверочный код, он уже был проверен здесь.
+            //Равномерно вернуть карту с кодом обёртки или только данные?
+            //Согласно отчету об анализе, данные берутся после старого кода логической проверки = = 0.
+            //Здесь мы возвращаемся ко всей карте и позволяем адаптеру решить, как ее получить, или мы просто снимаем ее здесь?
+            //Рекомендация: Для гибкости верните полное количество Map, но сделайте ошибку throwing with code! = 0 на слое Client.
             return map;
 
         } catch (RenException re) {
@@ -218,19 +218,19 @@ public class RAGFlowClient {
                     }
                 }
             });
-            // 移除最后一个 &
+            //удалить последнее &
             sb.setLength(sb.length() - 1);
         }
         return sb.toString();
     }
 
     /**
-     * 发送流式 POST 请求 (SSE)
-     * 使用 Java 21 HttpClient 实现
+     * Отправлять потоковые запросы Post (SSE)
+     * Реализовано с Java 21 HttpClient
      *
-     * @param endpoint API端点
-     * @param body     请求体
-     * @param onData   数据回调（每收到一行数据调用一次）
+     * @ param endpoint API endpoint
+     * @ param body request body
+     * @ param onData data callback (один раз за полученный вызов данных строки)
      */
     public void postStream(String endpoint, Object body, Consumer<String> onData) {
         try {
@@ -250,7 +250,7 @@ public class RAGFlowClient {
                     .POST(HttpRequest.BodyPublishers.ofString(jsonBody, StandardCharsets.UTF_8))
                     .build();
 
-            // 发送请求并处理流式响应
+            //Отправка запросов и обработка потоковых ответов
             httpClient.send(request, HttpResponse.BodyHandlers.ofInputStream())
                     .body()
                     .transferTo(new OutputStream() {

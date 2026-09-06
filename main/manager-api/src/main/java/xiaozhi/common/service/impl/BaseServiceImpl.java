@@ -32,7 +32,7 @@ import xiaozhi.common.service.BaseService;
 import xiaozhi.common.utils.ConvertUtils;
 
 /**
- * 基础服务类，所有Service都要继承
+ * Базовый класс сервиса, который должны наследовать все сервисы
  * Copyright (c) 人人开源 All rights reserved.
  * Website: https://www.renren.io
  */
@@ -42,20 +42,20 @@ public abstract class BaseServiceImpl<M extends BaseMapper<T>, T> implements Bas
     protected Log log = LogFactory.getLog(getClass());
 
     /**
-     * 获取分页对象
+     * Получение объекта постраничного разбиения
      *
-     * @param params            分页查询参数
-     * @param defaultOrderField 默认排序字段
-     * @param isAsc             排序方式
+     * @param params            параметры запроса с постраничным разбиением
+     * @param defaultOrderField поле сортировки по умолчанию
+     * @param isAsc             Способ сортировки
      * @see xiaozhi.common.constant.Constant
      *      params.put(Constant.PAGE, "1");
      *      params.put(Constant.LIMIT, "10");
-     *      params.put(Constant.ORDER_FIELD, "field"); // 单个字段
-     *      params.put(Constant.ORDER_FIELD, List.of("field1", "field2")); // 多个字段
+     *      params.put(Constant.ORDER_FIELD, "field"); // одно поле
+     *      params.put(Constant.ORDER_FIELD, List.of("field1", "field2")); // несколько полей
      *      params.put(Constant.ORDER, "asc");
      */
     protected IPage<T> getPage(Map<String, Object> params, String defaultOrderField, boolean isAsc) {
-        // 分页参数
+        // Параметры постраничного разбиения
         long curPage = 1;
         long limit = 10;
 
@@ -66,26 +66,26 @@ public abstract class BaseServiceImpl<M extends BaseMapper<T>, T> implements Bas
             limit = Long.parseLong((String) params.get(Constant.LIMIT));
         }
 
-        // 分页对象
+        // Объект постраничного разбиения
         Page<T> page = new Page<>(curPage, limit);
 
-        // 分页参数
+        // Параметры постраничного разбиения
         params.put(Constant.PAGE, page);
 
-        // 排序字段
+        // Поле сортировки
         Object orderField = params.get(Constant.ORDER_FIELD);
         String order = (String) params.get(Constant.ORDER);
 
         List<String> orderFields = new ArrayList<>();
 
-        // 处理排序字段
+        // Обработка полей сортировки
         if (orderField instanceof String) {
             orderFields.add((String) orderField);
         } else if (orderField instanceof List<?> fields) {
             fields.forEach(field -> orderFields.add(String.class.cast(field)));
         }
 
-        // 有排序字段则排序
+        // Если есть поле сортировки — сортировать
         if (CollectionUtils.isNotEmpty(orderFields)) {
             if (StringUtils.isNotBlank(order) && Constant.ASC.equalsIgnoreCase(order)) {
                 return page.addOrder(OrderItem.ascs(orderFields.toArray(new String[0])));
@@ -94,7 +94,7 @@ public abstract class BaseServiceImpl<M extends BaseMapper<T>, T> implements Bas
             }
         }
 
-        // 没有排序字段，使用默认排序
+        // Нет полей сортировки, использовать сортировку по умолчанию
         if (StringUtils.isNotBlank(defaultOrderField)) {
             if (isAsc) {
                 page.addOrder(OrderItem.asc(defaultOrderField));
@@ -129,13 +129,13 @@ public abstract class BaseServiceImpl<M extends BaseMapper<T>, T> implements Bas
 
     /**
      * <p>
-     * 判断数据库操作是否成功
+     * Проверка успешности операции с базой данных
      * </p>
      * <p>
-     * 注意！！ 该方法为 Integer 判断，不可传入 int 基本类型
+     * Внимание!! Данный метод использует Integer, нельзя передавать примитив int
      * </p>
      *
-     * @param result 数据库操作返回影响条数
+     * @param result количество затронутых строк
      * @return boolean
      */
     protected static boolean retBool(Integer result) {
@@ -169,7 +169,7 @@ public abstract class BaseServiceImpl<M extends BaseMapper<T>, T> implements Bas
     }
 
     /**
-     * 批量插入
+     * Пакетная вставка
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -179,7 +179,7 @@ public abstract class BaseServiceImpl<M extends BaseMapper<T>, T> implements Bas
     }
 
     /**
-     * 执行批量操作
+     * Выполнение пакетной операции
      */
     @SuppressWarnings("deprecation")
     protected <E> boolean executeBatch(Collection<E> list, int batchSize, BiFunction<SqlSession, E, Integer> operation) {

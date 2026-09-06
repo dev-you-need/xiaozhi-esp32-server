@@ -3,9 +3,11 @@ package xiaozhi.modules.agent.dto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
+
 /**
- * 智能体聊天记录总结DTO
+ * DTO итогов записи чата агента
  */
+
 @Data
 @Schema(description = "智能体聊天记录总结对象")
 public class AgentChatSummaryDTO {

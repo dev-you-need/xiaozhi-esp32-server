@@ -1,18 +1,18 @@
 export enum ResultEnum {
-  Success = 0, // 成功
-  Error = 400, // 错误
-  Unauthorized = 401, // 未授权
-  Forbidden = 403, // 禁止访问（原为forbidden）
-  NotFound = 404, // 未找到（原为notFound）
-  MethodNotAllowed = 405, // 方法不允许（原为methodNotAllowed）
-  RequestTimeout = 408, // 请求超时（原为requestTimeout）
-  InternalServerError = 500, // 服务器错误（原为internalServerError）
-  NotImplemented = 501, // 未实现（原为notImplemented）
-  BadGateway = 502, // 网关错误（原为badGateway）
-  ServiceUnavailable = 503, // 服务不可用（原为serviceUnavailable）
-  GatewayTimeout = 504, // 网关超时（原为gatewayTimeout）
-  HttpVersionNotSupported = 505, // HTTP版本不支持（原为httpVersionNotSupported）
-  MixedContent = 600, // 混合内容错误（HTTPS页面请求HTTP接口）
+  Success = 0, // Успех
+  Error = 400, // Ошибка
+  Unauthorized = 401, // Не авторизован
+  Forbidden = 403, // Доступ запрещен (было forbidden)
+  NotFound = 404, // Не найдено (было notFound)
+  MethodNotAllowed = 405, // Метод не разрешен (было methodNotAllowed)
+  RequestTimeout = 408, // Тайм-аут запроса (было requestTimeout)
+  InternalServerError = 500, // Ошибка сервера (было internalServerError)
+  NotImplemented = 501, // Не реализовано (было notImplemented)
+  BadGateway = 502, // Ошибка шлюза (было badGateway)
+  ServiceUnavailable = 503, // Сервис недоступен (было serviceUnavailable)
+  GatewayTimeout = 504, // Тайм-аут шлюза (было gatewayTimeout)
+  HttpVersionNotSupported = 505, // Версия HTTP не поддерживается (было httpVersionNotSupported)
+  MixedContent = 600, // Ошибка смешанного контента (страница HTTPS запрашивает интерфейс HTTP)
 }
 export enum ContentTypeEnum {
   JSON = 'application/json;charset=UTF-8',
@@ -20,51 +20,51 @@ export enum ContentTypeEnum {
   FORM_DATA = 'multipart/form-data;charset=UTF-8',
 }
 /**
- * 根据状态码，生成对应的错误信息
- * @param {number|string} status 状态码
- * @returns {string} 错误信息
+ * Генерация соответствующего сообщения об ошибке по коду состояния
+ * @param {number|string} status Код состояния
+ * @returns {string} Сообщение об ошибке
  */
 export function ShowMessage(status: number | string): string {
   let message: string
   switch (status) {
     case 400:
-      message = '请求错误(400)'
+      message = 'Ошибка запроса(400)'
       break
     case 401:
-      message = '未授权，请重新登录(401)'
+      message = 'Не авторизован, войдите снова(401)'
       break
     case 403:
-      message = '拒绝访问(403)'
+      message = 'Доступ запрещен(403)'
       break
     case 404:
-      message = '请求出错(404)'
+      message = 'Ошибка запроса(404)'
       break
     case 408:
-      message = '请求超时(408)'
+      message = 'Тайм-аут запроса(408)'
       break
     case 500:
-      message = '服务器错误(500)'
+      message = 'Ошибка сервера(500)'
       break
     case 501:
-      message = '服务未实现(501)'
+      message = 'Сервис не реализован(501)'
       break
     case 502:
-      message = '网络错误(502)'
+      message = 'Ошибка сети(502)'
       break
     case 503:
-      message = '服务不可用(503)'
+      message = 'Сервис недоступен(503)'
       break
     case 504:
-      message = '网络超时(504)'
+      message = 'Тайм-аут сети(504)'
       break
     case 505:
-      message = 'HTTP版本不受支持(505)'
+      message = 'Версия HTTP не поддерживается(505)'
       break
     case 600:
-      message = '混合内容错误(600)'
+      message = 'Ошибка смешанного контента(600)'
       break
     default:
-      message = `连接出错(${status})!`
+      message = `Ошибка подключения(${status})!`
   }
-  return `${message}，请检查网络或联系管理员！`
+  return `${message}, проверьте сеть или обратитесь к администратору!`
 }
